@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 1 – đang thực hiện
+Phase 2 – đang thực hiện
 
 ## Checklist từng Phase
 
@@ -20,14 +20,14 @@ Phase 1 – đang thực hiện
 - [x] Commit phase0
 
 ### Phase 1 – Core single-cycle + SoC tối thiểu
-- [ ] rv_pkg, decoder, imm_gen, alu, regfile, csr_file tối thiểu
-- [ ] rv_core_sc
-- [ ] ram_dp, dbus_xbar, apb_bridge, sim_ctrl, rst_sync, soc_top
-- [ ] tb_soc
-- [ ] env riscv-tests, run_isa.py
-- [ ] compare_spike.py
-- [ ] C hello qua SIM_CTRL
-- [ ] Yosys đọc được RTL
+- [x] rv_pkg, decoder, imm_gen, alu, regfile, csr_file tối thiểu
+- [x] rv_core_sc
+- [x] ram_dp, dbus_xbar, apb_bridge, sim_ctrl, rst_sync, soc_top
+- [x] tb_soc
+- [x] env riscv-tests, run_isa.py
+- [x] compare_spike.py
+- [x] C hello qua SIM_CTRL
+- [x] Yosys đọc được RTL
 
 ### Phase 2 – Pipeline RV32I
 - [ ] Pipeline 5 tầng, forwarding, hazard, BP_MODE=0
@@ -68,7 +68,7 @@ Phase 1 – đang thực hiện
 
 ## Kết quả regression gần nhất
 
-(chưa chạy)
+- 22/10/2026 Phase 1: `run_isa.py --config sc` rv32ui 41 PASS / 0 FAIL / 1 EXCLUDED (ma_data); `compare_spike.py --config sc` 41/41 MATCH; hello (CONSOLE=sim) PASS trên sc và m1c1_bp2; lint sạch 8 cấu hình; Yosys elaborate rv_core_sc/rv_core/soc_top OK.
 
 ## BLOCKED
 
