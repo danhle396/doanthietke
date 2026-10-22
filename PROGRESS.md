@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 2 – đang thực hiện
+Phase 3 – đang thực hiện
 
 ## Checklist từng Phase
 
@@ -30,10 +30,10 @@ Phase 2 – đang thực hiện
 - [x] Yosys đọc được RTL
 
 ### Phase 2 – Pipeline RV32I
-- [ ] Pipeline 5 tầng, forwarding, hazard, BP_MODE=0
-- [ ] rv32ui pass, khớp Spike
-- [ ] tb_regfile, tb_alu
-- [ ] lint sạch
+- [x] Pipeline 5 tầng, forwarding, hazard, BP_MODE=0
+- [x] rv32ui pass, khớp Spike
+- [x] tb_regfile, tb_alu
+- [x] lint sạch
 
 ### Phase 3 – M và C
 - [ ] muldiv, compressed_decoder
@@ -69,6 +69,7 @@ Phase 2 – đang thực hiện
 ## Kết quả regression gần nhất
 
 - 22/10/2026 Phase 1: `run_isa.py --config sc` rv32ui 41 PASS / 0 FAIL / 1 EXCLUDED (ma_data); `compare_spike.py --config sc` 41/41 MATCH; hello (CONSOLE=sim) PASS trên sc và m1c1_bp2; lint sạch 8 cấu hình; Yosys elaborate rv_core_sc/rv_core/soc_top OK.
+- 22/10/2026 Phase 2: ma trận riscv-tests (6 cấu hình) 0 FAIL; Spike 4 cấu hình MATCH (KNOWN: marchid, misa); tb_alu (15440 checks), tb_regfile (40134 checks) PASS; lint sạch.
 
 ## BLOCKED
 
