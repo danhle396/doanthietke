@@ -1,0 +1,7 @@
+# synth_ecp5.ys - Lattice ECP5 synthesis; the JSON netlist goes to nextpnr-ecp5
+# (--85k --package CABGA756) for an Fmax estimate. Filled in by synth_report.py.
+read_verilog -sv -DSYNTHESIS {files}
+{chparam}
+hierarchy -check -top {top}
+synth_ecp5 -top {top} -json {json}
+stat

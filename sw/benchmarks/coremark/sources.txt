@@ -1,0 +1,1 @@
+${TP}/coremark/core_list_join.c ${TP}/coremark/core_main.c ${TP}/coremark/core_matrix.c ${TP}/coremark/core_state.c ${TP}/coremark/core_util.c

@@ -23,6 +23,15 @@ rtl/core_sc/rv_core_sc.sv
 rtl/mem/ram_dp.sv
 rtl/bus/dbus_xbar.sv
 rtl/bus/apb_bridge.sv
+rtl/periph/sync_fifo.sv
+rtl/periph/uart/uart_tx.sv
+rtl/periph/uart/uart_rx.sv
+rtl/periph/uart/uart_apb.sv
+rtl/periph/spi/spi_master.sv
+rtl/periph/spi/spi_apb.sv
+rtl/periph/timer/timer64_apb.sv
+rtl/periph/gpio/gpio_apb.sv
+rtl/periph/intc/intc_apb.sv
 rtl/periph/sim/sim_ctrl.sv
 rtl/rst_sync.sv
 rtl/soc_top.sv

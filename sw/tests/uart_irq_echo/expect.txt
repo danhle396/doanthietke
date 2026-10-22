@@ -1,0 +1,7 @@
+uart_irq_echo
+>The quick brown fox jumps over the lazy dog 0123456789
+echo ok: 55 bytes, overrun=0, dropped=0
+overrun test
+>overrun detected: level=16 first=ABCDEFGHIJKLMNOP
+overrun cleared
+RESULT uart_irq_echo: PASS (* checks, 0 errors)

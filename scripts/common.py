@@ -91,7 +91,8 @@ def cfg_variant(cfg):
     return "imc" if cfg["ENABLE_C"] else "im"
 
 
-TB_SOC_SOURCES = ["tb/soc/tb_soc.sv"]
+TB_SOC_SOURCES = ["tb/bfm/uart_bfm.sv", "tb/bfm/spi_slave_bfm.sv", "tb/bfm/spi_flash_bfm.sv",
+                  "tb/soc/tb_soc.sv"]
 TB_INCDIRS = ["tb/soc", "tb/bfm"]
 
 

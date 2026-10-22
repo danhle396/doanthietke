@@ -33,10 +33,11 @@ module btb #(
   localparam int IW = $clog2(ENTRIES);
   localparam int TW = 31 - IW;  // tag width: pc[31:IW+1]
 
-  logic          valid_q  [ENTRIES];
-  logic [TW-1:0] tag_q    [ENTRIES];
-  logic [30:0]   target_q [ENTRIES];
-  logic [1:0]    type_q   [ENTRIES];
+  // packed arrays: plain registers for synthesis (no memory inference)
+  logic [ENTRIES-1:0]         valid_q;
+  logic [ENTRIES-1:0][TW-1:0] tag_q;
+  logic [ENTRIES-1:0][30:0]   target_q;
+  logic [ENTRIES-1:0][1:0]    type_q;
 
   logic [IW-1:0] rd_idx, wr_idx, inv_idx;
 
@@ -47,22 +48,31 @@ module btb #(
   assign rd_target = {target_q[rd_idx], 1'b0};
   assign rd_type   = type_q[rd_idx];
 
-  always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-      for (int i = 0; i < ENTRIES; i++) begin
-        valid_q[i]  <= 1'b0;
-        tag_q[i]    <= '0;
-        target_q[i] <= '0;
-        type_q[i]   <= 2'b00;
+  // one register set per entry (explicit decode: plain flip-flops)
+  for (genvar i = 0; i < ENTRIES; i++) begin : g_e
+    logic          v_q;
+    logic [TW-1:0] tag_e;
+    logic [30:0]   tgt_e;
+    logic [1:0]    ty_e;
+    always_ff @(posedge clk or negedge rst_n) begin
+      if (!rst_n) begin
+        v_q   <= 1'b0;
+        tag_e <= '0;
+        tgt_e <= '0;
+        ty_e  <= 2'b00;
+      end else if (wr_en && wr_idx == IW'(i)) begin
+        v_q   <= 1'b1;
+        tag_e <= wr_pc[31:IW+1];
+        tgt_e <= wr_target[31:1];
+        ty_e  <= wr_type;
+      end else if (!wr_en && inv_en && inv_idx == IW'(i)) begin
+        v_q   <= 1'b0;
       end
-    end else if (wr_en) begin
-      valid_q[wr_idx]  <= 1'b1;
-      tag_q[wr_idx]    <= wr_pc[31:IW+1];
-      target_q[wr_idx] <= wr_target[31:1];
-      type_q[wr_idx]   <= wr_type;
-    end else if (inv_en) begin
-      valid_q[inv_idx] <= 1'b0;
     end
+    assign valid_q[i]  = v_q;
+    assign tag_q[i]    = tag_e;
+    assign target_q[i] = tgt_e;
+    assign type_q[i]   = ty_e;
   end
 
 endmodule

@@ -21,6 +21,7 @@ _start:
     la      t0, trap_entry
     csrw    mtvec, t0
 
+    call    console_init
     call    main
     call    exit
 3:  j       3b

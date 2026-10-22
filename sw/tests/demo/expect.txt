@@ -1,0 +1,17 @@
+RV32IMC SoC demo: UART 115200 baud, SPI flash, TIMER64
+flash id: ef 40 16
+[tick 1] 0x000000: 03 0a 11 18 1f 26 2d 34 3b 42 49 50 57 5e 65 6c |.....&-4;BIPW^el|
+[tick 2] 0x000010: 73 7a 81 88 8f 96 9d a4 ab b2 b9 c0 c7 ce d5 dc |sz..............|
+[tick 3] 0x000020: e3 ea f1 f8 ff 06 0d 14 1b 22 29 30 37 3e 45 4c |.........")07.EL|
+> r
+0x001000: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff |................|
+> w
+write done (erase polls=*, program polls=*)
+> r
+0x001000: 52 49 53 43 2d 56 20 53 6f 43 20 44 45 4d 4f 21 |RISC-V SoC DEMO!|
+> s
+[bench] name=demo cycles=* instret=* cpi_x1000=*
+[bench] branch=* branch_miss=* jump=* jump_miss=* acc_x1000=*
+[bench] stall_load_use=* stall_muldiv=* stall_bus=* compressed=*
+> q
+bye

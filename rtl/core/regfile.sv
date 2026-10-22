@@ -24,14 +24,17 @@ module regfile #(
   output logic [31:0] rdata2
 );
 
-  logic [31:0] regs [1:31];
+  // packed view of the 31 registers (entry 0 = constant 0)
+  logic [31:0][31:0] regs;
 
-  always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-      for (int i = 1; i < 32; i++) regs[i] <= 32'b0;
-    end else if (we && (waddr != 5'd0)) begin
-      regs[waddr] <= wdata;
+  assign regs[0] = 32'b0;
+  for (genvar i = 1; i < 32; i++) begin : g_r
+    logic [31:0] r_q;
+    always_ff @(posedge clk or negedge rst_n) begin
+      if (!rst_n)                       r_q <= 32'b0;
+      else if (we && waddr == 5'(i))    r_q <= wdata;
     end
+    assign regs[i] = r_q;
   end
 
   always_comb begin

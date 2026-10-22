@@ -54,7 +54,7 @@ Phase 7 – đang thực hiện
 - [x] unit TB ngoại vi pass
 
 ### Phase 7 – SoC, firmware, perf, coverage, synth
-- [ ] system tests (mục 10.4)
+- [x] system tests (mục 10.4): 10/10 PASS (exceptions chạy cả m1c1 và m1c0)
 - [ ] benchmark, run_perf.py
 - [ ] coverage
 - [ ] synth
@@ -80,6 +80,8 @@ Phase 7 – đang thực hiện
 (trống)
 
 ## Ghi chú cho lần chạy sau
+
+- Phase 7 đang làm: soc_top đầy đủ, driver, system test xong; còn CoreMark, run_perf.py, coverage, synth, docs/results.md.
 
 - Thư mục gốc: `/home/danhle/Desktop/doanthietke`.
 - Công cụ: OSS CAD Suite ở `~/tools/oss-cad-suite`, Spike ở `~/tools/spike`, dtc ở `~/tools/dtc`.

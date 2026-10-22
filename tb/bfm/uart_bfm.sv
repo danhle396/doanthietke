@@ -24,6 +24,8 @@ module uart_bfm (
   int   frame_errors = 0;
   int   parity_errors = 0;
   integer log_fd = 0;
+  byte    trigger = ">";    // prompt character counted in trigger_count
+  int     trigger_count = 0;
   string  line_buf = "";
 
   initial rx = 1'b1;
@@ -53,6 +55,7 @@ module uart_bfm (
       if (tx !== 1'b1) frame_errors++;
       rx_q.push_back(b);
       rx_count++;
+      if (b == trigger) trigger_count++;
       if (log_fd != 0) begin
         $fwrite(log_fd, "%c", b);
         $fflush(log_fd);
@@ -111,6 +114,69 @@ module uart_bfm (
     end
     $fclose(fd);
   endtask
+
+  // Glob match of one line: '*' matches any (possibly empty) substring.
+  function automatic bit glob_match(input string pat, input string s);
+    int pi, si, star_p, star_s;
+    pi = 0; si = 0; star_p = -1; star_s = 0;
+    while (si < s.len()) begin
+      if (pi < pat.len() && pat[pi] != "*" && pat[pi] == s[si]) begin
+        pi++; si++;
+      end else if (pi < pat.len() && pat[pi] == "*") begin
+        star_p = pi; star_s = si; pi++;
+      end else if (star_p >= 0) begin
+        pi = star_p + 1; star_s++; si = star_s;
+      end else return 0;
+    end
+    while (pi < pat.len() && pat[pi] == "*") pi++;
+    return pi == pat.len();
+  endfunction
+
+  // Line-by-line comparison with an expected text file whose lines may use
+  // '*' wildcards (for numbers that depend on timing, e.g. cycle counts).
+  // Returns the number of mismatching lines (+1 if the line counts differ).
+  function automatic int check_expected_glob(input string fname);
+    string exp_lines[$], got_lines[$], cur;
+    integer fd;
+    int c, bad;
+    fd = $fopen(fname, "r");
+    if (fd == 0) begin
+      $display("uart_bfm: cannot open expected file %s", fname);
+      return 1;
+    end
+    cur = "";
+    c = $fgetc(fd);
+    while (c != -1) begin
+      if (c == 10) begin exp_lines.push_back(cur); cur = ""; end
+      else if (c != 13) cur = {cur, string'(byte'(c))};
+      c = $fgetc(fd);
+    end
+    if (cur.len() != 0) exp_lines.push_back(cur);
+    $fclose(fd);
+    cur = "";
+    foreach (rx_q[i]) begin
+      if (rx_q[i] == 8'h0A) begin got_lines.push_back(cur); cur = ""; end
+      else if (rx_q[i] != 8'h0D) cur = {cur, string'(rx_q[i])};
+    end
+    if (cur.len() != 0) got_lines.push_back(cur);
+    bad = 0;
+    foreach (exp_lines[i]) begin
+      if (i >= got_lines.size()) begin
+        $display("uart_bfm: missing line %0d: '%s'", i + 1, exp_lines[i]);
+        return bad + 1;
+      end
+      if (!glob_match(exp_lines[i], got_lines[i])) begin
+        if (bad < 10) $display("uart_bfm: line %0d got '%s' expected '%s'", i + 1, got_lines[i], exp_lines[i]);
+        bad++;
+      end
+    end
+    if (got_lines.size() > exp_lines.size()) begin
+      $display("uart_bfm: %0d extra lines, first: '%s'", got_lines.size() - exp_lines.size(),
+               got_lines[exp_lines.size()]);
+      bad++;
+    end
+    return bad;
+  endfunction
 
   // Compare received bytes with a file. Returns the number of mismatches
   // (a length difference counts as one mismatch).

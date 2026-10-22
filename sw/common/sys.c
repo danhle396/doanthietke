@@ -21,6 +21,17 @@ void __attribute__((noreturn)) exit(int code) {
   for (;;) ;
 }
 
+// Console set-up before main(): CONSOLE=uart uses BAUD_DIV = CONSOLE_BAUD_DIV
+// (0 = 16 clocks/bit for fast simulation; the demo uses 26 = 115200 @ 50 MHz).
+#ifndef CONSOLE_BAUD_DIV
+#define CONSOLE_BAUD_DIV 0
+#endif
+void console_init(void) {
+#ifdef CONSOLE_UART
+  uart_init(CONSOLE_BAUD_DIV, UART_CTRL_TX_EN | UART_CTRL_RX_EN);
+#endif
+}
+
 // ---------------- Default (weak) handlers ----------------
 void __attribute__((weak)) irq_timer_handler(void) {
   // No handler installed: disable the source to avoid an interrupt storm.

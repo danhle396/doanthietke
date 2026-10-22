@@ -26,22 +26,25 @@ module bht #(
 
   localparam int IW = $clog2(ENTRIES);
 
-  logic [1:0]    cnt_q [ENTRIES];
+  // packed array: plain registers for synthesis (no memory inference)
+  logic [ENTRIES-1:0][1:0] cnt_q;
   logic [IW-1:0] rd_idx, upd_idx;
-  logic [1:0]    cur;
 
   assign rd_idx   = rd_pc[IW:1];
   assign upd_idx  = upd_pc[IW:1];
   assign rd_taken = cnt_q[rd_idx][1];
-  assign cur      = cnt_q[upd_idx];
 
-  always_ff @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-      for (int i = 0; i < ENTRIES; i++) cnt_q[i] <= 2'b01;
-    end else if (upd_en) begin
-      if (upd_taken && cur != 2'b11)      cnt_q[upd_idx] <= cur + 2'b01;
-      else if (!upd_taken && cur != 2'b00) cnt_q[upd_idx] <= cur - 2'b01;
+  // one register per entry (explicit decode: synthesizes to plain flip-flops)
+  for (genvar i = 0; i < ENTRIES; i++) begin : g_e
+    logic [1:0] c_q;
+    always_ff @(posedge clk or negedge rst_n) begin
+      if (!rst_n) c_q <= 2'b01;
+      else if (upd_en && upd_idx == IW'(i)) begin
+        if (upd_taken && c_q != 2'b11)       c_q <= c_q + 2'b01;
+        else if (!upd_taken && c_q != 2'b00) c_q <= c_q - 2'b01;
+      end
     end
+    assign cnt_q[i] = c_q;
   end
 
 endmodule

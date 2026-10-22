@@ -1,0 +1,13 @@
+exceptions
+illegal: mcause=2 mepc=ok mtval=ffffffff
+ecall: mcause=11 mepc=ok mtval=0
+ebreak: mcause=3 mepc=ok mtval=*
+load misaligned: mcause=4 mepc=ok mtval=*
+lh misaligned: mcause=4 mepc=ok mtval=*
+store misaligned: mcause=6 mepc=ok mtval=*
+load access fault: mcause=5 mepc=ok mtval=0
+store access fault: mcause=7 mepc=ok mtval=20000000
+apb empty slot: mcause=5 mepc=ok mtval=10005000
+fetch access fault: mcause=1 mepc=ok mtval=1000
+jump misaligned: *
+RESULT exceptions: PASS (* checks, 0 errors)

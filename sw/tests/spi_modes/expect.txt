@@ -1,0 +1,18 @@
+spi_modes
+div=0 mode=0 msb: ok
+div=0 mode=0 lsb: ok
+div=0 mode=1 msb: ok
+div=0 mode=1 lsb: ok
+div=0 mode=2 msb: ok
+div=0 mode=2 lsb: ok
+div=0 mode=3 msb: ok
+div=0 mode=3 lsb: ok
+div=4 mode=0 msb: ok
+div=4 mode=0 lsb: ok
+div=4 mode=1 msb: ok
+div=4 mode=1 lsb: ok
+div=4 mode=2 msb: ok
+div=4 mode=2 lsb: ok
+div=4 mode=3 msb: ok
+div=4 mode=3 lsb: ok
+RESULT spi_modes: PASS (* checks, 0 errors)

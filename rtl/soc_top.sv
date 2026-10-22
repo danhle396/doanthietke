@@ -5,7 +5,8 @@
 //     slot 0 UART, 1 SPI, 2 TIMER64, 3 GPIO, 4 INTC, 15 SIM_CTRL
 //
 // Ports: clock/reset, UART, SPI master, 16-bit GPIO (tri-state outside).
-// Parameters: ENABLE_M, ENABLE_C, BP_MODE, BHT_ENTRIES, BTB_ENTRIES, CORE_SC
+// Parameters: ENABLE_M, ENABLE_C, BP_MODE, BHT_ENTRIES, BTB_ENTRIES, CORE_SC,
+//             RAM_DEPTH (32-bit words, default 32768 = 128 KB)
 // ============================================================================
 module soc_top #(
   parameter bit ENABLE_M    = 1'b1,
@@ -13,7 +14,8 @@ module soc_top #(
   parameter int BP_MODE     = 2,
   parameter int BHT_ENTRIES = 256,
   parameter int BTB_ENTRIES = 32,
-  parameter bit CORE_SC     = 1'b0
+  parameter bit CORE_SC     = 1'b0,
+  parameter int RAM_DEPTH   = 32768   // words; smaller only for FPGA timing estimates
 ) (
   input  logic        clk,
   input  logic        rst_n,
@@ -28,7 +30,7 @@ module soc_top #(
   output logic [15:0] gpio_oe
 );
 
-  localparam logic [15:0] SLOT_MASK = 16'h8000;
+  localparam logic [15:0] SLOT_MASK = 16'h801F;  // slots 0-4 and 15
 
   logic rst_sn;
 
@@ -72,14 +74,14 @@ module soc_top #(
   logic [3:0]  br_be;
   logic [31:0] br_addr, br_wdata, br_rdata;
 
-  ram_dp u_ram (
+  ram_dp #(.DEPTH(RAM_DEPTH)) u_ram (
     .clk,
     .i_addr (ibus_addr), .i_rdata(ibus_rdata), .i_err(ibus_err),
     .d_req  (ram_req), .d_we(ram_we), .d_be(ram_be), .d_addr(ram_addr),
     .d_wdata(ram_wdata), .d_rdata(ram_rdata), .d_ready(ram_ready)
   );
 
-  dbus_xbar u_xbar (
+  dbus_xbar #(.RAM_SIZE(RAM_DEPTH * 4)) u_xbar (
     .c_req(dbus_req), .c_we(dbus_we), .c_be(dbus_be), .c_addr(dbus_addr),
     .c_wdata(dbus_wdata), .c_ready(dbus_ready), .c_err(dbus_err), .c_rdata(dbus_rdata),
     .ram_req, .ram_we, .ram_be, .ram_addr, .ram_wdata, .ram_ready, .ram_rdata,
@@ -102,8 +104,45 @@ module soc_top #(
   );
 
   // ---------------- APB slaves ----------------
-  logic [31:0] sim_prdata;
-  logic        sim_pready, sim_pslverr;
+  logic [31:0] uart_prdata, spi_prdata, tmr_prdata, gpio_prdata, intc_prdata, sim_prdata;
+  logic        uart_pready, spi_pready, tmr_pready, gpio_pready, intc_pready, sim_pready;
+  logic        uart_pslverr, spi_pslverr, tmr_pslverr, gpio_pslverr, intc_pslverr, sim_pslverr;
+  logic        uart_irq, spi_irq, gpio_irq;
+
+  uart_apb u_uart (
+    .clk, .rst_n(rst_sn),
+    .psel(psel[0]), .penable, .pwrite, .paddr(paddr[11:0]), .pwdata, .pstrb,
+    .prdata(uart_prdata), .pready(uart_pready), .pslverr(uart_pslverr),
+    .uart_tx, .uart_rx, .irq(uart_irq)
+  );
+
+  spi_apb u_spi (
+    .clk, .rst_n(rst_sn),
+    .psel(psel[1]), .penable, .pwrite, .paddr(paddr[11:0]), .pwdata, .pstrb,
+    .prdata(spi_prdata), .pready(spi_pready), .pslverr(spi_pslverr),
+    .spi_sclk, .spi_mosi, .spi_miso, .spi_cs_n, .irq(spi_irq)
+  );
+
+  timer64_apb u_timer (
+    .clk, .rst_n(rst_sn),
+    .psel(psel[2]), .penable, .pwrite, .paddr(paddr[11:0]), .pwdata, .pstrb,
+    .prdata(tmr_prdata), .pready(tmr_pready), .pslverr(tmr_pslverr),
+    .mtime, .mtip(irq_mtip), .msip(irq_msip)
+  );
+
+  gpio_apb u_gpio (
+    .clk, .rst_n(rst_sn),
+    .psel(psel[3]), .penable, .pwrite, .paddr(paddr[11:0]), .pwdata, .pstrb,
+    .prdata(gpio_prdata), .pready(gpio_pready), .pslverr(gpio_pslverr),
+    .gpio_i, .gpio_o, .gpio_oe, .irq(gpio_irq)
+  );
+
+  intc_apb #(.N_SRC(3)) u_intc (
+    .clk, .rst_n(rst_sn),
+    .psel(psel[4]), .penable, .pwrite, .paddr(paddr[11:0]), .pwdata, .pstrb,
+    .prdata(intc_prdata), .pready(intc_pready), .pslverr(intc_pslverr),
+    .src({gpio_irq, spi_irq, uart_irq}), .irq(irq_meip)
+  );
 
   sim_ctrl u_sim (
     .clk, .rst_n(rst_sn),
@@ -111,28 +150,24 @@ module soc_top #(
     .prdata(sim_prdata), .pready(sim_pready), .pslverr(sim_pslverr)
   );
 
+  // response mux (slot of the current transfer)
   always_comb begin
     case (slot)
-      4'd15:   begin prdata = sim_prdata; pready = sim_pready; pslverr = sim_pslverr; end
-      default: begin prdata = 32'b0;      pready = 1'b1;       pslverr = 1'b1;        end
+      4'd0:    begin prdata = uart_prdata; pready = uart_pready; pslverr = uart_pslverr; end
+      4'd1:    begin prdata = spi_prdata;  pready = spi_pready;  pslverr = spi_pslverr;  end
+      4'd2:    begin prdata = tmr_prdata;  pready = tmr_pready;  pslverr = tmr_pslverr;  end
+      4'd3:    begin prdata = gpio_prdata; pready = gpio_pready; pslverr = gpio_pslverr; end
+      4'd4:    begin prdata = intc_prdata; pready = intc_pready; pslverr = intc_pslverr; end
+      4'd15:   begin prdata = sim_prdata;  pready = sim_pready;  pslverr = sim_pslverr;  end
+      default: begin prdata = 32'b0;       pready = 1'b1;        pslverr = 1'b1;         end
     endcase
   end
 
-  // ---------------- Interrupts / unused I/O (peripherals added later) ----
-  assign irq_mtip = 1'b0;
-  assign irq_msip = 1'b0;
-  assign irq_meip = 1'b0;
-  assign mtime    = 64'b0;
-  assign uart_tx  = 1'b1;
-  assign spi_sclk = 1'b0;
-  assign spi_mosi = 1'b0;
-  assign spi_cs_n = 4'hF;
-  assign gpio_o   = 16'b0;
-  assign gpio_oe  = 16'b0;
-
   /* verilator lint_off UNUSEDSIGNAL */
+  // pprot is fixed to 0; upper PADDR bits are decoded by the bridge;
+  // PSEL of empty slots is never asserted.
   logic unused;
-  assign unused = ^{uart_rx, spi_miso, gpio_i, pprot, paddr[31:12], psel[14:0]};
+  assign unused = ^{pprot, paddr[31:12], psel[14:5]};
   /* verilator lint_on UNUSEDSIGNAL */
 
 endmodule

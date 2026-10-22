@@ -39,9 +39,12 @@ module timer64_apb (
 
   function automatic logic [31:0] merge(input logic [31:0] old, input logic [31:0] nw,
                                         input logic [3:0] strb);
-    for (int b = 0; b < 4; b++) if (strb[b]) old[b*8 +: 8] = nw[b*8 +: 8];
-    return old;
+    merge = old;
+    for (int b = 0; b < 4; b++) if (strb[b]) merge[b*8 +: 8] = nw[b*8 +: 8];
   endfunction
+
+  logic [31:0] bmask;   // PSTRB expanded to bits
+  assign bmask = {{8{pstrb[3]}}, {8{pstrb[2]}}, {8{pstrb[1]}}, {8{pstrb[0]}}};
 
   logic [63:0] mtime_q, cmp_q;
   logic        en_q, msip_q;
@@ -68,14 +71,14 @@ module timer64_apb (
       if (en_q) pre_cnt_q <= tick ? 8'd0 : pre_cnt_q + 8'd1;
 
       if (wr && paddr == A_MTIME_LO)
-        mtime_q <= {mtime_q[63:32], merge(mtime_q[31:0], pwdata, pstrb)};
+        mtime_q <= {mtime_q[63:32], (mtime_q[31:0] & ~bmask) | (pwdata & bmask)};
       else if (wr && paddr == A_MTIME_HI)
-        mtime_q <= {merge(mtime_q[63:32], pwdata, pstrb), mtime_q[31:0]};
+        mtime_q <= {(mtime_q[63:32] & ~bmask) | (pwdata & bmask), mtime_q[31:0]};
       else if (tick)
         mtime_q <= mtime_q + 64'd1;
 
-      if (wr && paddr == A_CMP_LO) cmp_q[31:0]  <= merge(cmp_q[31:0], pwdata, pstrb);
-      if (wr && paddr == A_CMP_HI) cmp_q[63:32] <= merge(cmp_q[63:32], pwdata, pstrb);
+      if (wr && paddr == A_CMP_LO) cmp_q[31:0]  <= (cmp_q[31:0] & ~bmask) | (pwdata & bmask);
+      if (wr && paddr == A_CMP_HI) cmp_q[63:32] <= (cmp_q[63:32] & ~bmask) | (pwdata & bmask);
       if (wr && paddr == A_CTRL) begin
         en_q       <= ctrl_w[0];
         prescale_q <= ctrl_w[15:8];

@@ -1,8 +1,11 @@
 // spi_slave_bfm.sv - SPI slave BFM, all four modes, MSB or LSB first.
 //   Returns bytes from tx_pattern (queue) or, when it is empty, the
-//   predefined sequence pattern_byte(n) = 8'hA5 ^ (n * 8'd29). Every byte
-//   received from MOSI is stored in rx_q. Configure cpol/cpha/lsb_first
-//   before asserting CS. MISO is driven only while cs_n = 0 (else 0).
+//   predefined sequence pattern_byte(n) = 8'hA5 ^ (n * 8'd29), n restarting
+//   at 0 for every CS assertion. With echo_mode = 1 the slave instead returns
+//   8'hA5 for the first byte and (previous received byte ^ 8'h5A) afterwards,
+//   so the master can check both directions. Every byte received from MOSI
+//   is stored in rx_q. Configure cpol/cpha/lsb_first before asserting CS.
+//   MISO is driven only while cs_n = 0 (else 0).
 `timescale 1ns/1ps
 
 module spi_slave_bfm (
@@ -13,6 +16,9 @@ module spi_slave_bfm (
 );
 
   bit   cpol = 0, cpha = 0, lsb_first = 0;
+  bit   echo_mode = 0;
+  logic [7:0] last_rx = 8'h00;
+  bit   have_rx = 0;
   byte  tx_pattern[$];
   byte  rx_q[$];
   byte  tx_log[$];      // bytes actually returned (for checking)
@@ -28,7 +34,9 @@ module spi_slave_bfm (
 
   function automatic logic [7:0] next_tx();
     logic [7:0] b;
-    b = (tx_pattern.size() != 0) ? tx_pattern.pop_front() : pattern_byte(n_tx);
+    if (echo_mode)                b = have_rx ? (last_rx ^ 8'h5A) : 8'hA5;
+    else if (tx_pattern.size() != 0) b = tx_pattern.pop_front();
+    else                          b = pattern_byte(n_tx);
     n_tx++;
     tx_log.push_back(b);
     return b;
@@ -41,6 +49,8 @@ module spi_slave_bfm (
   always @(negedge cs_n) begin
     n_sample = 0;
     n_drive  = 0;
+    n_tx     = 0;
+    have_rx  = 0;
     if (!cpha) begin
       cur_tx = next_tx();
       miso = bit_of(cur_tx, 0);
@@ -80,6 +90,8 @@ module spi_slave_bfm (
     n_sample++;
     if (n_sample == 8) begin
       rx_q.push_back(cur_rx);
+      last_rx = cur_rx;
+      have_rx = 1;
       n_sample = 0;
     end
   endtask

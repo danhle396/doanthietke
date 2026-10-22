@@ -45,8 +45,8 @@ module spi_apb #(
 
   function automatic logic [31:0] merge(input logic [31:0] old, input logic [31:0] nw,
                                         input logic [3:0] strb);
-    for (int b = 0; b < 4; b++) if (strb[b]) old[b*8 +: 8] = nw[b*8 +: 8];
-    return old;
+    merge = old;
+    for (int b = 0; b < 4; b++) if (strb[b]) merge[b*8 +: 8] = nw[b*8 +: 8];
   endfunction
 
   // ---------------- Registers ----------------

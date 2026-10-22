@@ -49,6 +49,11 @@ module spi_master (
     for (int i = 0; i < 8; i++) rev8[i] = x[7 - i];
   endfunction
 
+  // bit-order conversion outside the clocked process (Yosys-friendly)
+  logic [7:0] tx_ord, rx_ord;
+  assign tx_ord = lsb_first ? rev8(tx_data) : tx_data;
+  assign rx_ord = lsb_q ? rev8(rx_sh_q) : rx_sh_q;
+
   assign half   = (cnt_q == clk_div);
   assign start  = en && tx_valid && ((state_q == S_IDLE) || (state_q == S_GAP && half));
   assign tx_pop = start;
@@ -77,22 +82,20 @@ module spi_master (
       // byte delivery at the end of the gap
       if (state_q == S_GAP && half) begin
         rx_valid <= 1'b1;
-        rx_data  <= lsb_q ? rev8(rx_sh_q) : rx_sh_q;
+        rx_data  <= rx_ord;
         last     <= !tx_valid;  // TX FIFO empty: this was the last byte
         state_q  <= S_IDLE;
       end
 
       if (start) begin
-        logic [7:0] d;
-        d = lsb_first ? rev8(tx_data) : tx_data;
         state_q <= S_XFER;
         cnt_q   <= 16'd0;
         edge_q  <= 4'd0;
         cpha_q  <= cpha;
         lsb_q   <= lsb_first;
-        tx_sh_q <= d;
+        tx_sh_q <= tx_ord;
         sclk    <= cpol;
-        if (!cpha) mosi <= d[7];
+        if (!cpha) mosi <= tx_ord[7];
       end else if (state_q == S_XFER && half) begin
         sclk   <= !sclk;
         edge_q <= edge_q + 4'd1;

@@ -1,0 +1,4 @@
+gpio_irq
+output patterns ok
+edge events: 2 2 2 2
+RESULT gpio_irq: PASS (* checks, 0 errors)

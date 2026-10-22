@@ -13,6 +13,7 @@ void irq_timer_handler(void);
 void irq_software_handler(void);
 void irq_external_handler(void);
 
+void console_init(void);
 void set_mtvec_direct(void);
 void set_mtvec_vectored(void);
 

@@ -22,7 +22,8 @@ module spi_flash_bfm #(
   logic [7:0] mem [int];
   bit         wip = 0, wel = 0;
   int         n_cmd[byte];      // command statistics
-  int         errors = 0;       // protocol misuse seen by the model
+  int         errors = 0;       // protocol violations (CS released inside a byte)
+  int         ignored = 0;      // commands ignored (busy, or program/erase without WEL)
 
   // per-transaction state
   logic [7:0] cmd, in_sh, out_byte;
@@ -72,11 +73,12 @@ module spi_flash_bfm #(
 
   always @(posedge cs_n) begin
     miso = 1'b0;
+    if (in_bits != 0) errors++;
     if (!wip && n_in >= 4 && wel) begin
       if (cmd == 8'h02) program_page();
       else if (cmd == 8'h20) erase_sector();
     end else if (!wip && n_in >= 1 && (cmd == 8'h02 || cmd == 8'h20) && !wel) begin
-      errors++;  // program/erase without WREN
+      ignored++;  // program/erase without WREN: ignored like a real device
     end
   end
 
@@ -87,6 +89,7 @@ module spi_flash_bfm #(
       n_cmd[b]++;
       if (wip && b != 8'h05) begin
         cmd = 8'h00;  // busy: ignore
+        ignored++;
         return;
       end
       case (b)

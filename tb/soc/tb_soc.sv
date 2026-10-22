@@ -50,7 +50,8 @@ module tb_soc #(
   // ---------------- Performance observation ----------------
   logic [63:0] obs_mcycle, obs_minstret;
   logic [63:0] obs_hpm [3:10];
-  logic        obs_id_redirect, obs_ex_redirect;
+  logic        obs_id_redirect, obs_ex_redirect, obs_md_abort, obs_irq_taken;
+  logic        obs_irq_wait_div, obs_irq_cancel_div;
 
   if (CORE_SC) begin : g_obs_sc
     assign obs_mcycle      = dut.g_sc.u_core.u_csr.mcycle_q;
@@ -60,6 +61,10 @@ module tb_soc #(
     end
     assign obs_id_redirect = 1'b0;
     assign obs_ex_redirect = 1'b0;
+    assign obs_md_abort    = 1'b0;
+    assign obs_irq_taken   = dut.g_sc.u_core.trap && dut.g_sc.u_core.take_irq;
+    assign obs_irq_wait_div   = 1'b0;
+    assign obs_irq_cancel_div = 1'b0;
   end else begin : g_obs_pipe
     assign obs_mcycle      = dut.g_pipe.u_core.u_csr.mcycle_q;
     assign obs_minstret    = dut.g_pipe.u_core.u_csr.minstret_q;
@@ -68,17 +73,37 @@ module tb_soc #(
     end
     assign obs_id_redirect = dut.g_pipe.u_core.id_redirect;
     assign obs_ex_redirect = dut.g_pipe.u_core.ex_redirect;
+    // divider killed while iterating (e.g. interrupt during DIV)
+    assign obs_md_abort    = dut.g_pipe.u_core.u_ex.u_md.kill && dut.g_pipe.u_core.u_ex.u_md.busy;
+    assign obs_irq_taken   = dut.g_pipe.u_core.u_mem.trap_irq;
+    // an enabled interrupt is pending while the divider iterates
+    assign obs_irq_wait_div = dut.g_pipe.u_core.irq_req && dut.g_pipe.u_core.md_busy;
+    // an interrupt cancels a DIV/REM that reached MEM (re-executed after MRET)
+    assign obs_irq_cancel_div = dut.g_pipe.u_core.u_mem.trap_irq &&
+        (dut.g_pipe.u_core.mem_insn[6:0] == 7'b0110011) &&
+        (dut.g_pipe.u_core.mem_insn[31:25] == 7'b0000001) && dut.g_pipe.u_core.mem_insn[14] &&
+        !dut.g_pipe.u_core.mem_is_c;
   end
 
   longint unsigned cycle_cnt = 0;
   longint unsigned id_redirects = 0;
   longint unsigned ex_redirects = 0;
+  longint unsigned md_aborts = 0;
+  longint unsigned irqs_taken = 0;
+  longint unsigned irq_wait_div = 0;
+  longint unsigned irq_cancel_div = 0;
+  logic            wait_div_d = 0;
 
   always @(posedge clk) begin
     if (rst_n) begin
       cycle_cnt <= cycle_cnt + 1;
       if (obs_id_redirect) id_redirects <= id_redirects + 1;
       if (obs_ex_redirect) ex_redirects <= ex_redirects + 1;
+      if (obs_md_abort)    md_aborts <= md_aborts + 1;
+      if (obs_irq_taken)   irqs_taken <= irqs_taken + 1;
+      wait_div_d <= obs_irq_wait_div;
+      if (obs_irq_wait_div && !wait_div_d) irq_wait_div <= irq_wait_div + 1;
+      if (obs_irq_cancel_div) irq_cancel_div <= irq_cancel_div + 1;
     end
   end
 
@@ -91,7 +116,8 @@ module tb_soc #(
              obs_hpm[3], obs_hpm[4], obs_hpm[5], obs_hpm[6]);
     $display("[perf] stall_load_use=%0d stall_muldiv=%0d stall_bus=%0d compressed=%0d",
              obs_hpm[7], obs_hpm[8], obs_hpm[9], obs_hpm[10]);
-    $display("[perf] id_redirects=%0d ex_redirects=%0d", id_redirects, ex_redirects);
+    $display("[perf] id_redirects=%0d ex_redirects=%0d md_aborts=%0d irqs=%0d irq_wait_div=%0d irq_cancel_div=%0d",
+             id_redirects, ex_redirects, md_aborts, irqs_taken, irq_wait_div, irq_cancel_div);
   endtask
 
   // ---------------- End-of-test handling ----------------

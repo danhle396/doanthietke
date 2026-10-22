@@ -1,0 +1,8 @@
+# synth_generic.ys - technology-independent synthesis for area (cell count).
+# Filled in by scripts/synth_report.py: {files} {top} {chparam} {blackbox}
+read_verilog -sv -DSYNTHESIS {files}
+{chparam}
+hierarchy -check -top {top}
+{blackbox}
+synth -top {top} -flatten
+stat

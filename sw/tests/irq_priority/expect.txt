@@ -1,0 +1,4 @@
+irq_priority
+direct: order MEI MSI MTI
+vectored: order MEI MSI MTI slots 11 3 7
+RESULT irq_priority: PASS (* checks, 0 errors)

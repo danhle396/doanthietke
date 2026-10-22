@@ -40,17 +40,17 @@ module gpio_apb #(
   assign pready  = 1'b1;
   assign pslverr = psel && penable && !valid_off;
 
-  // byte-lane merge for an N-bit register
+  // PSTRB expanded to bits (registers are at most 16 bits wide)
   /* verilator lint_off UNUSEDSIGNAL */
-  // Bits above N of the merged word are discarded.
-  function automatic logic [N-1:0] merge(input logic [N-1:0] old, input logic [31:0] nw,
-                                         input logic [3:0] strb);
-    logic [31:0] o;
-    o = 32'(old);
-    for (int b = 0; b < 4; b++) if (strb[b]) o[b*8 +: 8] = nw[b*8 +: 8];
-    return o[N-1:0];
-  endfunction
+  // Only the low N bits of the bus word / strobe mask are used.
+  logic [31:0]  bmask32;
+  logic [31:0]  pwdata_u;
   /* verilator lint_on UNUSEDSIGNAL */
+  logic [N-1:0] bm, wd;
+  assign bmask32 = {{8{pstrb[3]}}, {8{pstrb[2]}}, {8{pstrb[1]}}, {8{pstrb[0]}}};
+  assign bm      = bmask32[N-1:0];
+  assign pwdata_u = pwdata;
+  assign wd      = pwdata_u[N-1:0];
 
   logic [N-1:0] out_q, dir_q, en_q, type_q, st_q;
   logic [N-1:0] sync1_q, in_q, prev_q, ev, w1c;
@@ -76,7 +76,7 @@ module gpio_apb #(
       ev[i] = (prime_q == 2'd3) && (type_q[i] ? (prev_q[i] && !in_q[i]) : (!prev_q[i] && in_q[i]));
   end
 
-  assign w1c = (wr && paddr == A_IRQ_ST) ? merge('0, pwdata, pstrb) : '0;
+  assign w1c = (wr && paddr == A_IRQ_ST) ? (wd & bm) : '0;
 
   always_ff @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
@@ -86,10 +86,10 @@ module gpio_apb #(
       type_q <= '0;
       st_q   <= '0;
     end else begin
-      if (wr && paddr == A_OUT)      out_q  <= merge(out_q, pwdata, pstrb);
-      if (wr && paddr == A_DIR)      dir_q  <= merge(dir_q, pwdata, pstrb);
-      if (wr && paddr == A_IRQ_EN)   en_q   <= merge(en_q, pwdata, pstrb);
-      if (wr && paddr == A_IRQ_TYPE) type_q <= merge(type_q, pwdata, pstrb);
+      if (wr && paddr == A_OUT)      out_q  <= (out_q & ~bm) | (wd & bm);
+      if (wr && paddr == A_DIR)      dir_q  <= (dir_q & ~bm) | (wd & bm);
+      if (wr && paddr == A_IRQ_EN)   en_q   <= (en_q & ~bm) | (wd & bm);
+      if (wr && paddr == A_IRQ_TYPE) type_q <= (type_q & ~bm) | (wd & bm);
       st_q <= ev | (st_q & ~w1c);
     end
   end
