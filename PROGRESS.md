@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 5 – đang thực hiện
+Phase 6 – đang thực hiện
 
 ## Checklist từng Phase
 
@@ -46,8 +46,8 @@ Phase 5 – đang thực hiện
 - [x] tb_bp
 
 ### Phase 5 – CSR đầy đủ, trap/ngắt, bus hoàn chỉnh
-- [ ] rv32mi
-- [ ] tb_csr, tb_apb_bridge, tb_intc
+- [x] rv32mi
+- [x] tb_csr, tb_apb_bridge, tb_intc
 
 ### Phase 6 – Ngoại vi
 - [ ] sync_fifo, UART, SPI, TIMER64, GPIO, BFM
@@ -72,6 +72,7 @@ Phase 5 – đang thực hiện
 - 22/10/2026 Phase 2: ma trận riscv-tests (6 cấu hình) 0 FAIL; Spike 4 cấu hình MATCH (KNOWN: marchid, misa); tb_alu (15440 checks), tb_regfile (40134 checks) PASS; lint sạch.
 - 22/10/2026 Phase 3: ma trận riscv-tests 0 FAIL (rv32um, rv32uc pass); tb_muldiv (4316 checks, latency chia 33), tb_compressed_decoder (1061 vector + 43 illegal) PASS.
 - 22/10/2026 Phase 4: riscv-tests BP_MODE 0/1/2 0 FAIL; tb_bp PASS (6304 checks); 8 benchmark (dhrystone, median, multiply, qsort, rsort, towers, vvadd, memcpy) chạy trên mọi biến thể, khớp Spike (taint tracking cho counter); Dhrystone CPI 1.434 (BP0) / 1.209 (BP2) trên m1c1.
+- 22/10/2026 Phase 5: rv32mi PASS mọi cấu hình (loại trừ breakpoint, pmpaddr có lý do); tb_csr (136 checks), tb_apb_bridge (3037 checks, wait state ngẫu nhiên, PSLVERR, slot trống), tb_intc (2209 checks) PASS.
 
 ## BLOCKED
 
