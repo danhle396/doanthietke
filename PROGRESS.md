@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 3 – đang thực hiện
+Phase 4 – đang thực hiện
 
 ## Checklist từng Phase
 
@@ -36,9 +36,9 @@ Phase 3 – đang thực hiện
 - [x] lint sạch
 
 ### Phase 3 – M và C
-- [ ] muldiv, compressed_decoder
-- [ ] rv32um, rv32uc, ma trận ENABLE_M/ENABLE_C
-- [ ] tb_muldiv, tb_compressed_decoder
+- [x] muldiv, compressed_decoder
+- [x] rv32um, rv32uc, ma trận ENABLE_M/ENABLE_C
+- [x] tb_muldiv, tb_compressed_decoder
 
 ### Phase 4 – Predictor & perf counter
 - [ ] BHT, BTB, BP_MODE 1/2, perf counter
@@ -70,6 +70,7 @@ Phase 3 – đang thực hiện
 
 - 22/10/2026 Phase 1: `run_isa.py --config sc` rv32ui 41 PASS / 0 FAIL / 1 EXCLUDED (ma_data); `compare_spike.py --config sc` 41/41 MATCH; hello (CONSOLE=sim) PASS trên sc và m1c1_bp2; lint sạch 8 cấu hình; Yosys elaborate rv_core_sc/rv_core/soc_top OK.
 - 22/10/2026 Phase 2: ma trận riscv-tests (6 cấu hình) 0 FAIL; Spike 4 cấu hình MATCH (KNOWN: marchid, misa); tb_alu (15440 checks), tb_regfile (40134 checks) PASS; lint sạch.
+- 22/10/2026 Phase 3: ma trận riscv-tests 0 FAIL (rv32um, rv32uc pass); tb_muldiv (4316 checks, latency chia 33), tb_compressed_decoder (1061 vector + 43 illegal) PASS.
 
 ## BLOCKED
 
