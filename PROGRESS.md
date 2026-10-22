@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 6 – đang thực hiện
+Phase 7 – đang thực hiện
 
 ## Checklist từng Phase
 
@@ -50,8 +50,8 @@ Phase 6 – đang thực hiện
 - [x] tb_csr, tb_apb_bridge, tb_intc
 
 ### Phase 6 – Ngoại vi
-- [ ] sync_fifo, UART, SPI, TIMER64, GPIO, BFM
-- [ ] unit TB ngoại vi pass
+- [x] sync_fifo, UART, SPI, TIMER64, GPIO, BFM
+- [x] unit TB ngoại vi pass
 
 ### Phase 7 – SoC, firmware, perf, coverage, synth
 - [ ] system tests (mục 10.4)
@@ -73,6 +73,7 @@ Phase 6 – đang thực hiện
 - 22/10/2026 Phase 3: ma trận riscv-tests 0 FAIL (rv32um, rv32uc pass); tb_muldiv (4316 checks, latency chia 33), tb_compressed_decoder (1061 vector + 43 illegal) PASS.
 - 22/10/2026 Phase 4: riscv-tests BP_MODE 0/1/2 0 FAIL; tb_bp PASS (6304 checks); 8 benchmark (dhrystone, median, multiply, qsort, rsort, towers, vvadd, memcpy) chạy trên mọi biến thể, khớp Spike (taint tracking cho counter); Dhrystone CPI 1.434 (BP0) / 1.209 (BP2) trên m1c1.
 - 22/10/2026 Phase 5: rv32mi PASS mọi cấu hình (loại trừ breakpoint, pmpaddr có lý do); tb_csr (136 checks), tb_apb_bridge (3037 checks, wait state ngẫu nhiên, PSLVERR, slot trống), tb_intc (2209 checks) PASS.
+- 22/10/2026 Phase 6: 13/13 unit TB PASS (thêm tb_fifo, tb_uart, tb_spi, tb_timer, tb_gpio); BFM: apb_master, apb_slave_model, uart, spi_slave (4 mode), spi_flash (W25Q rút gọn).
 
 ## BLOCKED
 
