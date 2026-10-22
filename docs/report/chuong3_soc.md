@@ -132,10 +132,55 @@ lý ngắt ngoài đọc ACTIVE và gọi handler từng ngoại vi; mọi ngu�
 
 **SIM_CTRL** (`0x1000_F000`, chỉ mô phỏng): in ký tự và kết thúc mô phỏng với mã thoát.
 
-## 3.8. Phần mềm
+Bảng 3.4. Thanh ghi TIMER64, GPIO, INTC (nguồn: `docs/register_map.md`).
+
+| Khối | Off | Tên | Mô tả |
+|---|---|---|---|
+| TIMER64 | 0x00/0x04 | MTIME_LO/HI | bộ đếm 64 bit (RW) |
+| TIMER64 | 0x08/0x0C | MTIMECMP_LO/HI | ngưỡng so sánh (reset toàn 1) |
+| TIMER64 | 0x10 | CTRL | EN, PRESCALE[15:8] |
+| TIMER64 | 0x14 | MSIP | bit 0 → ngắt phần mềm |
+| GPIO | 0x00/0x04/0x08 | OUT / IN / DIR | xuất, nhập (đồng bộ 2 FF), hướng |
+| GPIO | 0x0C/0x10/0x14 | IRQ_EN / IRQ_STATUS / IRQ_TYPE | ngắt cạnh theo chân, W1C, lên/xuống |
+| INTC | 0x00/0x04/0x08 | PENDING / ENABLE / ACTIVE | mức nguồn, cho phép, nguồn đang hoạt động |
+
+## 3.8. Kịch bản sử dụng flash SPI
+
+Driver `spi_flash.c` hiện thực các lệnh W25Q trên CS0. Ghi một trang tuân theo trình tự của datasheet:
+
+1. `WREN` (0x06) – đặt bit WEL;
+2. `SECTOR ERASE` (0x20 + địa chỉ 24 bit) – flash bận (WIP = 1) trong thời gian xóa;
+3. đọc `RDSR` (0x05) lặp tới khi WIP = 0;
+4. `WREN`, rồi `PAGE PROGRAM` (0x02 + địa chỉ + tối đa 256 byte); chờ WIP;
+5. `READ` (0x03 + địa chỉ) để đọc lại và so sánh.
+
+Các pha dữ liệu dài được truyền theo khối 16 byte bằng ngắt DONE: CPU nạp FIFO, ngủ bằng `wfi`, được đánh thức khi byte
+cuối truyền xong rồi đọc RX FIFO. System test `spi_flash` kiểm tra toàn bộ trình tự này (kể cả việc PAGE PROGRAM không có
+WREN bị flash bỏ qua) và JEDEC ID ở cả mode 0 và mode 3.
+
+## 3.9. Phần mềm
 
 Phần mềm nền (`sw/common`) gồm `crt0` (stack, `gp`, xóa `.bss`, `mtvec`), trình vào/ra trap lưu thanh ghi caller-saved
 và gọi `trap_handler(mcause, mepc, mtval)`, bảng vector cho chế độ vectored, `printf` tối giản, các hàm `mem*/str*`,
 đọc counter 64 bit. Driver (`sw/drivers`) cho UART, SPI, flash SPI, TIMER, GPIO, INTC đều có API polling và API dùng
 ngắt. `exit(code)` ghi SIM_CTRL rồi `tohost`, nên cùng một ELF chạy được trên RTL và trên Spike. Phần mềm được build
 theo ba biến thể `rv32i`, `rv32im`, `rv32imc` vì assembler tự nén lệnh khi `-march` có `c`.
+
+Bảng 3.5. API driver chính (nguồn: `sw/drivers/*.h`).
+
+| Driver | Polling | Dùng ngắt |
+|---|---|---|
+| UART | `uart_putc`, `uart_getc`, `uart_flush` | `uart_rx_irq_start`, `uart_isr` (ring buffer), `uart_rx_read` |
+| SPI | `spi_xfer`, `spi_xfer_buf` | `spi_irq_mode`, `spi_xfer_buf_irq` (DONE + `wfi`), `spi_isr` |
+| Flash | `flash_read_id`, `flash_read`, `flash_page_program`, `flash_sector_erase`, `flash_wait_busy` | `flash_use_irq = 1` |
+| TIMER | `timer_mtime` (hi–lo–hi), `timer_set_cmp` (trình tự an toàn) | `timer_irq_enable`, `irq_timer_handler` |
+| GPIO | `gpio_write`, `gpio_read`, `gpio_set_dir` | `gpio_irq_config`, `gpio_isr` |
+| INTC | `intc_enable`, `intc_active` | `irq_external_handler` (phân phối tới các ISR) |
+
+## 3.10. Chương trình demo
+
+`sw/tests/demo` minh họa toàn bộ SoC ở tốc độ UART thật (115 200 baud): ngắt timer mỗi 10 ms đọc 16 byte từ flash SPI
+và in dạng hex; sau đó ngắt RX UART nhận lệnh từng dòng: `r` đọc 16 byte tại `0x001000`, `w` xóa sector và ghi chuỗi
+"RISC-V SoC DEMO!", `s` in các bộ đếm hiệu năng, `q` kết thúc. Testbench gửi chuỗi lệnh `r, w, r, s, q` sau mỗi dấu nhắc
+`>` và so sánh toàn bộ output với file kỳ vọng (các con số phụ thuộc thời gian được so bằng ký tự đại diện).
+Output thật của demo nằm ở `build/logs/systest/m1c1_bp2/demo.uart.txt` sau khi chạy `make systest`.

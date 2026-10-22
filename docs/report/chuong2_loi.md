@@ -78,6 +78,39 @@ Bảng 2.2. Quy tắc stall và flush (nguồn: `rtl/core/hazard_unit.sv`).
 Hai nguyên tắc: (1) sự kiện của tầng già hơn luôn thắng và flush thắng stall; (2) mọi side effect của một lệnh (redirect,
 cập nhật predictor, khởi động bộ chia, đếm counter) xảy ra đúng một lần, ở chu kỳ lệnh rời tầng.
 
+Các phương trình điều khiển cụ thể (trích `rtl/core/hazard_unit.sv`):
+
+```
+load_use     = ID hợp lệ && EX hợp lệ && (EX là load || EX là CSR) && rd_EX ≠ 0
+               && ((ID dùng rs1 && rs1_ID == rd_EX) || (ID dùng rs2 && rs2_ID == rd_EX))
+stall_mem    = bus_wait                      // dbus_req && !dbus_ready
+stall_ex     = bus_wait || md_stall
+stall_id     = stall_ex || load_use
+stall_if     = stall_id
+ex_redirect  = sai_dự_đoán_EX && !stall_ex && !mem_redirect
+id_redirect  = yêu_cầu_ID && !stall_id && !ex_redirect && !mem_redirect
+flush_if_id  = mem_redirect || ex_redirect || id_redirect
+flush_id_ex  = mem_redirect || ex_redirect || (stall_id && !stall_ex)
+flush_ex_mem = mem_redirect || (stall_ex && !stall_mem)
+flush_mem_wb = mem_trap || stall_mem
+```
+
+Điều kiện `!stall_ex` trong `ex_redirect` thể hiện nguyên tắc "đúng một lần": một nhánh bị giữ ở EX vì MEM đang chờ bus
+sẽ chỉ đổi hướng ở chu kỳ nó thật sự rời EX. Tương tự, bộ dự đoán chỉ được cập nhật khi lệnh rời EX và không bị một
+trap ở MEM hủy.
+
+Bảng 2.4 là diễn biến thực tế của một chuỗi load-use lấy từ mô phỏng (đoạn chương trình minh họa
+`sw/examples/walkthrough/walk.S`, bảng đầy đủ ở `results/waves/walkthrough_table.md`).
+
+Bảng 2.4. Load-use trong mô phỏng (nguồn: `results/waves/walkthrough_table.md`, chu kỳ 3–6).
+
+| Chu kỳ | IF | ID | EX | MEM | WB | Sự kiện |
+|---|---|---|---|---|---|---|
+| 3 | `add t1,t0,t0` | `lw t0,0(a0)` | `c.addi a1,20` | `lui a1` | `addi a0` | |
+| 4 | `addi t2,t1,1` | `add t1,t0,t0` | `lw t0,0(a0)` | `c.addi` | `lui` | load-use: giữ IF, ID; bubble vào EX |
+| 5 | `addi t2,t1,1` | `add t1,t0,t0` | bubble | `lw` | `c.addi` | |
+| 6 | `add t3,t2,t1` | `addi t2,t1,1` | `add t1,t0,t0` | bubble | `lw` | rs1, rs2 forward từ `mem_wb` |
+
 **Forwarding** vào EX có hai nguồn: `ex_mem` (kết quả ALU/MulDiv/link – không gồm load/CSR vì dữ liệu chỉ có ở cuối
 MEM) và `mem_wb` (mọi kết quả). `ex_mem` được ưu tiên vì giữ lệnh trẻ hơn. Một chi tiết hiện thực: khi EX bị stall,
 lệnh ở WB vẫn retire nên nguồn forward `mem_wb` có thể biến mất; thanh ghi `id_ex` vì vậy chép lại giá trị toán hạng đã
@@ -92,6 +125,17 @@ kết quả tới khi lệnh rời EX (EX có thể đang bị stall bởi MEM);
 IDLE. Chia cho 0 và tràn trả kết quả ngay theo đặc tả.
 
 ![Hình 2.2. FSM bộ chia](../diagrams/divider_fsm.png)
+
+Bảng 2.5. Hành vi của bộ chia theo trạng thái (nguồn: `rtl/core/muldiv.sv`).
+
+| Trạng thái | Điều kiện | Hành động | `ready` |
+|---|---|---|---|
+| IDLE | lệnh MUL* | tính tổ hợp | 1 |
+| IDLE | DIV/REM, số chia 0 hoặc tràn | trả kết quả đặc biệt | 1 |
+| IDLE | DIV/REM thường | chốt toán hạng, sang BUSY (32 vòng) | 0 |
+| BUSY | mỗi chu kỳ | dịch phần dư, trừ thử, ghi bit thương | 0 |
+| DONE | lệnh còn ở EX | giữ kết quả (đã đổi dấu) | 1 |
+| bất kỳ | `kill` (trap ở MEM) | về IDLE | – |
 
 ## 2.5. Lấy lệnh và giải nén C
 
@@ -111,6 +155,15 @@ Cơ chế phục hồi thống nhất: mỗi lệnh mang `pred_npc`; tại EX n�
 `actual_npc` và flush hai tầng phía trước. Cách này bao phủ mọi loại sai: sai hướng, sai đích JALR, BTB "alias" (lệnh
 không phải nhánh bị đoán nhảy – entry bị xóa), và cả JAL ở `BP_MODE = 0`. Bảng tham số được hiện thực bằng flip-flop
 (mỗi entry một thanh ghi riêng), tra cứu tổ hợp.
+
+Bảng 2.6. Quy tắc cập nhật bộ dự đoán tại EX (nguồn: `rtl/core/ex_stage.sv`).
+
+| Lệnh ở EX (hợp lệ, không ngoại lệ, rời EX) | BHT | BTB |
+|---|---|---|
+| Branch có điều kiện, taken | counter + 1 (bão hòa) | ghi `{tag, đích, BRANCH}` |
+| Branch có điều kiện, not taken | counter − 1 (bão hòa) | giữ |
+| JAL / JALR | – | ghi `{tag, đích, JAL/JALR}` |
+| Lệnh khác, `pred_npc ≠ pc + len` (alias) | – | xóa entry |
 
 ## 2.7. CSR, ngoại lệ và ngắt
 
@@ -137,6 +190,17 @@ lệnh đó bị hủy và `mepc` trỏ vào nó. `dbus_req` bị chặn trong c
 sắp bị hủy. Khi vào trap: lưu `mepc/mcause/mtval`, `MPIE ← MIE`, `MIE ← 0`, nhảy tới `mtvec` (vectored: ngắt nhảy tới
 `BASE + 4×cause`). MRET khôi phục `MIE ← MPIE`. Vì mọi lệnh già hơn đã hoàn tất và lệnh trẻ hơn chưa có tác động, ngoại
 lệ là chính xác. Thứ tự ưu tiên ngoại lệ trên một lệnh và ưu tiên ngắt (MEI > MSI > MTI) tuân theo đặc tả.
+
+Bảng 2.7. Thứ tự ưu tiên ngoại lệ trên một lệnh và nơi phát hiện.
+
+| Ưu tiên | Ngoại lệ | mcause | Phát hiện ở | mtval |
+|---|---|---|---|---|
+| 1 | Instruction access fault | 1 | IF (`ibus_err`) | PC |
+| 2 | Illegal instruction | 2 | ID (decoder), MEM (CSR không tồn tại / ghi read-only) | mã lệnh |
+| 3 | ECALL / EBREAK | 11 / 3 | ID | 0 / PC |
+| 4 | Instruction address misaligned | 0 | EX (chỉ khi không có C) | đích nhảy |
+| 5 | Load / store misaligned | 4 / 6 | MEM (LSU) | địa chỉ |
+| 6 | Load / store access fault | 5 / 7 | MEM (`dbus_err`) | địa chỉ |
 
 Hai chi tiết đáng chú ý: (1) `minstret` đếm ở WB nên khi CSR ở MEM đọc nó, lệnh đang retire ở WB được cộng vào; lệnh
 ghi `minstret` không tự tăng (đúng yêu cầu của test `rv32mi-p-instret_overflow`); (2) khi bộ chia đang chạy, tầng MEM
