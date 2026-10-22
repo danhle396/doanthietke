@@ -1,0 +1,6 @@
+stateDiagram-v2
+  [*] --> IDLE
+  IDLE --> SETUP: s_req
+  SETUP --> ACCESS
+  ACCESS --> ACCESS: !PREADY
+  ACCESS --> IDLE: PREADY

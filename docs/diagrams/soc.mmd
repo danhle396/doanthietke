@@ -1,0 +1,8 @@
+flowchart LR
+  CORE[rv_core] -- ibus --> RAM[(ram_dp 128 KB)]
+  CORE -- dbus --> XBAR[dbus_xbar]
+  XBAR --> RAM
+  XBAR --> BR[apb_bridge]
+  BR --> UART & SPI & TIMER[TIMER64] & GPIO & INTC & SIM[SIM_CTRL]
+  TIMER -- mtip/msip/mtime --> CORE
+  UART & SPI & GPIO --> INTC -- meip --> CORE

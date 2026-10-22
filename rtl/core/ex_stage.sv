@@ -25,6 +25,7 @@ import rv_pkg::*;
 
 module ex_stage
 #(
+  parameter bit ENABLE_M = 1'b1,
   parameter bit ENABLE_C = 1'b1
 ) (
   input  logic        clk,
@@ -161,19 +162,27 @@ module ex_stage
   logic        md_ready;
   logic [31:0] md_res;
 
-  muldiv u_md (
-    .clk,
-    .rst_n,
-    .valid  (ex_valid && ex_is_md),
-    .op     (ex_funct3),
-    .a      (fwd_rs1),
-    .b      (fwd_rs2),
-    .kill   (mem_redirect),
-    .advance(!stall_ex),
-    .ready  (md_ready),
-    .result (md_res),
-    .busy   (md_busy)
-  );
+  // Instantiated only with the M extension (ENABLE_M = 0 removes it entirely;
+  // M encodings are then illegal and ex_is_md is never set).
+  if (ENABLE_M) begin : g_md
+    muldiv u_md (
+      .clk,
+      .rst_n,
+      .valid  (ex_valid && ex_is_md),
+      .op     (ex_funct3),
+      .a      (fwd_rs1),
+      .b      (fwd_rs2),
+      .kill   (mem_redirect),
+      .advance(!stall_ex),
+      .ready  (md_ready),
+      .result (md_res),
+      .busy   (md_busy)
+    );
+  end else begin : g_no_md
+    assign md_ready = 1'b1;
+    assign md_res   = 32'b0;
+    assign md_busy  = 1'b0;
+  end
 
   assign md_stall = ex_valid && ex_is_md && !md_ready;
 

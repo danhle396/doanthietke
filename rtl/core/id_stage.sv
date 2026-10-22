@@ -91,11 +91,17 @@ module id_stage
   logic        c_illegal;
   logic [31:0] insn32;
 
-  compressed_decoder u_cdec (
-    .cinsn  (id_insn[15:0]),
-    .insn   (c_insn),
-    .illegal(c_illegal)
-  );
+  // Instantiated only with the C extension (id_is_c is always 0 otherwise).
+  if (ENABLE_C) begin : g_cdec
+    compressed_decoder u_cdec (
+      .cinsn  (id_insn[15:0]),
+      .insn   (c_insn),
+      .illegal(c_illegal)
+    );
+  end else begin : g_no_cdec
+    assign c_insn    = 32'b0;
+    assign c_illegal = 1'b1;
+  end
 
   assign insn32 = id_is_c ? c_insn : id_insn;
 

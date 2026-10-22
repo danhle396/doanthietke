@@ -42,6 +42,14 @@ UNIT = {
     "tb_intc": ["rtl/periph/intc/intc_apb.sv", "tb/bfm/apb_master_bfm.sv"],
 }
 
+# Functional-coverage bind files added to coverage builds of unit testbenches
+COV_FILES = {
+    "tb_uart": ["tb/cov/uart_cov.sv", "tb/cov/fifo_cov.sv"],
+    "tb_spi": ["tb/cov/spi_cov.sv", "tb/cov/fifo_cov.sv"],
+    "tb_fifo": ["tb/cov/fifo_cov.sv"],
+    "tb_bp": ["tb/cov/btb_cov.sv"],
+}
+
 # Optional pre-build step (generated vectors)
 PREP = {
     "tb_compressed_decoder": ["scripts/gen_rvc_vectors.py"],
@@ -60,7 +68,7 @@ def build_tb(tb, coverage=False):
     out = BUILD / ("unit_cov" if coverage else "unit") / tb
     exe = out / f"V{tb}"
     srcs = [ROOT / s for s in UNIT[tb]] + [ROOT / "tb/unit" / f"{tb}.sv"]
-    deps = srcs + [ROOT / "tb/unit/tb_common.svh", ROOT / "tb/bfm", Path(__file__)]
+    deps = srcs + [ROOT / "tb/unit/tb_common.svh", ROOT / "tb/bfm", ROOT / "tb/cov", Path(__file__)]
     for p in PREP.get(tb, []):
         run([sys.executable, str(ROOT / p)])
         deps.append(ROOT / p)
@@ -75,6 +83,7 @@ def build_tb(tb, coverage=False):
            f"-I{ROOT / 'tb/unit'}", f"-I{ROOT / 'tb/bfm'}", f"-I{BUILD / 'gen'}", "-CFLAGS", "-O1"]
     if coverage:
         cmd += ["--coverage-line", "--coverage-toggle", "--coverage-user"]
+        srcs += [ROOT / f for f in COV_FILES.get(tb, [])]
     cmd += [str(s) for s in srcs]
     run(cmd, log=out / "build.log")
     shutil.move(str(obj / f"V{tb}"), str(exe))

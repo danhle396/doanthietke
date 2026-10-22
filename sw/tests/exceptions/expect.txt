@@ -1,5 +1,11 @@
 exceptions
 illegal: mcause=2 mepc=ok mtval=ffffffff
+illegal misc-mem: mcause=2 mepc=ok mtval=200f
+illegal sret: mcause=2 mepc=ok mtval=10200073
+illegal system f3=4: mcause=2 mepc=ok mtval=4073
+csr not existing: mcause=2 mepc=ok mtval=7c002573
+csr read-only write: mcause=2 mepc=ok mtval=c0051073
+mcycle write: ok
 ecall: mcause=11 mepc=ok mtval=0
 ebreak: mcause=3 mepc=ok mtval=*
 load misaligned: mcause=4 mepc=ok mtval=*

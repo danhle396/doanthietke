@@ -122,3 +122,46 @@ RISC-V, hoặc khi công cụ buộc phải chọn cách làm khác.
   `stdio.h`/`string.h`/`alloca.h`/`assert.h` (toolchain Ubuntu không có newlib), và `bench_rt.c`
   (`setStats` chụp `mcycle/minstret/mhpmcounter3..10`, `printf` → `xprintf`). Giữ `-DPREALLOCATE=1` như
   Makefile gốc của riscv-tests (chạy kernel một lần trước vùng đo).
+
+## D21. Ngắt khi bộ chia đang chạy
+- **Bối cảnh:** theo spec, `take_irq` cần `mem_valid`. Khi DIV đang lặp ở EX, MEM nhận bubble nên ngắt
+  không thể được nhận giữa chừng.
+- **Quyết định:** giữ đúng spec. Ngắt chờ tới khi DIV vào MEM, rồi hủy chính lệnh DIV (`mepc` = PC của DIV);
+  DIV chạy lại đầy đủ sau MRET. Độ trễ ngắt xấu nhất vì vậy cộng thêm ~34 chu kỳ. Test `irq_during_div` kiểm
+  tra kết quả đúng; TB đếm `irq_wait_div` (ngắt pending khi bộ chia bận) và `irq_cancel_div` (DIV bị hủy ở MEM).
+  Việc hủy bộ chia đang lặp (`kill` khi `busy`) vẫn xảy ra khi lệnh già hơn trap ở MEM và được kiểm ở `tb_muldiv`.
+- **Hướng phát triển:** cho phép nhận ngắt khi MEM là bubble do MulDiv (lấy `mepc` = PC của lệnh ở EX) để giảm
+  độ trễ ngắt.
+
+## D22. Mã RTL thân thiện với Yosys
+- **Bối cảnh:** Yosys 0.63 (`read_verilog -sv`) sinh dây không driver với (1) câu lệnh `return` trong function,
+  (2) gọi function bên trong `always_ff`, (3) mảng unpacked có reset bằng vòng `for` và ghi theo chỉ số tính toán.
+- **Quyết định:** function gán vào tên hàm thay cho `return`; các phép trộn theo `PSTRB` và đảo bit SPI được tính
+  bằng phép gán liên tục; regfile, BHT, BTB dùng một thanh ghi cho mỗi entry trong `generate` (ghi khi
+  `idx == i`), đọc qua mảng packed. Sau sửa: `check -assert` sạch cho `rv_core`, `rv_core_sc`, `soc_top`;
+  toàn bộ regression chạy lại PASS.
+
+## D23. Black box RAM khi tổng hợp
+- **Bối cảnh:** `soc_top` truyền `DEPTH` cho `ram_dp` nên Yosys tạo module `$paramod\ram_dp…`; lệnh `blackbox`
+  đặt sau `hierarchy` không có tác dụng và Yosys cố tổng hợp 128 KB RAM thành flip-flop (treo, hết bộ nhớ).
+- **Quyết định:** khai báo `blackbox ram_dp` trước `hierarchy` trong `syn/synth_generic.ys`.
+
+## D24. Ước lượng Fmax
+- **Quyết định:** chọn cách (a) của spec 12.2: `synth_ecp5` + `nextpnr-ecp5` (LFE5U-85F, CABGA756, seed 1, ràng buộc
+  50 MHz, `--timing-allow-fail`). Fmax báo cáo là tần số của miền clock (đường thanh ghi → thanh ghi); đường vào/ra
+  chân không được ràng buộc. `soc_top` được đặt với RAM 1 KB (`RAM_DEPTH = 256`, LUT RAM; bản 4 KB cần > 5 GB bộ nhớ trong Yosys) để có cả đường đọc lệnh
+  tổ hợp. Không làm OpenSTA/sky130 (cách b) dù có sẵn công cụ – một nguồn ước lượng là đủ cho so sánh tương đối.
+
+## D25. Loại bỏ khối M/C khi tắt extension
+- **Bối cảnh:** khi `ENABLE_M = 0`, lệnh M là illegal nên `ex_is_md` luôn bằng 0, nhưng Yosys không chứng minh được
+  thanh ghi đó hằng 0 (có nhánh giữ giá trị khi stall) nên vẫn giữ nguyên bộ nhân/chia: diện tích `m0c0` bằng `m1c0`.
+- **Quyết định:** `muldiv` chỉ được sinh khi `ENABLE_M` (`generate` trong `ex_stage`), `compressed_decoder` chỉ khi
+  `ENABLE_C` (trong `id_stage`). Bộ đếm `md_aborts` của TB dùng tín hiệu cấp `rv_core` thay cho tham chiếu vào bên
+  trong `muldiv`. Ma trận riscv-tests và system test chạy lại PASS.
+
+## D26. So sánh Fmax single-cycle và pipeline
+- **Bối cảnh:** Fmax của lõi đứng riêng không gồm đường qua RAM (port lõi không được ràng buộc). Với lõi single-cycle,
+  đường thật đi qua RAM hai lần trong một chu kỳ (đọc lệnh rồi đọc/ghi dữ liệu) nên con số lõi đứng riêng không phản
+  ánh tần số thật.
+- **Quyết định:** thí nghiệm 5 dùng Fmax của SoC đầy đủ (RAM 1 KB LUT RAM) cho cả ba lõi (`soc_top_sc_1k`,
+  `soc_top_m0c0_1k`, `soc_top_1k`); bảng S3 vẫn liệt kê Fmax lõi đứng riêng để tham khảo.

@@ -7,6 +7,26 @@
 do_illegal:          // illegal instruction, mtval = 0xFFFFFFFF
     .word 0xFFFFFFFF
     ret
+    .globl do_ill_miscmem
+do_ill_miscmem:      // MISC-MEM with funct3 = 2 (reserved)
+    .word 0x0000200F
+    ret
+    .globl do_ill_sret
+do_ill_sret:         // SRET: no S-mode -> illegal
+    .word 0x10200073
+    ret
+    .globl do_ill_sys4
+do_ill_sys4:         // SYSTEM funct3 = 100 (reserved)
+    .word 0x00004073
+    ret
+    .globl do_csr_noexist
+do_csr_noexist:      // read of a non-existent CSR (0x7C0)
+    csrr    a0, 0x7C0
+    ret
+    .globl do_csr_ro_write
+do_csr_ro_write:     // write to read-only CSR cycle
+    csrw    cycle, a0
+    ret
     .globl do_ecall
 do_ecall:
     ecall

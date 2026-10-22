@@ -31,6 +31,7 @@ module core_cov (
   input logic        bp_upd_btb_inv,
   input logic        bp_if_btb_hit,
   // traps
+  input logic        mem_valid,
   input logic        mem_trap,
   input logic        trap_irq,
   input logic [3:0]  trap_cause,
@@ -103,8 +104,16 @@ module core_cov (
   c_irq_mei:             cover property (@(posedge clk) mem_trap && trap_irq && trap_cause == 4'd11);
   // interrupt pending while the divider iterates
   c_irq_during_div:      cover property (@(posedge clk) irq_req && md_busy);
-  // trap of the instruction that follows a mispredicted branch/jump
-  c_trap_after_mispred:  cover property (@(posedge clk) mem_trap && wb_valid && wb_mispred);
+  // trap of the first correct-path instruction after a mispredicted branch/jump:
+  // after ex_redirect the branch itself reaches MEM first, the next valid MEM
+  // instruction is the redirect target.
+  logic [1:0] after_mis;
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n)                     after_mis <= 2'd0;
+    else if (ex_redirect)           after_mis <= 2'd2;
+    else if (mem_valid && after_mis != 2'd0) after_mis <= after_mis - 2'd1;
+  end
+  c_trap_after_mispred:  cover property (@(posedge clk) after_mis == 2'd1 && mem_valid && mem_trap);
 
 endmodule
 
@@ -115,5 +124,5 @@ bind rv_core core_cov u_core_cov (
   .bus_wait,
   .ex_redirect, .id_redirect, .ex_is_branch, .ex_is_jal, .ex_is_jalr, .bp_upd_btb_inv,
   .bp_if_btb_hit,
-  .mem_trap, .trap_irq, .trap_cause, .irq_req
+  .mem_valid, .mem_trap, .trap_irq, .trap_cause, .irq_req
 );

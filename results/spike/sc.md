@@ -2,7 +2,7 @@
 
 Mức so sánh: `--log-commits` (pc, mã lệnh, thanh ghi đích + giá trị, địa chỉ + dữ liệu store), so khớp từng lệnh bằng regex.
 
-MATCH (kể cả KNOWN) 49 / 49
+MATCH (kể cả KNOWN) 50 / 50
 
 KNOWN = khớp tới lệnh đọc một CSR có giá trị tùy hiện thực (misa/marchid/mimpid), sau đó luồng chương trình rẽ khác một cách hợp lệ.
 
@@ -49,13 +49,14 @@ KNOWN = khớp tới lệnh đọc một CSR có giá trị tùy hiện thực (
 | rv32ui-p-sub | MATCH | 461 lệnh khớp | 0 |  |
 | rv32ui-p-xor | MATCH | 491 lệnh khớp | 0 |  |
 | rv32ui-p-xori | MATCH | 211 lệnh khớp | 0 |  |
-| bench-dhrystone | MATCH | 303427 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000f38; mã thoát tohost khớp (RTL còn 11728, Spike còn 9865 lệnh không so) | 36 |  |
-| bench-median | MATCH | 9191 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000534; mã thoát tohost khớp (RTL còn 8468, Spike còn 7654 lệnh không so) | 32 |  |
-| bench-memcpy | MATCH | 40766 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x8000055c; mã thoát tohost khớp (RTL còn 26877, Spike còn 25999 lệnh không so) | 32 |  |
-| bench-multiply | MATCH | 42496 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000540; mã thoát tohost khớp (RTL còn 7701, Spike còn 6557 lệnh không so) | 32 |  |
-| bench-qsort | MATCH | 215886 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000660; mã thoát tohost khớp (RTL còn 19437, Spike còn 17783 lệnh không so) | 32 |  |
-| bench-rsort | MATCH | 362422 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000858; mã thoát tohost khớp (RTL còn 18842, Spike còn 17920 lệnh không so) | 32 |  |
-| bench-towers | MATCH | 8429 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000a58; mã thoát tohost khớp (RTL còn 6489, Spike còn 5668 lệnh không so) | 32 |  |
-| bench-vvadd | MATCH | 5525 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x800004fc; mã thoát tohost khớp (RTL còn 7699, Spike còn 7032 lệnh không so) | 32 |  |
+| bench-coremark | MATCH | 1525837 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x8000266c; mã thoát tohost khớp (RTL còn 9644, Spike còn 7342 lệnh không so) | 34 |  |
+| bench-dhrystone | MATCH | 303517 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000f38; mã thoát tohost khớp (RTL còn 11728, Spike còn 9865 lệnh không so) | 36 |  |
+| bench-median | MATCH | 9281 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000534; mã thoát tohost khớp (RTL còn 8468, Spike còn 7654 lệnh không so) | 32 |  |
+| bench-memcpy | MATCH | 40856 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x8000055c; mã thoát tohost khớp (RTL còn 26877, Spike còn 25999 lệnh không so) | 32 |  |
+| bench-multiply | MATCH | 42586 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000540; mã thoát tohost khớp (RTL còn 7701, Spike còn 6557 lệnh không so) | 32 |  |
+| bench-qsort | MATCH | 215976 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000660; mã thoát tohost khớp (RTL còn 19437, Spike còn 17783 lệnh không so) | 32 |  |
+| bench-rsort | MATCH | 362512 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000858; mã thoát tohost khớp (RTL còn 18842, Spike còn 17920 lệnh không so) | 32 |  |
+| bench-towers | MATCH | 8519 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000a58; mã thoát tohost khớp (RTL còn 6489, Spike còn 5668 lệnh không so) | 32 |  |
+| bench-vvadd | MATCH | 5615 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x800004fc; mã thoát tohost khớp (RTL còn 7699, Spike còn 7032 lệnh không so) | 32 |  |
 
 Tái tạo: `.venv/bin/python scripts/compare_spike.py --config sc`

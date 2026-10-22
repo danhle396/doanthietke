@@ -12,6 +12,7 @@ Usage:
 """
 import argparse
 import sys
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -22,7 +23,7 @@ SW = ROOT / "sw"
 COMMON_FLAGS = ["-mabi=ilp32", "-O2", "-g", "-ffreestanding", "-nostdlib", "-nostartfiles",
                 "-fno-tree-loop-distribute-patterns", "-fno-builtin", "-Wall",
                 "-ffunction-sections", "-fdata-sections"]
-KIND_DIR = {"tests": SW / "tests", "bench": SW / "benchmarks"}
+KIND_DIR = {"tests": SW / "tests", "bench": SW / "benchmarks", "examples": SW / "examples"}
 
 
 def program_dirs(kind):
@@ -35,7 +36,20 @@ def _expand(text):
     return text.replace("${TP}", str(ROOT / "third_party")).replace("${SW}", str(SW))
 
 
+_locks = {}
+_locks_guard = threading.Lock()
+
+
 def build_program(kind, pdir, variant, console):
+    """Thread-safe wrapper: one build per (kind, program, variant, console)."""
+    key = (kind, Path(pdir).name, variant, console)
+    with _locks_guard:
+        lock = _locks.setdefault(key, threading.Lock())
+    with lock:
+        return _build_program(kind, pdir, variant, console)
+
+
+def _build_program(kind, pdir, variant, console):
     pdir = Path(pdir)
     out = BUILD / "sw" / kind / f"{variant}_{console}"
     out.mkdir(parents=True, exist_ok=True)

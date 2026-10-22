@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -13,7 +14,8 @@ RESULTS = ROOT / "results"
 TP = ROOT / "third_party"
 
 HOME = Path.home()
-_extra = [HOME / "tools/oss-cad-suite/bin", HOME / "tools/spike/bin", HOME / "tools/dtc/bin"]
+_extra = [HOME / "tools/oss-cad-suite/bin", HOME / "tools/spike/bin", HOME / "tools/dtc/bin",
+          HOME / "tools/pandoc/bin"]
 _extra += sorted((HOME / "tools").glob("xpack-riscv-none-elf-gcc*/bin"))
 os.environ["PATH"] = os.pathsep.join([str(p) for p in _extra if p.is_dir()] +
                                      [os.environ.get("PATH", "")])
@@ -109,10 +111,22 @@ def _newest_mtime(paths):
     return m
 
 
+_build_locks = {}
+_build_locks_guard = threading.Lock()
+
+
 def build_soc(cfg, coverage=False, trace=True, quiet=True):
     """Build tb_soc for one configuration; return the executable path.
-    Rebuilds only if an RTL/TB source is newer than the executable."""
-    name = cfg_name(cfg) + ("_cov" if coverage else "")
+    Rebuilds only if an RTL/TB source is newer than the executable.
+    Thread-safe: concurrent callers for the same configuration wait for one build."""
+    name = cfg_name(cfg) + ("_cov" if coverage else "") + ("_vcd" if trace == "vcd" else "")
+    with _build_locks_guard:
+        lock = _build_locks.setdefault(name, threading.Lock())
+    with lock:
+        return _build_soc(cfg, name, coverage, trace)
+
+
+def _build_soc(cfg, name, coverage, trace):
     out = BUILD / "verilator" / name
     exe = out / "Vtb_soc"
     deps = [ROOT / "rtl", ROOT / "tb/soc", ROOT / "tb/bfm", ROOT / "tb/cov", Path(__file__)]
@@ -130,7 +144,9 @@ def build_soc(cfg, coverage=False, trace=True, quiet=True):
         cmd.append(f"-I{ROOT / d}")
     for k, v in cfg.items():
         cmd.append(f"-G{k}={v}")
-    if trace:
+    if trace == "vcd":       # VCD build: read by scripts/vcd2png.py
+        cmd.append("--trace")
+    elif trace:
         cmd.append("--trace-fst")
     if coverage:
         cmd += ["--coverage-line", "--coverage-toggle", "--coverage-user"]

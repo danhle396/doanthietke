@@ -1,0 +1,20 @@
+[dumpfile] "/home/danhle/Desktop/doanthietke/build/logs/systest/m1c1_bp2/spi_modes.fst"
+[timestart] 0
+[size] 1400 700
+[signals_width] 280
+@28
+TOP.tb_soc.clk
+@22
+TOP.tb_soc.dut.spi_cs_n[3:0]
+@28
+TOP.tb_soc.dut.spi_sclk
+@28
+TOP.tb_soc.dut.spi_mosi
+@28
+TOP.tb_soc.dut.spi_miso
+@22
+TOP.tb_soc.dut.u_spi.ctrl_q[3:0]
+@22
+TOP.tb_soc.dut.u_spi.u_eng.state_q[1:0]
+@22
+TOP.tb_soc.dut.u_spi.u_eng.edge_q[3:0]

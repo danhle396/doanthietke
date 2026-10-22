@@ -1,0 +1,32 @@
+[dumpfile] "/home/danhle/Desktop/doanthietke/build/logs/systest/m1c1_bp2/hello.fst"
+[timestart] 0
+[size] 1400 700
+[signals_width] 280
+@28
+TOP.tb_soc.clk
+@28
+TOP.tb_soc.dut.dbus_req
+@28
+TOP.tb_soc.dut.dbus_we
+@22
+TOP.tb_soc.dut.dbus_addr[31:0]
+@28
+TOP.tb_soc.dut.dbus_ready
+@22
+TOP.tb_soc.dut.paddr[31:0]
+@22
+TOP.tb_soc.dut.psel[15:0]
+@28
+TOP.tb_soc.dut.penable
+@28
+TOP.tb_soc.dut.pwrite
+@22
+TOP.tb_soc.dut.pwdata[31:0]
+@22
+TOP.tb_soc.dut.pstrb[3:0]
+@28
+TOP.tb_soc.dut.pready
+@28
+TOP.tb_soc.dut.pslverr
+@28
+TOP.tb_soc.dut.uart_tx

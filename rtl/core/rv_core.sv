@@ -195,7 +195,7 @@ module rv_core
     .fwd_b     (fwd_b)
   );
 
-  ex_stage #(.ENABLE_C(ENABLE_C)) u_ex (
+  ex_stage #(.ENABLE_M(ENABLE_M), .ENABLE_C(ENABLE_C)) u_ex (
     .clk, .rst_n,
     .ex_valid, .ex_pc, .ex_insn, .ex_is_c, .ex_pred_npc, .ex_exc, .ex_exc_cause,
     .ex_exc_tval, .ex_rs1, .ex_rs1_val, .ex_rs2_val, .ex_imm, .ex_rd, .ex_rd_we,

@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 7 – đang thực hiện
+Phase 8 – đang thực hiện
 
 ## Checklist từng Phase
 
@@ -54,11 +54,11 @@ Phase 7 – đang thực hiện
 - [x] unit TB ngoại vi pass
 
 ### Phase 7 – SoC, firmware, perf, coverage, synth
-- [x] system tests (mục 10.4): 10/10 PASS (exceptions chạy cả m1c1 và m1c0)
-- [ ] benchmark, run_perf.py
-- [ ] coverage
-- [ ] synth
-- [ ] docs/results.md
+- [x] system tests (mục 10.4): 10/10 + branch_smc PASS (exceptions, irq_priority, timer_irq, branch_smc chạy cả trên sc)
+- [x] benchmark (8 riscv-tests + CoreMark), run_perf.py: 5 thí nghiệm, kiểm tra hợp lý ĐẠT
+- [x] coverage: line rtl/core 99.8%, rtl/periph 97.5%, functional 71/71
+- [x] synth: generic (32 cấu hình) + ECP5 (lõi và SoC RAM 1 KB)
+- [x] docs/results.md (ghép tự động từ results/)
 
 ### Phase 8 – Tài liệu
 - [ ] docs/giai_thich/
@@ -68,6 +68,7 @@ Phase 7 – đang thực hiện
 
 ## Kết quả regression gần nhất
 
+- 22/10/2026 Phase 7: `make regress` PASS (lint, unit 13/13, isa 351 PASS/0 FAIL, Spike 259/259 MATCH, systest 15 lượt PASS); coverage line core 99.8%, periph 97.5%, functional 71/71; perf: geomean CPI 1.320/1.223/1.097 (BP0/1/2); Fmax SoC pipeline 42.3 MHz, SoC single-cycle 25.6 MHz.
 - 22/10/2026 Phase 1: `run_isa.py --config sc` rv32ui 41 PASS / 0 FAIL / 1 EXCLUDED (ma_data); `compare_spike.py --config sc` 41/41 MATCH; hello (CONSOLE=sim) PASS trên sc và m1c1_bp2; lint sạch 8 cấu hình; Yosys elaborate rv_core_sc/rv_core/soc_top OK.
 - 22/10/2026 Phase 2: ma trận riscv-tests (6 cấu hình) 0 FAIL; Spike 4 cấu hình MATCH (KNOWN: marchid, misa); tb_alu (15440 checks), tb_regfile (40134 checks) PASS; lint sạch.
 - 22/10/2026 Phase 3: ma trận riscv-tests 0 FAIL (rv32um, rv32uc pass); tb_muldiv (4316 checks, latency chia 33), tb_compressed_decoder (1061 vector + 43 illegal) PASS.
@@ -81,7 +82,7 @@ Phase 7 – đang thực hiện
 
 ## Ghi chú cho lần chạy sau
 
-- Phase 7 đang làm: soc_top đầy đủ, driver, system test xong; còn CoreMark, run_perf.py, coverage, synth, docs/results.md.
+- Phase 8: tài liệu giải thích, báo cáo, compliance gần xong; còn: nghiệm thu từ clone sạch (mục 17), commit final.
 
 - Thư mục gốc: `/home/danhle/Desktop/doanthietke`.
 - Công cụ: OSS CAD Suite ở `~/tools/oss-cad-suite`, Spike ở `~/tools/spike`, dtc ở `~/tools/dtc`.

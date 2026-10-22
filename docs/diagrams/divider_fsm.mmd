@@ -1,0 +1,7 @@
+stateDiagram-v2
+  [*] --> IDLE
+  IDLE --> BUSY: start
+  BUSY --> BUSY: 32 iterations
+  BUSY --> DONE
+  DONE --> IDLE: advance
+  BUSY --> IDLE: kill

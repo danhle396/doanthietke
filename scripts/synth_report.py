@@ -6,8 +6,10 @@
     BHT x BTB sweep), rv_core_sc, every peripheral and soc_top with ram_dp as
     a black box (RAM not counted).
   * Fmax: Yosys synth_ecp5 + nextpnr-ecp5 (LFE5U-85F, CABGA756) - an FPGA
-    estimate only, no ASIC place & route. soc_top is placed with a 4 KB RAM
-    (RAM_DEPTH = 1024, LUT RAM) so that the instruction-fetch path is timed.
+    estimate only, no ASIC place & route. soc_top is placed with a 1 KB RAM
+    (RAM_DEPTH = 256, LUT RAM) so that the instruction-fetch path is timed
+    (a 4 KB combinational-read RAM needs > 5 GB in Yosys on this machine).
+    Results of earlier runs are reused when no RTL/script file is newer.
 
 Writes results/synth/summary.md, summary.json, area.csv and the critical path
 excerpts results/synth/critical_path_<name>.txt.
@@ -43,8 +45,19 @@ FMAX_JOBS = {  # name -> (top, params)
     "m1c1_bp0": ("rv_core", CORE_CFGS["m1c1_bp0"]),
     "m0c0_bp2": ("rv_core", CORE_CFGS["m0c0_bp2"]),
     "sc": ("rv_core_sc", {}),
-    "soc_top_4k": ("soc_top", dict(RAM_DEPTH=1024)),
+    "soc_top_1k": ("soc_top", dict(RAM_DEPTH=256)),
+    "soc_top_m0c0_1k": ("soc_top", dict(ENABLE_M=0, ENABLE_C=0, RAM_DEPTH=256)),
+    "soc_top_sc_1k": ("soc_top", dict(CORE_SC=1, RAM_DEPTH=256)),
 }
+
+
+def _fresh(log):
+    """True if `log` exists and is newer than every RTL file and syn template."""
+    if not log.exists():
+        return False
+    newest = max([Path(f).stat().st_mtime for f in rtl_files()] +
+                 [p.stat().st_mtime for p in (ROOT / "syn").glob("*.ys")])
+    return log.stat().st_mtime > newest
 
 
 def chparam(top, params):
@@ -59,7 +72,8 @@ def generic_area(name, top, params, blackbox=""):
     ys.write_text(tmpl.format(files=FILES, top=top, chparam=chparam(top, params),
                               blackbox=blackbox))
     log = d / f"{name}.log"
-    run([YOSYS, "-q", "-l", str(log), "-s", str(ys)], timeout=3600)
+    if not _fresh(log):
+        run([YOSYS, "-q", "-l", str(log), "-s", str(ys)], timeout=3600)
     text = log.read_text()
     stat = text[text.rfind("Printing statistics"):]
     cells = int(re.search(r"^\s+(\d+)\s+cells\s*$", stat, re.M).group(1))
@@ -75,16 +89,20 @@ def fmax(name, top, params):
     ys = d / f"{name}.ys"
     ys.write_text(tmpl.format(files=FILES, top=top, chparam=chparam(top, params), json=js))
     log = d / f"{name}.yosys.log"
-    run([YOSYS, "-q", "-l", str(log), "-s", str(ys)], timeout=7200)
+    pnr_log = d / f"{name}.pnr.log"
+    if not (_fresh(pnr_log) and "Max frequency" in pnr_log.read_text()):
+        try:
+            run([YOSYS, "-q", "-l", str(log), "-s", str(ys)], timeout=7200)
+        except Exception as e:
+            return dict(name=name, top=top, fmax_mhz=None, lut4=0, ff=0, critical_path="", error=str(e)[:200])
+        run(["nextpnr-ecp5", "--85k", "--package", "CABGA756", "--json", str(js),
+             "--freq", "50", "--timing-allow-fail", "--seed", "1"], check=False, timeout=7200,
+            log=pnr_log)
     text = log.read_text()
     stat = text[text.rfind("Printing statistics"):]
     luts = sum(int(m.group(1)) for m in re.finditer(r"^\s+(\d+)\s+LUT4\s*$", stat, re.M))
     ffs = sum(int(m.group(1)) for m in re.finditer(r"^\s+(\d+)\s+TRELLIS_FF\s*$", stat, re.M))
-    pnr_log = d / f"{name}.pnr.log"
-    res = run(["nextpnr-ecp5", "--85k", "--package", "CABGA756", "--json", str(js),
-               "--freq", "50", "--timing-allow-fail", "--seed", "1"], check=False, timeout=7200,
-              log=pnr_log)
-    out = res.stdout
+    out = pnr_log.read_text()
     m = re.findall(r"Max frequency for clock '[^']*': ([\d.]+) MHz", out)
     f = float(m[-1]) if m else None
     # critical path excerpt (clock-to-clock report)
@@ -101,14 +119,17 @@ def fmax(name, top, params):
 
 
 def summarize_cp(cp):
-    """Short human description: first source and last sink of the path."""
+    """Short description: source register -> sink register of the critical path."""
     srcs = re.findall(r"Source (\S+)", cp)
     sinks = re.findall(r"Sink (\S+)", cp)
     if not srcs:
         return ""
     def short(s):
-        return s.split(".")[0] + "." + s.split(".")[1].split("_")[0] if "." in s else s
-    return f"{short(srcs[0])} → … → {short(sinks[-1])} ({len(srcs)} chặng)"
+        s = s.rsplit(".", 1)[0] if s.count(".") else s      # drop the cell pin
+        for cut in ("_TRELLIS", "_LUT4", "_CCU2C", "_PFUMX", "_L6MUX", "_DPR16X4"):
+            s = s.split(cut)[0]
+        return s
+    return f"`{short(srcs[0])}` → `{short(sinks[-1])}` ({len(srcs)} chặng logic/định tuyến)"
 
 
 def main():
@@ -182,8 +203,10 @@ def main():
             for k, v in summary["ecp5"].items():
                 lines.append(f"| `{k}` | {v['lut4']} | {v['ff']} | {v['fmax_mhz']} | |")
         lines += ["", "Chi tiết từng chặng: `results/synth/critical_path_<tên>.txt`. "
-                  "`soc_top_4k` dùng RAM 4 KB (LUT RAM) thay cho 128 KB để đặt được trên FPGA "
-                  "và tính cả đường đọc lệnh tổ hợp.", ""]
+                  "`soc_top_*_1k` dùng RAM 1 KB (LUT RAM) thay cho 128 KB để đặt được trên FPGA "
+                  "và tính cả đường đọc RAM tổ hợp; Fmax của lõi đứng riêng (`m1c1_bp2`, `sc`…) **không** "
+                  "gồm đường qua RAM (cổng vào/ra lõi không được ràng buộc), nên so sánh single-cycle với "
+                  "pipeline phải dùng các dòng `soc_top_*`.", ""]
     (OUT / "summary.md").write_text("\n".join(lines))
     print("\n".join(lines))
 

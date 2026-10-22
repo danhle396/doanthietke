@@ -41,7 +41,8 @@ def sim_jobs():
                 if name in EXCLUDED:
                     continue
                 elf, hexf, tohost = build_isa_test(suite, t, v)
-                jobs.append((cname, f"isa_{cname}_{name}", hexf, [f"+tohost={tohost}"]))
+                jobs.append((cname, f"isa_{cname}_{name}", hexf,
+                             [f"+tohost={tohost}", "+commitlog=/dev/null"]))
     for t in ORDER:
         tdir = TESTS_DIR / t
         tc = read_cfg(tdir)
@@ -69,6 +70,37 @@ def run_job(job):
     return name, ok
 
 
+# Explanations for lines that are not covered (file -> [(source substring, reason)])
+EXPLAIN = {
+    "rtl/core/alu.sv": [("default:", "nhánh `default` của `case (op)`: decoder chỉ sinh 10 mã ALU hợp lệ nên "
+                         "nhánh này không thể xảy ra; giữ lại để tránh latch / X khi tổng hợp")],
+    "rtl/periph/sim/sim_ctrl.sv": [("", "đường tự kết thúc dự phòng của SIM_CTRL (sau EXIT_DELAY = 1000 chu kỳ); "
+                                    "trong mọi lần chạy `tb_soc` xử lý EXIT trước (D9) nên đường này không chạy – "
+                                    "chỉ dùng khi SIM_CTRL được dùng mà không có testbench đó")],
+    "rtl/core/wb_stage.sv": [("", "lệnh in commit log chỉ chạy khi có `+commitlog=`")],
+}
+
+
+def explain(rel, text):
+    for sub, reason in EXPLAIN.get(rel, []):
+        if sub in text:
+            return reason
+    return "CHƯA GIẢI THÍCH"
+
+
+def fold():
+    """Merge every per-run .dat into merged.dat and delete the per-run files."""
+    merged = COV / "merged.dat"
+    dats = sorted(str(p) for p in COV.glob("*.dat") if p.name != "merged.dat")
+    if not dats:
+        return
+    tmp = COV / "merged.tmp.dat"
+    run(["verilator_coverage", "--write", str(tmp)] + ([str(merged)] if merged.exists() else []) + dats)
+    tmp.replace(merged)
+    for d in dats:
+        Path(d).unlink()
+
+
 def line_summary(info):
     files = {}
     cur = None
@@ -91,18 +123,22 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     if not args.skip_runs:
         for f in COV.glob("*.dat"):
-            f.unlink()
+            f.unlink()  # includes the previous merged.dat
         run([sys.executable, str(ROOT / "scripts/run_unit.py"), "--coverage"], check=False)
         for cname in CONFIGS:
             build_soc(CONFIGS[cname], coverage=True, trace=False)
         jobs = sim_jobs()
-        with ThreadPoolExecutor(max_workers=JOBS) as ex:
-            res = list(ex.map(run_job, jobs))
+        merged = COV / "merged.dat"
+        res = []
+        # run in batches and fold each batch into merged.dat (keeps disk usage low)
+        for i in range(0, len(jobs), 40):
+            with ThreadPoolExecutor(max_workers=JOBS) as ex:
+                res += list(ex.map(run_job, jobs[i:i + 40]))
+            fold()
         bad = [n for n, ok in res if not ok]
         print(f"[cov] {len(res)} coverage runs, {len(bad)} failed {bad[:5]}")
-    dats = sorted(str(p) for p in COV.glob("*.dat") if p.name != "merged.dat")
+    fold()
     merged = COV / "merged.dat"
-    run(["verilator_coverage", "--write", str(merged)] + dats)
     info = COV / "line.info"
     run(["verilator_coverage", "--filter-type", "line", "--write-info", str(info), str(merged)])
     tinfo = COV / "toggle.info"
@@ -150,10 +186,11 @@ def main():
         src = (ROOT / rel).read_text().splitlines()
         un.append(f"## `{rel}` – {len(miss)} dòng")
         un.append("")
-        un.append("```")
+        un.append("| Dòng | Mã | Giải thích |")
+        un.append("|---|---|---|")
         for l in miss:
-            un.append(f"{l:5d}: {src[l-1].rstrip() if l <= len(src) else ''}")
-        un.append("```")
+            code = src[l - 1].strip() if l <= len(src) else ""
+            un.append(f"| {l} | `{code.replace('|', '¦')}` | {explain(rel, code)} |")
         un.append("")
     (OUT / "uncovered.md").write_text("\n".join(un))
     run([sys.executable, str(ROOT / "scripts/cov_report.py"), str(merged)])

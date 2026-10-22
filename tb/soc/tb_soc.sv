@@ -74,7 +74,7 @@ module tb_soc #(
     assign obs_id_redirect = dut.g_pipe.u_core.id_redirect;
     assign obs_ex_redirect = dut.g_pipe.u_core.ex_redirect;
     // divider killed while iterating (e.g. interrupt during DIV)
-    assign obs_md_abort    = dut.g_pipe.u_core.u_ex.u_md.kill && dut.g_pipe.u_core.u_ex.u_md.busy;
+    assign obs_md_abort    = dut.g_pipe.u_core.mem_redirect && dut.g_pipe.u_core.md_busy;
     assign obs_irq_taken   = dut.g_pipe.u_core.u_mem.trap_irq;
     // an enabled interrupt is pending while the divider iterates
     assign obs_irq_wait_div = dut.g_pipe.u_core.irq_req && dut.g_pipe.u_core.md_busy;

@@ -211,7 +211,10 @@ def exp5():
     benches = [b for b in BENCHES if b != "coremark"] + ["coremark"]
     for label, cfg, variant, key in cores:
         rs = run_many([(cfg, variant, b) for b in benches])
-        fmax = synth.get("fmax_mhz", {}).get(key)
+        # SoC-level Fmax (includes the combinational RAM paths); core-level as fallback
+        fm = synth.get("fmax_mhz", {})
+        soc_key = {"sc": "soc_top_sc_1k", "m0c0_bp2": "soc_top_m0c0_1k", "m1c1_bp2": "soc_top_1k"}[key]
+        fmax = fm.get(soc_key) or fm.get(key)
         for r in rs:
             rows.append(dict(core=label, key=key, variant=variant, bench=r["bench"],
                              cycles=r["cycles"], instret=r["instret"], cpi=r["cpi"],
@@ -361,7 +364,8 @@ def report(e1, e2, e3, e4, e5):
             if r["core"] not in cores:
                 cores.append(r["core"])
         lines += ["## Thí nghiệm 5 – Single-cycle so với pipeline", "",
-                  "Bảng P5. CPI (geomean), Fmax ước lượng (nextpnr ECP5, xem `results/synth/summary.md`) "
+                  "Bảng P5. CPI (geomean), Fmax ước lượng của SoC tương ứng (nextpnr ECP5, RAM 1 KB, xem "
+                  "`results/synth/summary.md`) "
                   "và hiệu năng tương đối ∝ Fmax / CPI (chuẩn hóa theo lõi single-cycle). "
                   "Nguồn: `results/perf/exp5_sc_vs_pipeline.csv`.", "",
                   "| Lõi | geomean CPI | Dhrystone CPI | Fmax (MHz) | Fmax/CPI | Hiệu năng tương đối |",

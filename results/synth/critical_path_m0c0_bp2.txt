@@ -1,0 +1,109 @@
+  clk-to-q  0.52  0.52 Source u_ex.mem_insn_TRELLIS_FF_Q_3.Q
+   routing  0.99  1.52 Net irq_msip_LUT4_B_Z_LUT4_A_Z_LUT4_C_Z_LUT4_Z_D_LUT4_D_Z_LUT4_Z_13_B_PFUMX_Z_ALUT_LUT4_Z_B[2] (54,26) -> (54,26)
+                         Sink u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.D
+     logic  0.24  1.75 Source u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.F
+   routing  0.00  1.75 Net u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1_PFUMX_Z_ALUT (54,26) -> (54,26)
+                         Sink u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z.F1
+     logic  0.17  1.92 Source u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z.OFX
+   routing  0.00  1.92 Net u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1 (54,26) -> (54,26)
+                         Sink u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.FXB
+     logic  0.24  2.16 Source u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  1.36  3.52 Net u_ex.mem_rd_we_LUT4_B_Z_LUT4_D_Z_PFUMX_ALUT_C0[6] (54,26) -> (58,30)
+                         Sink u_ex.mem_rd_we_LUT4_B_Z_L6MUX21_SD_3_D0_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  3.78 Source u_ex.mem_rd_we_LUT4_B_Z_L6MUX21_SD_3_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  1.35  5.13 Net u_ex.mem_rd_we_LUT4_B_Z_L6MUX21_SD_3_Z_L6MUX21_D1_Z[5] (58,30) -> (62,37)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_21_D_CCU2C_S1_A0_LUT4_B_D_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  5.38 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_21_D_CCU2C_S1_A0_LUT4_B_D_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  1.43  6.82 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_21_D_CCU2C_S1_A0[2] (62,37) -> (60,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT_CIN_CCU2C_COUT$CCU2_COMB0.B
+     logic  0.45  7.26 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT_CIN_CCU2C_COUT$CCU2_COMB0.FCO
+   routing  0.00  7.26 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT_CIN_CCU2C_COUT$CCU2_FCI_INT (60,32) -> (60,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT_CIN_CCU2C_COUT$CCU2_COMB1.FCI
+     logic  0.00  7.26 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT_CIN_CCU2C_COUT$CCU2_COMB1.FCO
+   routing  0.00  7.26 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT_CIN (60,32) -> (60,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT$CCU2_COMB0.FCI
+     logic  0.07  7.33 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT$CCU2_COMB0.FCO
+   routing  0.00  7.33 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT$CCU2_FCI_INT (60,32) -> (60,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT$CCU2_COMB1.FCI
+     logic  0.00  7.33 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN_CCU2C_COUT$CCU2_COMB1.FCO
+   routing  0.00  7.33 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_CIN (60,32) -> (60,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB0.FCI
+     logic  0.07  7.40 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB0.FCO
+   routing  0.00  7.40 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_FCI_INT (60,32) -> (60,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB1.FCI
+     logic  0.00  7.40 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB1.FCO
+   routing  0.00  7.40 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_1_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_COUT (60,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB0.FCI
+     logic  0.07  7.47 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB0.FCO
+   routing  0.00  7.47 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_FCI_INT (61,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB1.FCI
+     logic  0.00  7.47 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0$CCU2_COMB1.FCO
+   routing  0.00  7.47 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_COUT (61,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB0.FCI
+     logic  0.07  7.55 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB0.FCO
+   routing  0.00  7.55 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_COUT_CCU2C_CIN$CCU2_FCI_INT (61,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB1.FCI
+     logic  0.00  7.55 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_22_D_CCU2C_S1_A0_LUT4_B_D_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB1.FCO
+   routing  0.00  7.55 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_CIN (61,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0$CCU2_COMB0.FCI
+     logic  0.07  7.62 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0$CCU2_COMB0.FCO
+   routing  0.00  7.62 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0$CCU2_FCI_INT (61,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0$CCU2_COMB1.FCI
+     logic  0.00  7.62 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0$CCU2_COMB1.FCO
+   routing  0.00  7.62 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT (61,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB0.FCI
+     logic  0.07  7.69 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB0.FCO
+   routing  0.00  7.69 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN$CCU2_FCI_INT (61,32) -> (61,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB1.FCI
+     logic  0.00  7.69 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB1.FCO
+   routing  0.00  7.69 Net $nextpnr_CCU2C_21$CIN (61,32) -> (62,32)
+                         Sink $nextpnr_CCU2C_21$CCU2_COMB0.FCI
+     logic  0.44  8.13 Source $nextpnr_CCU2C_21$CCU2_COMB0.F
+   routing  0.80  8.93 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN_COUT[4] (62,32) -> (62,32)
+                         Sink $nextpnr_CCU2C_21$CCU2_COMB1.A
+     logic  0.45  9.38 Source $nextpnr_CCU2C_21$CCU2_COMB1.FCO
+   routing  0.00  9.38 Net $nextpnr_CCU2C_21$COUT (62,32) -> (62,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_S1$CCU2_COMB0.FCI
+     logic  0.07  9.45 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_S1$CCU2_COMB0.FCO
+   routing  0.00  9.45 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_S1$CCU2_FCI_INT (62,32) -> (62,32)
+                         Sink u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_S1$CCU2_COMB1.FCI
+     logic  0.00  9.45 Source u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_S1$CCU2_COMB1.FCO
+   routing  0.00  9.45 Net $nextpnr_CCU2C_22$CIN (62,32) -> (62,32)
+                         Sink $nextpnr_CCU2C_22$CCU2_COMB0.FCI
+     logic  0.44  9.90 Source $nextpnr_CCU2C_22$CCU2_COMB0.F
+   routing  0.72  10.61 Net u_bp.genblk1.g_btb_if.u_btb.wr_target_LUT4_Z_9_D_CCU2C_S0_1_A0_CCU2C_A0_COUT_CCU2C_CIN_COUT[5] (62,32) -> (62,31)
+                         Sink u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_L6MUX21_Z_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  10.87 Source u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_L6MUX21_Z_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.00  10.87 Net u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_L6MUX21_Z_D1 (62,31) -> (62,31)
+                         Sink u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.FXB
+     logic  0.24  11.11 Source u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  1.00  12.11 Net u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q[4] (62,31) -> (62,23)
+                         Sink u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_LUT4_D_3.M
+     logic  0.26  12.37 Source u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_LUT4_D_3.OFX
+   routing  0.00  12.37 Net u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_PFUMX_C0_Z (62,23) -> (62,23)
+                         Sink u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_LUT4_D_2.FXB
+     logic  0.24  12.61 Source u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_LUT4_D_2.OFX
+   routing  0.00  12.61 Net u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_L6MUX21_SD_1_Z (62,23) -> (62,23)
+                         Sink u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_LUT4_D_4.FXB
+     logic  0.24  12.85 Source u_id.ex_is_fence_i_TRELLIS_FF_Q_DI_LUT4_Z_C_LUT4_C_D_LUT4_C_1_Z_TRELLIS_FF_DI_Q_LUT4_D_4.OFX
+   routing  1.14  13.99 Net u_ex.exc_any_LUT4_Z_C[2] (62,23) -> (63,18)
+                         Sink u_ex.result_LUT4_Z_17_C_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_CCU2C_S1_S0_CCU2C_S0_S1_CCU2C_S1_S0_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  14.25 Source u_ex.result_LUT4_Z_17_C_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_CCU2C_S1_S0_CCU2C_S0_S1_CCU2C_S1_S0_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.93  15.18 Net u_ex.result_LUT4_Z_17_C_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_CCU2C_S1_S0_CCU2C_S0_S1_CCU2C_S1_S0[4] (63,18) -> (63,15)
+                         Sink u_ex.result_LUT4_Z_17_C_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_CCU2C_S1_S0_CCU2C_S0_S1_CCU2C_S1_S0_PFUMX_C0_BLUT_LUT4_Z.M
+     logic  0.26  15.44 Source u_ex.result_LUT4_Z_17_C_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_CCU2C_S1_S0_CCU2C_S0_S1_CCU2C_S1_S0_PFUMX_C0_BLUT_LUT4_Z.OFX
+   routing  0.62  16.05 Net u_ex.result_LUT4_Z_17_C_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_CCU2C_S1_S0_CCU2C_S0_S1_CCU2C_S1_S0_PFUMX_C0_Z[5] (63,15) -> (62,15)
+                         Sink u_ex.exc_any_LUT4_D_Z_L6MUX21_Z_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  16.31 Source u_ex.exc_any_LUT4_D_Z_L6MUX21_Z_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.00  16.31 Net u_ex.exc_any_LUT4_D_Z_L6MUX21_Z_D1 (62,15) -> (62,15)
+                         Sink u_ex.exc_any_LUT4_D_Z_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.FXB
+     logic  0.24  16.55 Source u_ex.exc_any_LUT4_D_Z_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.94  17.49 Net u_ex.exc_any_LUT4_D_Z[6] (62,15) -> (61,18)
+                         Sink flush_id_ex_LUT4_Z_D_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  17.74 Source flush_id_ex_LUT4_Z_D_L6MUX21_Z_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.93  18.67 Net ev_load_use_LUT4_Z_D[1] (61,18) -> (63,21)
+                         Sink flush_id_ex_LUT4_Z_D_LUT4_D_2.D
+     logic  0.24  18.91 Source flush_id_ex_LUT4_Z_D_LUT4_D_2.F
+   routing  2.61  21.52 Net flush_id_ex_LUT4_Z_D_LUT4_D_2_Z (63,21) -> (44,38)
+                         Sink u_if.id_insn_TRELLIS_FF_Q_10.CE
+     setup  0.00  21.52 Source u_if.id_insn_TRELLIS_FF_Q_10.CE

@@ -2,7 +2,7 @@
 
 Mức so sánh: `--log-commits` (pc, mã lệnh, thanh ghi đích + giá trị, địa chỉ + dữ liệu store), so khớp từng lệnh bằng regex.
 
-MATCH (kể cả KNOWN) 63 / 63
+MATCH (kể cả KNOWN) 64 / 64
 
 KNOWN = khớp tới lệnh đọc một CSR có giá trị tùy hiện thực (misa/marchid/mimpid), sau đó luồng chương trình rẽ khác một cách hợp lệ.
 
@@ -63,13 +63,14 @@ KNOWN = khớp tới lệnh đọc một CSR có giá trị tùy hiện thực (
 | rv32mi-p-sw-misaligned | MATCH | 122 lệnh khớp | 0 |  |
 | rv32mi-p-zicntr | MATCH | 113 lệnh khớp | 0 |  |
 | rv32mi-p-instret_overflow | MATCH | 71 lệnh khớp | 0 |  |
-| bench-dhrystone | MATCH | 303162 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001d7c; mã thoát tohost khớp (RTL còn 13676, Spike còn 10130 lệnh không so) | 82 |  |
-| bench-median | MATCH | 8926 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x8000134c; mã thoát tohost khớp (RTL còn 9044, Spike còn 7919 lệnh không so) | 78 |  |
-| bench-memcpy | MATCH | 40555 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x8000137c; mã thoát tohost khớp (RTL còn 27119, Spike còn 26210 lệnh không so) | 76 |  |
-| bench-multiply | MATCH | 42231 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001358; mã thoát tohost khớp (RTL còn 8287, Spike còn 6822 lệnh không so) | 78 |  |
-| bench-qsort | MATCH | 215621 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001478; mã thoát tohost khớp (RTL còn 20780, Spike còn 18048 lệnh không so) | 78 |  |
-| bench-rsort | MATCH | 362422 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000858; mã thoát tohost khớp (RTL còn 18922, Spike còn 17920 lệnh không so) | 96 |  |
-| bench-towers | MATCH | 8164 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001870; mã thoát tohost khớp (RTL còn 6978, Spike còn 5933 lệnh không so) | 78 |  |
-| bench-vvadd | MATCH | 5296 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x8000131c; mã thoát tohost khớp (RTL còn 7934, Spike còn 7261 lệnh không so) | 79 |  |
+| bench-coremark | MATCH | 1514607 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x800035e4; mã thoát tohost khớp (RTL còn 23251, Spike còn 18572 lệnh không so) | 45 |  |
+| bench-dhrystone | MATCH | 303252 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001ec4; mã thoát tohost khớp (RTL còn 13704, Spike còn 10130 lệnh không so) | 82 |  |
+| bench-median | MATCH | 9016 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001478; mã thoát tohost khớp (RTL còn 9044, Spike còn 7919 lệnh không so) | 78 |  |
+| bench-memcpy | MATCH | 40645 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x800014a8; mã thoát tohost khớp (RTL còn 27119, Spike còn 26210 lệnh không so) | 76 |  |
+| bench-multiply | MATCH | 42321 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001484; mã thoát tohost khớp (RTL còn 8287, Spike còn 6822 lệnh không so) | 78 |  |
+| bench-qsort | MATCH | 215711 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x800015a4; mã thoát tohost khớp (RTL còn 20780, Spike còn 18048 lệnh không so) | 78 |  |
+| bench-rsort | MATCH | 362512 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80000858; mã thoát tohost khớp (RTL còn 18922, Spike còn 17920 lệnh không so) | 96 |  |
+| bench-towers | MATCH | 8254 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x8000199c; mã thoát tohost khớp (RTL còn 6978, Spike còn 5933 lệnh không so) | 78 |  |
+| bench-vvadd | MATCH | 5386 lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc giá trị counter tại pc 0x80001448; mã thoát tohost khớp (RTL còn 7934, Spike còn 7261 lệnh không so) | 83 |  |
 
 Tái tạo: `.venv/bin/python scripts/compare_spike.py --config m0c0_bp2`

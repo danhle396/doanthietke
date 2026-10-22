@@ -8,7 +8,7 @@ ROOT  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 OSS_CAD ?= $(HOME)/tools/oss-cad-suite
 empty :=
 space := $(empty) $(empty)
-EXTRA_PATH := $(wildcard $(OSS_CAD)/bin $(HOME)/tools/spike/bin $(HOME)/tools/dtc/bin $(HOME)/tools/xpack-riscv-none-elf-gcc*/bin)
+EXTRA_PATH := $(wildcard $(OSS_CAD)/bin $(HOME)/tools/spike/bin $(HOME)/tools/dtc/bin $(HOME)/tools/pandoc/bin $(HOME)/tools/xpack-riscv-none-elf-gcc*/bin)
 export PATH := $(subst $(space),:,$(strip $(EXTRA_PATH) $(PATH)))
 export LD_LIBRARY_PATH := $(HOME)/tools/dtc/lib:$(LD_LIBRARY_PATH)
 

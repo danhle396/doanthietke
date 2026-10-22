@@ -10,6 +10,8 @@
 #include "testlib.h"
 
 void do_illegal(void); void do_ecall(void); void do_ebreak(void);
+void do_ill_miscmem(void); void do_ill_sret(void); void do_ill_sys4(void);
+uint32_t do_csr_noexist(void); void do_csr_ro_write(uint32_t v);
 void do_load_mis(uint32_t a); void do_load_mis_h(uint32_t a); void do_store_mis(uint32_t a);
 void do_load_fault(uint32_t a); void do_store_fault(uint32_t a);
 void do_fetch_fault(uint32_t a); void do_jump_misaligned(uint32_t a);
@@ -44,6 +46,17 @@ int main(void) {
   uint32_t n0, mis = A(buf[1]) + 1;
   xprintf("exceptions\n");
   n0 = n_traps; do_illegal();           expect("illegal", 2, A(do_illegal), 0xFFFFFFFFu, n0);
+  n0 = n_traps; do_ill_miscmem();       expect("illegal misc-mem", 2, A(do_ill_miscmem), 0x0000200Fu, n0);
+  n0 = n_traps; do_ill_sret();          expect("illegal sret", 2, A(do_ill_sret), 0x10200073u, n0);
+  n0 = n_traps; do_ill_sys4();          expect("illegal system f3=4", 2, A(do_ill_sys4), 0x00004073u, n0);
+  n0 = n_traps; (void)do_csr_noexist(); expect("csr not existing", 2, A(do_csr_noexist), 0x7C002573u, n0);
+  n0 = n_traps; do_csr_ro_write(5);     expect("csr read-only write", 2, A(do_csr_ro_write), 0xC0051073u, n0);
+  {  // mcycle is writable: the next read continues from the written value
+    csr_write(mcycle, 1000);
+    uint32_t c = csr_read(mcycle);
+    T_CHECK(c >= 1000 && c < 1100, "mcycle after write: %u", c);
+    xprintf("mcycle write: ok\n");
+  }
   n0 = n_traps; do_ecall();             expect("ecall", 11, A(do_ecall), 0, n0);
   n0 = n_traps; do_ebreak();            expect("ebreak", 3, A(do_ebreak), A(do_ebreak), n0);
   n0 = n_traps; do_load_mis(mis);       expect("load misaligned", 4, A(do_load_mis), mis, n0);

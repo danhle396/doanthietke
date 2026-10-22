@@ -49,6 +49,7 @@ Tiêu chí: mã thoát SIM_CTRL = 0, output UART khớp file kỳ vọng (`*` ch
 | `exceptions` | illegal, ecall, ebreak, misaligned, access fault (kể cả slot APB trống), fetch fault, instruction-misaligned (cấu hình không C) |
 | `irq_during_div` | ngắt khi bộ chia chạy, kết quả đúng |
 | `demo` | kịch bản trình diễn ở 115200 baud |
+| `branch_smc` | (bổ sung) trap ngay sau nhánh đoán sai; self-modifying code + FENCE.I làm BTB alias |
 
 ## Coverage (`make cov`)
 

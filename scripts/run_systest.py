@@ -27,7 +27,7 @@ from run_isa import CONFIGS  # noqa: E402
 
 TESTS_DIR = ROOT / "sw/tests"
 ORDER = ["hello", "uart_irq_echo", "spi_flash", "spi_modes", "timer_irq", "gpio_irq",
-         "irq_priority", "exceptions", "irq_during_div", "demo"]
+         "irq_priority", "exceptions", "irq_during_div", "demo", "branch_smc"]
 
 
 def read_cfg(tdir):
