@@ -17,6 +17,8 @@ VERILATOR    ?= verilator
 YOSYS        ?= yosys
 SPIKE        ?= spike
 PYTHON       ?= $(ROOT)/.venv/bin/python
+# system interpreter used to create .venv (the OSS CAD Suite python has no ensurepip)
+SYS_PYTHON   ?= $(firstword $(wildcard /usr/bin/python3) python3)
 JOBS         ?= $(shell nproc)
 export RISCV_PREFIX VERILATOR YOSYS SPIKE PYTHON JOBS
 
@@ -28,7 +30,7 @@ help:
 	@echo "Targets: check-env fetch lint unit sw isa spike systest perf cov synth docs regress clean"
 
 $(PYTHON):
-	python3 -m venv $(ROOT)/.venv
+	$(SYS_PYTHON) -m venv $(ROOT)/.venv
 	$(ROOT)/.venv/bin/pip install -q matplotlib pyelftools
 
 venv: $(PYTHON)

@@ -96,7 +96,7 @@ Mỗi yêu cầu của `PROJECT_SPEC.md` mục 3–12 → file hiện thực →
 | 10.2 riscv-tests env riêng, ma trận, loại trừ có lý do | `sw/riscv-tests-env/p/*`, `scripts/run_isa.py`, `isa_exclusions.txt` | `results/isa/summary.md` | ĐẠT |
 | 10.3 commit log + so sánh Spike | `wb_stage.sv`, `scripts/compare_spike.py` | `results/spike/summary.md` | ĐẠT |
 | 10.4 system test (10 test của spec + `branch_smc`), `run_systest.py` | `sw/tests/*`, `tb/soc/tb_soc_bfms.svh` | `results/systest/summary.md` | ĐẠT |
-| 10.5 code + functional coverage | `scripts/run_cov.py`, `tb/cov/*`, `scripts/cov_report.py` | `results/coverage/*` | xem `docs/results.md` |
+| 10.5 code + functional coverage (line ≥ 90% core/periph) | `scripts/run_cov.py`, `tb/cov/*`, `scripts/cov_report.py` | `results/coverage/summary.md` (line rtl/core 99,8%, rtl/periph 97,5%), `functional.md` (71/71), `uncovered.md` (giải thích) | ĐẠT |
 
 ## Mục 11 – Phần mềm
 
@@ -114,6 +114,17 @@ Mỗi yêu cầu của `PROJECT_SPEC.md` mục 3–12 → file hiện thực →
 
 | Yêu cầu | Hiện thực | Bằng chứng | Trạng thái |
 |---|---|---|---|
-| 5 thí nghiệm, CSV, bảng, biểu đồ | `scripts/run_perf.py` | `results/perf/*` | xem `docs/results.md` |
+| 5 thí nghiệm, CSV, bảng, biểu đồ | `scripts/run_perf.py` | `results/perf/*` (exp1–exp5 CSV, PNG, `summary.md`) | ĐẠT |
 | Kiểm tra hợp lý (Dhrystone CPI 1–2, BP2 ≤ BP0) | `run_perf.py` | `results/perf/summary.md` | ĐẠT |
 | Tổng hợp generic + Fmax (ECP5 nextpnr) | `syn/*.ys`, `scripts/synth_report.py` | `results/synth/summary.md` | ĐẠT |
+
+## Mục 13–17 – Quy trình và tài liệu
+
+| Yêu cầu | Hiện thực | Bằng chứng | Trạng thái |
+|---|---|---|---|
+| Makefile: check-env, fetch, lint, unit, sw, isa, spike, systest, perf, cov, synth, docs, regress, clean | `Makefile` | `make regress` từ bản clone sạch (`results/regress.md`) | ĐẠT |
+| Cấu trúc thư mục mục 14 | toàn repo | – | ĐẠT |
+| `docs/giai_thich/` đủ file, walkthrough, hướng dẫn chạy, ≥ 50 câu hỏi | `docs/giai_thich/*` | 58 câu trong `bao_ve_QA.md` | ĐẠT |
+| Báo cáo 5 chương, hình/bảng có số và nguồn, `.docx` | `docs/report/*` | `docs/report/baocao.docx` (pandoc 3.6.4) | ĐẠT |
+| Hình Mermaid/WaveDrom + waveform từ VCD | `docs/diagrams/`, `scripts/vcd2png.py`, `scripts/make_waves.py` | `results/waves/*.png` | ĐẠT |
+| `.gtkw` cho các cảnh waveform | `docs/gtkw/*.gtkw` | – | ĐẠT |
