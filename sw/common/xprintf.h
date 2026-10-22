@@ -9,5 +9,6 @@ void xputs(const char *s);
 int  xprintf(const char *fmt, ...);
 int  xvprintf(const char *fmt, va_list ap);
 int  xsprintf(char *buf, const char *fmt, ...);
+int  xvsprintf(char *buf, const char *fmt, va_list ap);
 
 #endif

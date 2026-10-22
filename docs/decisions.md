@@ -104,3 +104,21 @@ RISC-V, hoặc khi công cụ buộc phải chọn cách làm khác.
 ## D18. Dung lượng đĩa
 - **Quyết định:** sau khi Verilator build, chỉ giữ file thực thi, xóa thư mục object; log của các lần so sánh
   Spike khớp được xóa (chỉ giữ log của lần không khớp).
+
+## D19. So sánh Spike với chương trình đọc counter
+- **Bối cảnh:** benchmark đọc `mcycle`/`mhpmcounter*` (giá trị phụ thuộc thời gian, Spike có CPI = 1 và
+  mhpm = 0), lưu vào bộ nhớ rồi tính CPI và in ra → dữ liệu khác và luồng lệnh in số khác.
+- **Quyết định:** `compare_spike.py` theo dõi "taint": giá trị đọc từ các CSR counter bị đánh dấu, lan qua
+  thanh ghi (theo thanh ghi nguồn của lệnh) và bộ nhớ (store/load theo word). Khác biệt trên dữ liệu bị
+  taint được đếm là "masked". Nếu luồng lệnh rẽ khác ngay sau một nhánh/JALR có nguồn bị taint, so sánh
+  lock-step dừng tại đó và chỉ so giá trị cuối ghi vào `tohost` (mã thoát); báo cáo ghi rõ số lệnh đã so và
+  số lệnh còn lại không so. Mọi khác biệt khác vẫn là DIFF.
+- **Lý do:** không che giấu khác biệt thật; vùng tính toán của benchmark (đoạn giữa hai lần `setStats`)
+  được so khớp từng lệnh.
+
+## D20. Benchmark riscv-tests
+- **Quyết định:** không sửa mã nguồn gốc trong `third_party/`; `sw/benchmarks/<tên>/sources.txt` trỏ tới
+  file gốc, `sw/benchmarks/_common/` cung cấp `util.h` thay thế (không HTIF, không đa nhân), shim
+  `stdio.h`/`string.h`/`alloca.h`/`assert.h` (toolchain Ubuntu không có newlib), và `bench_rt.c`
+  (`setStats` chụp `mcycle/minstret/mhpmcounter3..10`, `printf` → `xprintf`). Giữ `-DPREALLOCATE=1` như
+  Makefile gốc của riscv-tests (chạy kernel một lần trước vùng đo).

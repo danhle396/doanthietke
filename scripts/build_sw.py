@@ -27,7 +27,12 @@ KIND_DIR = {"tests": SW / "tests", "bench": SW / "benchmarks"}
 
 def program_dirs(kind):
     return sorted(d for d in KIND_DIR[kind].iterdir() if d.is_dir() and
-                  (list(d.glob("*.c")) or list(d.glob("*.S"))))
+                  not d.name.startswith("_") and
+                  (list(d.glob("*.c")) or list(d.glob("*.S")) or (d / "sources.txt").exists()))
+
+
+def _expand(text):
+    return text.replace("${TP}", str(ROOT / "third_party")).replace("${SW}", str(SW))
 
 
 def build_program(kind, pdir, variant, console):
@@ -36,20 +41,30 @@ def build_program(kind, pdir, variant, console):
     out.mkdir(parents=True, exist_ok=True)
     elf = out / f"{pdir.name}.elf"
     srcs = sorted(pdir.glob("*.c")) + sorted(pdir.glob("*.S"))
+    incs = []
+    if (pdir / "sources.txt").exists():  # sources taken from third_party
+        for l in _expand((pdir / "sources.txt").read_text()).split():
+            srcs.append(Path(l))
+            incs.append(f"-I{Path(l).parent}")
+    if kind == "bench":
+        srcs += sorted((SW / "benchmarks/_common").glob("*.c"))
+        incs = [f"-I{SW / 'benchmarks/_common'}"] + incs
     srcs += sorted((SW / "common").glob("*.c")) + sorted((SW / "common").glob("*.S"))
     srcs += sorted((SW / "drivers").glob("*.c"))
     extra = []
     fl = pdir / "flags.txt"
     if fl.exists():
-        extra = fl.read_text().split()
+        extra = _expand(fl.read_text()).split()
     deps = srcs + list((SW / "common").glob("*.h")) + list((SW / "drivers").glob("*.h")) + \
-        list(pdir.glob("*.h")) + [SW / "common/link.ld"] + ([fl] if fl.exists() else [])
+        list(pdir.glob("*.h")) + [SW / "common/link.ld"] + ([fl] if fl.exists() else []) + \
+        list((SW / "benchmarks/_common").glob("*"))
     newest = max(p.stat().st_mtime for p in deps)
     hexf = elf.with_suffix(".hex")
     if hexf.exists() and hexf.stat().st_mtime > newest:
         return elf
     cmd = [RISCV_PREFIX + "gcc", f"-march={MARCH[variant]}"] + COMMON_FLAGS + extra + [
-        f"-DCONSOLE_{console.upper()}", f"-I{SW / 'common'}", f"-I{SW / 'drivers'}", f"-I{pdir}",
+        f"-DCONSOLE_{console.upper()}", f"-DBENCH_NAME=\"{pdir.name}\""] + incs + [
+        f"-I{SW / 'common'}", f"-I{SW / 'drivers'}", f"-I{pdir}",
         f"-T{SW / 'common/link.ld'}", "-Wl,--gc-sections", "-Wl,-Map," + str(out / f"{pdir.name}.map"),
         "-o", str(elf)] + [str(s) for s in srcs] + ["-lgcc"]
     run(cmd, log=out / f"{pdir.name}.build.log")

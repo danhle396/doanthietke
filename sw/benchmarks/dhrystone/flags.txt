@@ -1,0 +1,1 @@
+-DPREALLOCATE=1 -std=gnu99 -fno-common -Wno-implicit-int -Wno-implicit-function-declaration -Wno-return-type -Wno-unused

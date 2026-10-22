@@ -97,6 +97,13 @@ int xprintf(const char *fmt, ...) {
   return n;
 }
 
+int xvsprintf(char *buf, const char *fmt, va_list ap) {
+  out_t o = {buf, 0};
+  do_printf(&o, fmt, ap);
+  buf[o.n] = '\0';
+  return o.n;
+}
+
 int xsprintf(char *buf, const char *fmt, ...) {
   va_list ap;
   out_t o = {buf, 0};

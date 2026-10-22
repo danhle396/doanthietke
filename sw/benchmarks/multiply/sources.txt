@@ -1,0 +1,1 @@
+${TP}/riscv-tests/benchmarks/multiply/multiply.c ${TP}/riscv-tests/benchmarks/multiply/multiply_main.c

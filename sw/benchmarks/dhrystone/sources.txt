@@ -1,0 +1,1 @@
+${TP}/riscv-tests/benchmarks/dhrystone/dhrystone.c ${TP}/riscv-tests/benchmarks/dhrystone/dhrystone_main.c

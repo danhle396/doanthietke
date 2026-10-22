@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 4 – đang thực hiện
+Phase 5 – đang thực hiện
 
 ## Checklist từng Phase
 
@@ -41,9 +41,9 @@ Phase 4 – đang thực hiện
 - [x] tb_muldiv, tb_compressed_decoder
 
 ### Phase 4 – Predictor & perf counter
-- [ ] BHT, BTB, BP_MODE 1/2, perf counter
-- [ ] Dhrystone
-- [ ] tb_bp
+- [x] BHT, BTB, BP_MODE 1/2, perf counter
+- [x] Dhrystone
+- [x] tb_bp
 
 ### Phase 5 – CSR đầy đủ, trap/ngắt, bus hoàn chỉnh
 - [ ] rv32mi
@@ -71,6 +71,7 @@ Phase 4 – đang thực hiện
 - 22/10/2026 Phase 1: `run_isa.py --config sc` rv32ui 41 PASS / 0 FAIL / 1 EXCLUDED (ma_data); `compare_spike.py --config sc` 41/41 MATCH; hello (CONSOLE=sim) PASS trên sc và m1c1_bp2; lint sạch 8 cấu hình; Yosys elaborate rv_core_sc/rv_core/soc_top OK.
 - 22/10/2026 Phase 2: ma trận riscv-tests (6 cấu hình) 0 FAIL; Spike 4 cấu hình MATCH (KNOWN: marchid, misa); tb_alu (15440 checks), tb_regfile (40134 checks) PASS; lint sạch.
 - 22/10/2026 Phase 3: ma trận riscv-tests 0 FAIL (rv32um, rv32uc pass); tb_muldiv (4316 checks, latency chia 33), tb_compressed_decoder (1061 vector + 43 illegal) PASS.
+- 22/10/2026 Phase 4: riscv-tests BP_MODE 0/1/2 0 FAIL; tb_bp PASS (6304 checks); 8 benchmark (dhrystone, median, multiply, qsort, rsort, towers, vvadd, memcpy) chạy trên mọi biến thể, khớp Spike (taint tracking cho counter); Dhrystone CPI 1.434 (BP0) / 1.209 (BP2) trên m1c1.
 
 ## BLOCKED
 

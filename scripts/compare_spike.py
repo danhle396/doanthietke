@@ -39,6 +39,7 @@ KNOWN_CSRS = {0x301: "misa", 0xF12: "marchid", 0xF13: "mimpid"}
 
 
 def parse_log(path, skip_low=True):
+    """List of (pc, insn, rd, store, load_addr) records."""
     recs = []
     with open(path, errors="replace") as f:
         for line in f:
@@ -53,11 +54,13 @@ def parse_log(path, skip_low=True):
             for r in REG_RE.finditer(rest):
                 if int(r.group(1)) != 0:
                     rd = (int(r.group(1)), int(r.group(2), 16))
-            store = None
+            store = load = None
             for mm in MEM_RE.finditer(rest):
                 if mm.group(2) is not None:
                     store = (int(mm.group(1), 16), int(mm.group(2), 16))
-            recs.append((pc, int(m.group(2), 16), rd, store))
+                else:
+                    load = int(mm.group(1), 16)
+            recs.append((pc, int(m.group(2), 16), rd, store, load))
     return recs
 
 
@@ -68,6 +71,47 @@ def csr_of(insn):
     return None
 
 
+def src_regs(insn):
+    """Source registers read by an RV32IMC instruction (for taint tracking)."""
+    if insn & 3 != 3:  # compressed
+        q, f3 = insn & 3, (insn >> 13) & 7
+        rd = (insn >> 7) & 31
+        r1p, r2p = 8 + ((insn >> 7) & 7), 8 + ((insn >> 2) & 7)
+        rs2 = (insn >> 2) & 31
+        if q == 0:
+            return {0: [2], 2: [r1p], 6: [r1p, r2p]}.get(f3, [])
+        if q == 1:
+            if f3 == 0:
+                return [rd]
+            if f3 == 3:
+                return [2] if rd == 2 else []
+            if f3 == 4:
+                return [r1p, r2p] if (insn >> 10) & 3 == 3 else [r1p]
+            if f3 in (6, 7):
+                return [r1p]
+            return []
+        if f3 == 0:
+            return [rd]
+        if f3 == 2:
+            return [2]
+        if f3 == 6:
+            return [2, rs2]
+        if f3 == 4:
+            if rs2 == 0:
+                return [rd]
+            return [rs2] if not (insn >> 12) & 1 else [rd, rs2]
+        return []
+    opc = insn & 0x7F
+    rs1, rs2 = (insn >> 15) & 31, (insn >> 20) & 31
+    if opc in (0x63, 0x23, 0x33):
+        return [rs1, rs2]
+    if opc in (0x67, 0x03, 0x13):
+        return [rs1]
+    if opc == 0x73 and ((insn >> 12) & 7) in (1, 2, 3):
+        return [rs1]
+    return []
+
+
 def truncate_at_tohost(recs, tohost):
     for i, r in enumerate(recs):
         if r[3] is not None and r[3][0] == tohost:
@@ -76,38 +120,77 @@ def truncate_at_tohost(recs, tohost):
 
 
 def compare(rtl, spk, tohost):
+    """Lock-step comparison with taint tracking of timing-dependent values.
+
+    Values read from cycle/instret/time/mhpmcounter CSRs differ legitimately.
+    They are tracked ("tainted") through registers and memory; differences in
+    tainted data are counted as masked. If the control flow diverges right
+    after a branch/jump on tainted data (e.g. printing a cycle count), the
+    lock-step ends there and only the final tohost value (exit code) is
+    compared; the report states how many instructions were compared."""
     rtl, rtl_end = truncate_at_tohost(rtl, tohost)
     spk, spk_end = truncate_at_tohost(spk, tohost)
     known, masked = [], 0
+    treg, tmem = set(), set()
     n = min(len(rtl), len(spk))
+    prev_tainted_cti = False
     for i in range(n):
         a, b = rtl[i], spk[i]
         if a[0] != b[0] or a[1] != b[1]:
+            if prev_tainted_cti:
+                if rtl_end and spk_end and rtl[-1][3] == spk[-1][3]:
+                    return True, (f"{i} lệnh khớp lock-step; luồng lệnh rẽ khác sau nhánh phụ thuộc "
+                                  f"giá trị counter tại pc 0x{rtl[i-1][0]:08x}; mã thoát tohost khớp "
+                                  f"(RTL còn {len(rtl)-i}, Spike còn {len(spk)-i} lệnh không so)"), known, masked + 1
+                return False, f"#{i}: control diverged after counter-dependent branch and exit codes differ", known, masked
             if known:
                 return None, (f"#{i}: diverges after known difference ({known[-1]})"), known, masked
             return False, f"#{i}: pc/insn RTL 0x{a[0]:08x}(0x{a[1]:x}) vs Spike 0x{b[0]:08x}(0x{b[1]:x})", known, masked
+        insn = a[1]
+        srcs = src_regs(insn)
+        tainted = any(r in treg for r in srcs if r != 0)
+        if a[4] is not None and (a[4] & ~3) in tmem:
+            tainted = True
+        csr = csr_of(insn)
+        if csr in MASKED_CSRS:
+            tainted = True
+        opc = insn & 0x7F if insn & 3 == 3 else None
+        is_cti = (opc in (0x63, 0x67)) or (insn & 3 == 1 and ((insn >> 13) & 7) in (6, 7)) or \
+                 (insn & 3 == 2 and ((insn >> 13) & 7) == 4 and ((insn >> 2) & 31) == 0)
+        prev_tainted_cti = tainted and is_cti
+        # stores
         if a[3] != b[3]:
-            return False, f"#{i} pc 0x{a[0]:08x}: store RTL {a[3]} vs Spike {b[3]}", known, masked
-        if a[2] != b[2]:
-            csr = csr_of(a[1])
-            if csr in MASKED_CSRS and a[2] and b[2] and a[2][0] == b[2][0]:
+            if a[3] and b[3] and a[3][0] == b[3][0] and tainted:
                 masked += 1
-                continue
-            if csr in KNOWN_CSRS and a[2] and b[2] and a[2][0] == b[2][0]:
+            else:
+                return False, f"#{i} pc 0x{a[0]:08x}: store RTL {a[3]} vs Spike {b[3]}", known, masked
+        if a[3]:
+            if tainted:
+                tmem.add(a[3][0] & ~3)
+            else:
+                tmem.discard(a[3][0] & ~3)
+        # register results
+        if a[2] != b[2]:
+            if a[2] and b[2] and a[2][0] == b[2][0] and tainted:
+                masked += 1
+            elif csr in KNOWN_CSRS and a[2] and b[2] and a[2][0] == b[2][0]:
                 known.append(f"pc 0x{a[0]:08x} read {KNOWN_CSRS[csr]}: RTL 0x{a[2][1]:08x} "
                              f"Spike 0x{b[2][1]:08x}")
-                continue
-            if known:
-                # Control/data flow legitimately diverges after reading an
-                # implementation-defined CSR (e.g. writable misa.C in Spike).
+            elif known:
                 return None, (f"#{i} pc 0x{a[0]:08x}: diverges after known difference "
                               f"({known[-1]})"), known, masked
-            return False, f"#{i} pc 0x{a[0]:08x} (0x{a[1]:x}): rd RTL {a[2]} vs Spike {b[2]}", known, masked
+            else:
+                return False, f"#{i} pc 0x{a[0]:08x} (0x{a[1]:x}): rd RTL {a[2]} vs Spike {b[2]}", known, masked
+        if a[2]:
+            if tainted:
+                treg.add(a[2][0])
+            else:
+                treg.discard(a[2][0])
     if len(rtl) != len(spk):
         return False, f"length differs: RTL {len(rtl)} vs Spike {len(spk)} (tohost seen RTL={rtl_end} Spike={spk_end})", known, masked
     if not rtl_end:
         return False, "tohost store not reached", known, masked
-    return True, f"{n} instructions", known, masked
+    return True, f"{n} lệnh khớp", known, masked
 
 
 def spike_run(elf, variant, log, max_insns=50_000_000):
