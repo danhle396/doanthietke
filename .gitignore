@@ -1,0 +1,8 @@
+build/
+*.vcd
+*.fst
+obj_dir/
+.venv/
+third_party/*/
+__pycache__/
+*.pyc
