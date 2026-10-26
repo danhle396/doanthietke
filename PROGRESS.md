@@ -2,7 +2,7 @@
 
 ## Phase hiện tại
 
-Phase 8 – đang thực hiện
+Hoàn thành – Phase 0–8 xong, nghiệm thu mục 17 đạt
 
 ## Checklist từng Phase
 
@@ -61,13 +61,15 @@ Phase 8 – đang thực hiện
 - [x] docs/results.md (ghép tự động từ results/)
 
 ### Phase 8 – Tài liệu
-- [ ] docs/giai_thich/
-- [ ] docs/report/
-- [ ] docs/compliance.md
-- [ ] Nghiệm thu mục 17
+- [x] docs/giai_thich/
+- [x] docs/report/
+- [x] docs/compliance.md
+- [x] Nghiệm thu mục 17 (clone sạch `make fetch regress` PASS)
+- [x] Commit final
 
 ## Kết quả regression gần nhất
 
+- 26/10/2026 Nghiệm thu: `git clone . /tmp/check && make fetch regress` → PASS (lint; unit 13/13; isa 351 PASS / 0 FAIL / 16 EXCLUDED có lý do; Spike 259/259 MATCH, khác biệt KNOWN: marchid, misa; systest 15 lượt PASS).
 - 22/10/2026 Phase 7: `make regress` PASS (lint, unit 13/13, isa 351 PASS/0 FAIL, Spike 259/259 MATCH, systest 15 lượt PASS); coverage line core 99.8%, periph 97.5%, functional 71/71; perf: geomean CPI 1.320/1.223/1.097 (BP0/1/2); Fmax SoC pipeline 42.3 MHz, SoC single-cycle 25.6 MHz.
 - 22/10/2026 Phase 1: `run_isa.py --config sc` rv32ui 41 PASS / 0 FAIL / 1 EXCLUDED (ma_data); `compare_spike.py --config sc` 41/41 MATCH; hello (CONSOLE=sim) PASS trên sc và m1c1_bp2; lint sạch 8 cấu hình; Yosys elaborate rv_core_sc/rv_core/soc_top OK.
 - 22/10/2026 Phase 2: ma trận riscv-tests (6 cấu hình) 0 FAIL; Spike 4 cấu hình MATCH (KNOWN: marchid, misa); tb_alu (15440 checks), tb_regfile (40134 checks) PASS; lint sạch.
@@ -82,7 +84,7 @@ Phase 8 – đang thực hiện
 
 ## Ghi chú cho lần chạy sau
 
-- Phase 8: tài liệu giải thích, báo cáo, compliance gần xong; còn: nghiệm thu từ clone sạch (mục 17), commit final.
+- Project hoàn thành. Phần tùy chọn chưa làm: Return Address Stack (RAS); không có OpenSTA nên Fmax chỉ ước lượng bằng nextpnr ECP5.
 
 - Thư mục gốc: `/home/danhle/Desktop/doanthietke`.
 - Công cụ: OSS CAD Suite ở `~/tools/oss-cad-suite`, Spike ở `~/tools/spike`, dtc ở `~/tools/dtc`.
