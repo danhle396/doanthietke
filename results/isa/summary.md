@@ -8,6 +8,7 @@
 | `m1c0_bp2` | `im` | rv32ui,rv32um,rv32mi | 63 | 0 | 3 |
 | `m0c0_bp2` | `i` | rv32ui,rv32mi | 55 | 0 | 3 |
 | `sc` | `i` | rv32ui | 41 | 0 | 1 |
+| `m1c1_bp2_sync` | `imc` | rv32ui,rv32um,rv32uc,rv32mi | 64 | 0 | 3 |
 
 Test bị loại trừ và lý do:
 

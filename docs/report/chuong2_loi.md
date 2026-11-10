@@ -16,9 +16,11 @@ Bảng 2.1. Tham số của `rv_core` (nguồn: `rtl/core/rv_core.sv`).
 | `BHT_ENTRIES` | 256 | số counter 2 bit |
 | `BTB_ENTRIES` | 32 | số entry BTB direct-mapped |
 
-Giao tiếp của lõi gồm bus lệnh tổ hợp (`ibus_addr` → `ibus_rdata` 32 bit từ địa chỉ căn 2 byte, `ibus_err`), bus dữ
-liệu có bắt tay (`dbus_req/we/be/addr/wdata` giữ nguyên tới `dbus_ready`, kèm `dbus_err`, `dbus_rdata`), ba đường
-ngắt `irq_mtip/msip/meip` và giá trị `mtime` 64 bit cho CSR `time`.
+Giao tiếp của lõi gồm hai master **Wishbone B4 classic** (Chương 3, mục 3.2): bus lệnh chỉ đọc (`ibus_adr_o` là PC
+căn 2 byte, `ibus_dat_i` 32 bit, kết thúc bằng `ibus_ack_i` hoặc `ibus_err_i`) và bus dữ liệu
+(`dbus_cyc/stb/we/sel/adr/dat_o` giữ nguyên tới `dbus_ack_i` hoặc `dbus_err_i`); ba đường ngắt
+`irq_mtip/msip/meip` và giá trị `mtime` 64 bit cho CSR `time`. Bên trong lõi, MEM dùng dạng yêu cầu/sẵn sàng
+`dbus_req`, `dbus_ready = ACK | ERR`.
 
 ## 2.2. Datapath
 
@@ -30,7 +32,8 @@ cờ `is_c`, PC kế đã dự đoán `pred_npc` và thông tin ngoại lệ. L�
 
 ### 2.2.1. IF
 
-`pc_q` được đưa thẳng ra `ibus_addr`; RAM trả 32 bit trong cùng chu kỳ. IF xác định độ dài lệnh qua hai bit thấp,
+`pc_q` được đưa thẳng ra `ibus_adr_o`; RAM trả 32 bit kèm `ACK` trong cùng chu kỳ (một chu kỳ không có
+`ACK/ERR` sẽ giữ PC và đưa bubble vào ID). IF xác định độ dài lệnh qua hai bit thấp,
 tính `seq_npc = pc + 2/4`, và ở `BP_MODE = 2` tra BTB + BHT để chọn `pred_npc`. PC kế được chọn theo ưu tiên
 `trap/mret/fence.i (MEM) > sai dự đoán (EX) > redirect (ID) > giữ khi stall > dự đoán IF > tuần tự`.
 

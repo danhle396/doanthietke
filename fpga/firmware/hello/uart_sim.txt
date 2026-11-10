@@ -1,0 +1,2 @@
+Hello from RV32IMC SoC!
+dec=12345 neg=-42 hex=0000beef str=ok chr=Z pct=%

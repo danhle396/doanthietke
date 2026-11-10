@@ -1,0 +1,3 @@
+[bench] name=multiply cycles=22282 instret=20953 cpi_x1000=1063
+[bench] branch=6511 branch_miss=656 jump=203 jump_miss=2 acc_x1000=901
+[bench] stall_load_use=10 stall_muldiv=0 stall_bus=0 compressed=17413

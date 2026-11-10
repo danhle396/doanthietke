@@ -9,11 +9,11 @@ Nguồn: `results/regress.md`.
 | Bước | Kết quả | Thời gian (s) |
 |---|---|---|
 | lint | PASS | 3 |
-| unit | PASS | 46 |
+| unit | PASS | 3 |
 | sw | PASS | 0 |
-| isa | PASS | 31 |
-| spike | PASS | 137 |
-| systest | PASS | 6 |
+| isa | PASS | 86 |
+| spike | PASS | 129 |
+| systest | PASS | 5 |
 
 Tổng: PASS. Tái tạo: `make regress`.
 
@@ -23,19 +23,20 @@ Nguồn: `results/unit/summary.md`.
 
 | Testbench | Kết quả | Seed | Thời gian (s) | Ghi chú |
 |---|---|---|---|---|
-| tb_alu | PASS | 1 | 2.9 | 15440 checks |
-| tb_regfile | PASS | 1 | 2.8 | 40134 checks |
-| tb_muldiv | PASS | 1 | 2.8 | 4316 checks |
-| tb_compressed_decoder | PASS | 1 | 2.8 | 2104 checks |
-| tb_bp | PASS | 1 | 2.9 | 6304 checks |
-| tb_csr | PASS | 1 | 6.2 | 136 checks |
-| tb_fifo | PASS | 1 | 3.1 | 77335 checks |
-| tb_apb_bridge | PASS | 1 | 2.9 | 3037 checks |
-| tb_uart | PASS | 1 | 3.6 | 549 checks |
-| tb_spi | PASS | 1 | 5.0 | 395 checks |
-| tb_timer | PASS | 1 | 3.9 | 220 checks |
-| tb_gpio | PASS | 1 | 3.4 | 617 checks |
-| tb_intc | PASS | 1 | 3.5 | 2209 checks |
+| tb_alu | PASS | 1 | 2.8 | 15440 checks |
+| tb_regfile | PASS | 1 | 0.0 | 40134 checks |
+| tb_muldiv | PASS | 1 | 0.0 | 4316 checks |
+| tb_compressed_decoder | PASS | 1 | 0.1 | 2104 checks |
+| tb_bp | PASS | 1 | 0.0 | 6304 checks |
+| tb_csr | PASS | 1 | 0.0 | 136 checks |
+| tb_fifo | PASS | 1 | 0.0 | 77335 checks |
+| tb_apb_bridge | PASS | 1 | 0.0 | 3038 checks |
+| tb_dbus_xbar | PASS | 1 | 0.0 | 5815 checks |
+| tb_uart | PASS | 1 | 0.0 | 549 checks |
+| tb_spi | PASS | 1 | 0.0 | 395 checks |
+| tb_timer | PASS | 1 | 0.0 | 220 checks |
+| tb_gpio | PASS | 1 | 0.0 | 617 checks |
+| tb_intc | PASS | 1 | 0.0 | 2209 checks |
 
 Tái tạo: `make unit` (= `.venv/bin/python scripts/run_unit.py`)
 
@@ -51,6 +52,7 @@ Nguồn: `results/isa/summary.md`.
 | `m1c0_bp2` | `im` | rv32ui,rv32um,rv32mi | 63 | 0 | 3 |
 | `m0c0_bp2` | `i` | rv32ui,rv32mi | 55 | 0 | 3 |
 | `sc` | `i` | rv32ui | 41 | 0 | 1 |
+| `m1c1_bp2_sync` | `imc` | rv32ui,rv32um,rv32uc,rv32mi | 64 | 0 | 3 |
 
 Test bị loại trừ và lý do:
 
@@ -77,7 +79,26 @@ Tái tạo: `make spike`
 
 Mức so sánh: `--log-commits` (PC, mã lệnh, thanh ghi đích + giá trị, địa chỉ + dữ liệu store), so khớp từng lệnh bằng regex (`scripts/compare_spike.py`). Khác biệt đã biết và được liệt kê (không che giấu): giá trị đọc `marchid` (RTL 0, Spike 5); `misa` ghi được trong Spike (test `rv32mi-p-ma_fetch` xóa bit C rồi rẽ nhánh khác – kết quả KNOWN); các giá trị đọc từ `cycle/mcycle/instret/minstret/time/mhpmcounter*` phụ thuộc thời gian, được theo dõi taint qua thanh ghi và bộ nhớ (decision D19). Truy cập không căn lề: cả RTL và Spike đều trap nên không phát sinh khác biệt. Chi tiết từng chương trình: `results/spike/<cấu hình>.md`.
 
-## 5. System test
+## 5. Co-simulation C++ lock-step với Spike
+
+Nguồn: `results/cosim/summary.md`.
+
+| Cấu hình | MATCH | Tổng | Lệnh so khớp | Thời gian (s) |
+|---|---|---|---|---|
+| `m1c1_bp2` | 73 | 73 | 1639070 | 21.8 |
+| `m1c0_bp2` | 72 | 72 | 1638940 | 22.3 |
+| `m0c0_bp2` | 64 | 64 | 2516910 | 31.4 |
+| `sc` | 50 | 50 | 2528472 | 36.3 |
+
+Mutant (lỗi SLTU cài sẵn): phát hiện ở 2 / 73 chương trình – xem `mutant.md`.
+
+Hình lock-step: `results/cosim/lockstep.png`.
+
+Tái tạo: `make cosim`
+
+Harness Verilator C++ `cosim/cosim_main.cpp` chạy `soc_top` và Spike (tiến trình con) cùng lúc; mỗi lệnh RTL retire (DPI `cosim_commit` ở WB) được so ngay với lệnh Spike commit kế tiếp, lệch là dừng. Kiểm tra chính harness: RTL có lỗi SLTU cài sẵn (`-DCOSIM_MUTANT`) bị phát hiện tại lệnh sai đầu tiên (`results/cosim/mutant.md`). Hình lock-step: `results/cosim/lockstep.png`.
+
+## 6. System test
 
 Nguồn: `results/systest/summary.md`.
 
@@ -105,7 +126,7 @@ Tiêu chí PASS: mã thoát 0 từ SIM_CTRL, output UART khớp file kỳ vọng
 
 Tái tạo: `make systest` (= `.venv/bin/python scripts/run_systest.py`)
 
-## 6. Hiệu năng
+## 7. Hiệu năng
 
 Nguồn: `results/perf/summary.md`.
 
@@ -138,10 +159,10 @@ Bảng P2. Độ chính xác trung bình (%) / geomean CPI trên 9 benchmark; di
 
 | BHT \ BTB | 8 | 16 | 32 | 64 |
 |---|---|---|---|---|
-| 16 | 82.0% / 1.116 / 26426 cell | 83.7% / 1.106 / 27402 cell | 84.7% / 1.099 / 29403 cell | 85.2% / 1.096 / 33265 cell |
-| 64 | 82.1% / 1.115 / 27123 cell | 84.0% / 1.104 / 28115 cell | 85.0% / 1.097 / 30127 cell | 85.6% / 1.093 / 33911 cell |
-| 256 | 82.1% / 1.115 / 29828 cell | 83.9% / 1.104 / 30808 cell | 85.0% / 1.097 / 32797 cell | 85.5% / 1.093 / 36671 cell |
-| 1024 | 82.1% / 1.115 / 40824 cell | 83.9% / 1.104 / 41822 cell | 85.0% / 1.097 / 43843 cell | 85.6% / 1.093 / 47685 cell |
+| 16 | 82.0% / 1.116 / 26427 cell | 83.7% / 1.106 / 27412 cell | 84.7% / 1.099 / 29403 cell | 85.2% / 1.096 / 33277 cell |
+| 64 | 82.1% / 1.115 / 27170 cell | 84.0% / 1.104 / 28112 cell | 85.0% / 1.097 / 30096 cell | 85.6% / 1.093 / 33915 cell |
+| 256 | 82.1% / 1.115 / 29826 cell | 83.9% / 1.104 / 30811 cell | 85.0% / 1.097 / 32801 cell | 85.5% / 1.093 / 36664 cell |
+| 1024 | 82.1% / 1.115 / 40870 cell | 83.9% / 1.104 / 41829 cell | 85.0% / 1.097 / 43819 cell | 85.6% / 1.093 / 47690 cell |
 
 ![Hình P3](../results/perf/exp2_accuracy_heatmap.png)
 
@@ -190,9 +211,9 @@ Bảng P5. CPI (geomean), Fmax ước lượng của SoC tương ứng (nextpnr 
 
 | Lõi | geomean CPI | Dhrystone CPI | Fmax (MHz) | Fmax/CPI | Hiệu năng tương đối |
 |---|---|---|---|---|---|
-| rv_core_sc (single-cycle, RV32I) | 1.000 | 1.000 | 25.59 | 25.6 | 1.00× |
-| rv_core pipeline RV32I | 1.104 | 1.178 | 47.16 | 42.7 | 1.67× |
-| rv_core pipeline RV32IMC | 1.097 | 1.204 | 42.27 | 38.5 | 1.51× |
+| rv_core_sc (single-cycle, RV32I) | 1.000 | 1.000 | 25.95 | 25.9 | 1.00× |
+| rv_core pipeline RV32I | 1.104 | 1.178 | 42.64 | 38.6 | 1.49× |
+| rv_core pipeline RV32IMC | 1.097 | 1.204 | 44.07 | 40.2 | 1.55× |
 
 ### Kiểm tra hợp lý (spec 12.1)
 
@@ -201,32 +222,73 @@ Bảng P5. CPI (geomean), Fmax ước lượng của SoC tương ứng (nextpnr 
 | CPI Dhrystone (BP2) trong [1.0, 2.0] | ĐẠT | 1.204 |
 | BP_MODE=2 không tệ hơn BP_MODE=0 (mọi benchmark) | ĐẠT | đạt |
 
-## 7. Tổng hợp
+## 8. Thông lượng
+
+Nguồn: `results/perf/throughput.md`.
+
+Lõi `rv_core` RV32IMC, BP_MODE 2 (BHT 256, BTB 32), ELF `imc`; số chu kỳ/lệnh của vùng đo trong mỗi benchmark (nguồn: `results/perf/exp1_predictor.csv`). Tần số: **24 MHz** (clock CPU trên board DE2) và **44.07 MHz** (Fmax trung vị 5 seed của `soc_top_1k`, ước lượng ECP5). Thời gian = chu kỳ ÷ f; MIPS = f ÷ CPI. Sinh bởi `scripts/throughput.py`.
+
+### Bảng T1 – Thời gian chạy và MIPS
+
+| Benchmark | Lệnh | Chu kỳ | CPI | Thời gian @24 MHz (µs) | MIPS @24 MHz | Thời gian @44.07 MHz (µs) | MIPS @44.07 MHz |
+|---|---|---|---|---|---|---|---|
+| dhrystone | 277083 | 333617 | 1.204 | 13900.7 | 19.9 | 7570.2 | 36.6 |
+| coremark | 626769 | 695588 | 1.110 | 28982.8 | 21.6 | 15783.7 | 39.7 |
+| median | 4307 | 5404 | 1.255 | 225.2 | 19.1 | 122.6 | 35.1 |
+| multiply | 20953 | 22282 | 1.063 | 928.4 | 22.6 | 505.6 | 41.4 |
+| qsort | 123560 | 148150 | 1.199 | 6172.9 | 20.0 | 3361.7 | 36.8 |
+| rsort | 171186 | 171242 | 1.000 | 7135.1 | 24.0 | 3885.7 | 44.1 |
+| towers | 3777 | 4028 | 1.066 | 167.8 | 22.5 | 91.4 | 41.3 |
+| vvadd | 2469 | 2489 | 1.008 | 103.7 | 23.8 | 56.5 | 43.7 |
+| memcpy | 20089 | 20110 | 1.001 | 837.9 | 24.0 | 456.3 | 44.0 |
+| **geomean MIPS** | | | |  | **21.9** |  | **40.2** |
+
+### Bảng T2 – Điểm chuẩn
+
+| Chỉ số | /MHz | @24 MHz | @44.07 MHz |
+|---|---|---|---|
+| Dhrystone (DMIPS; 500 vòng, 1 DMIPS = 1757 vòng/s) | 0.853 | 20.5 | 37.6 |
+| CoreMark (2 vòng, không phải lần chạy hợp lệ theo luật EEMBC) | 2.88 | 69.0 | 126.7 |
+
+### Bảng T3 – Bus và ngoại vi
+
+| Đường truyền | Chu kỳ / đơn vị | Nguồn | @24 MHz | @44.07 MHz |
+|---|---|---|---|---|
+| RAM qua Wishbone (load/store 32 bit, ACK cùng chu kỳ) | 1 | RTL; số chu kỳ benchmark trùng khớp với RAM tổ hợp | 96.00 MB/s | 176.28 MB/s |
+| Thanh ghi ngoại vi qua Wishbone → APB4 | 3 | đo bằng `wb_checker` (system test `hello`: 3.00 chu kỳ/truy cập) | 8.00 M truy cập/s | 14.69 M truy cập/s |
+| UART 115200 baud (BAUD_DIV 12 @24 MHz, khung 8N1 = 10 bit) | 2080 | 16 × (12 + 1) chu kỳ/bit | 11.5 kB/s | 21.2 kB/s |
+| UART tối đa (BAUD_DIV 0, khung 8N1) | 160 | 16 chu kỳ/bit | 150.0 kB/s | 275.4 kB/s |
+| SPI tối đa (CLK_DIV 0, SCLK = f/2, burst) | 17 | 17 × (CLK_DIV + 1) chu kỳ/byte | 1.41 MB/s | 2.59 MB/s |
+| SPI flash trong firmware (CLK_DIV 1, SCLK = f/4) | 34 | 17 × 2 chu kỳ/byte | 0.71 MB/s | 1.30 MB/s |
+
+Ghi chú: tốc độ UART ở dòng 115200 baud đúng cho clock 24 MHz của board; ở tần số khác BAUD_DIV phải tính lại. CoreMark chạy 2 vòng để vừa thời gian mô phỏng nên chỉ dùng để so sánh tương đối.
+
+## 9. Tổng hợp
 
 Nguồn: `results/synth/summary.md`.
 
-Diện tích: Yosys `synth -flatten` (thư viện generic, đơn vị = số cell logic sau tối ưu); `ram_dp` là black box nên **RAM 128 KB không được tính**. Fmax: Yosys `synth_ecp5` + `nextpnr-ecp5` (LFE5U-85F, CABGA756, seed 1) – chỉ là **ước lượng trên FPGA**; không làm place & route ASIC (ngoài phạm vi). Tái tạo: `make synth`.
+Diện tích: Yosys `synth -flatten` (thư viện generic, đơn vị = số cell logic sau tối ưu); `ram_dp` là black box nên **RAM 128 KB không được tính**. Fmax: Yosys `synth_ecp5` + `nextpnr-ecp5` (LFE5U-85F, CABGA756), 5 seed đặt–định tuyến trên cùng netlist, báo **trung vị** và khoảng min–max (một seed riêng lẻ dao động tới vài chục %) – chỉ là **ước lượng trên FPGA**; không làm place & route ASIC (ngoài phạm vi). Tái tạo: `make synth`.
 
 ### Bảng S1 – Diện tích lõi và ngoại vi (generic)
 
 | Khối | Tham số | Cell | Flip-flop |
 |---|---|---|---|
-| `rv_core_m1c1_bp0` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 0} | 24568 | 2532 |
-| `rv_core_m1c1_bp1` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 1} | 28926 | 3045 |
-| `rv_core_m1c1_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 2} | 32797 | 4966 |
-| `rv_core_m1c0_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 0, 'BP_MODE': 2} | 30987 | 4871 |
-| `rv_core_m0c0_bp2` | {'ENABLE_M': 0, 'ENABLE_C': 0, 'BP_MODE': 2} | 21368 | 4699 |
-| `rv_core_sc` | – | 10474 | 1509 |
+| `rv_core_m1c1_bp0` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 0} | 24567 | 2532 |
+| `rv_core_m1c1_bp1` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 1} | 28970 | 3045 |
+| `rv_core_m1c1_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 2} | 32801 | 4966 |
+| `rv_core_m1c0_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 0, 'BP_MODE': 2} | 30995 | 4871 |
+| `rv_core_m0c0_bp2` | {'ENABLE_M': 0, 'ENABLE_C': 0, 'BP_MODE': 2} | 21370 | 4699 |
+| `rv_core_sc` | – | 10477 | 1509 |
 | `uart_apb` | – | 1457 | 411 |
 | `spi_apb` | – | 1145 | 364 |
 | `timer64_apb` | – | 1245 | 146 |
 | `gpio_apb` | – | 611 | 130 |
 | `intc_apb` | – | 54 | 3 |
-| `apb_bridge` | – | 180 | 71 |
-| `dbus_xbar` | – | 170 | 0 |
+| `apb_bridge` | – | 182 | 71 |
+| `dbus_xbar` | – | 173 | 0 |
 | `sim_ctrl` | – | 18 | 0 |
 | `rst_sync` | – | 2 | 2 |
-| `soc_top` | – | 37769 | 6077 |
+| `soc_top` | – | 37779 | 6077 |
 
 Nguồn: `results/synth/area.csv`.
 
@@ -234,26 +296,70 @@ Nguồn: `results/synth/area.csv`.
 
 | BHT \ BTB | 8 | 16 | 32 | 64 |
 |---|---|---|---|---|
-| 16 | 26426 | 27402 | 29403 | 33265 |
-| 64 | 27123 | 28115 | 30127 | 33911 |
-| 256 | 29828 | 30808 | 32797 | 36671 |
-| 1024 | 40824 | 41822 | 43843 | 47685 |
+| 16 | 26427 | 27412 | 29403 | 33277 |
+| 64 | 27170 | 28112 | 30096 | 33915 |
+| 256 | 29826 | 30811 | 32801 | 36664 |
+| 1024 | 40870 | 41829 | 43819 | 47690 |
 
 ### Bảng S3 – ECP5: tài nguyên và Fmax ước lượng
 
-| Thiết kế | LUT4 | FF | Fmax (MHz) | Đường găng (tóm tắt) |
-|---|---|---|---|---|
-| `m1c1_bp2` | 9039 | 4966 | 43.85 | `u_ex.mem_rd` → `dbus_addr` (41 chặng logic/định tuyến) |
-| `m1c1_bp0` | 5780 | 2532 | 47.91 | `u_ex.mem_rd` → `dbus_addr` (35 chặng logic/định tuyến) |
-| `m0c0_bp2` | 8078 | 4699 | 46.47 | `u_ex.mem_insn` → `u_if.id_insn` (37 chặng logic/định tuyến) |
-| `sc` | 4493 | 1509 | 44.22 | `u_csr.wdata` → `irq_meip` (24 chặng logic/định tuyến) |
-| `soc_top_1k` | 11397 | 5565 | 42.27 | `g_pipe.u_core.u_ex.mem_rd` → `g_pipe.u_core.u_ex.fwd_rs2` (42 chặng logic/định tuyến) |
-| `soc_top_m0c0_1k` | 10518 | 5298 | 47.16 | `g_pipe.u_core.u_ex.mem_rd` → `g_pipe.u_core.u_if.id_insn` (46 chặng logic/định tuyến) |
-| `soc_top_sc_1k` | 9061 | 2108 | 25.59 | `g_sc.u_core.pc_q` → `u_ram.mem.0.58_DO_1` (55 chặng logic/định tuyến) |
+| Thiết kế | LUT4 | FF | Fmax trung vị (MHz) | min – max (5 seed) | Đường găng (seed trung vị, tóm tắt) |
+|---|---|---|---|---|---|
+| `m1c1_bp2` | 9715 | 4966 | 40.44 | 38.21 – 42.38 | `u_ex.mem_rd` → `u_ex.fwd_rs1` (36 chặng logic/định tuyến) |
+| `m1c1_bp0` | 5493 | 2532 | 44.76 | 41.92 – 46.27 | `u_ex.mem_rd_we` → `u_ex.mem_rd_we` (25 chặng logic/định tuyến) |
+| `m0c0_bp2` | 8446 | 4699 | 45.48 | 43.7 – 46.64 | `u_ex.mem_rd_we` → `u_if.pc_q` (46 chặng logic/định tuyến) |
+| `sc` | 4501 | 1509 | 46.22 | 44.09 – 47.74 | `u_csr.wdata` → `u_csr.wdata` (42 chặng logic/định tuyến) |
+| `soc_top_1k` | 11413 | 5565 | 44.07 | 41.43 – 45.76 | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_ex.mem_rd_we` (19 chặng logic/định tuyến) |
+| `soc_top_m0c0_1k` | 10240 | 5298 | 42.64 | 34.78 – 44.0 | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_if.id_insn` (51 chặng logic/định tuyến) |
+| `soc_top_sc_1k` | 8886 | 2108 | 25.95 | 24.6 – 26.42 | `g_sc.u_core.pc_q` → `g_sc.u_core.u_csr.wdata` (37 chặng logic/định tuyến) |
 
 Chi tiết từng chặng: `results/synth/critical_path_<tên>.txt`. `soc_top_*_1k` dùng RAM 1 KB (LUT RAM) thay cho 128 KB để đặt được trên FPGA và tính cả đường đọc RAM tổ hợp; Fmax của lõi đứng riêng (`m1c1_bp2`, `sc`…) **không** gồm đường qua RAM (cổng vào/ra lõi không được ràng buộc), nên so sánh single-cycle với pipeline phải dùng các dòng `soc_top_*`.
 
-## 8. Coverage
+## 10. Layout ASIC (OpenLane 2 / sky130A)
+
+Nguồn: `results/asic/summary.md`.
+
+OpenLane 2.3.10 (flow `Classic`, image Docker `ghcr.io/efabless/openlane2:2.3.10`), PDK sky130A (open_pdks `0fe599b`), thư viện cell `sky130_fd_sc_hd`. Chỉ làm layout cho **lõi** (cổng Wishbone là chân I/O của khối); RAM 128 KB của SoC không đưa vào vì flow không có macro SRAM (quyết định D30). Sinh bởi `scripts/run_asic.py` (`make asic`).
+
+### Bảng A1 – Kết quả place & route
+
+| Chỉ số | `rv_core` | `rv_core_sc` |
+|---|---|---|
+| Chu kỳ ràng buộc (SDC) | 25 ns (40 MHz) | 25 ns (40 MHz) |
+| Kích thước die | 961.8 × 972.5 µm (0.935 mm²) | 527.7 × 538.4 µm (0.284 mm²) |
+| Số cell chuẩn (gồm tap, fill, diode, buffer) | 62,600 | 18,069 |
+| Diện tích cell chuẩn | 459,999 µm² | 139,680 µm² |
+| Mật độ (utilization) | 51.0 % | 52.6 % |
+| Tổng chiều dài dây | 1,761,890 µm | 548,711 µm |
+| Setup slack / Fmax – TT 25 °C 1,80 V | +9.85 ns / **66.0 MHz** | +5.46 ns / **51.2 MHz** |
+| Setup slack / Fmax – SS 100 °C 1,60 V | -3.99 ns / **34.5 MHz** | -4.08 ns / **34.4 MHz** |
+| Setup slack / Fmax – FF −40 °C 1,95 V | +13.56 ns / **87.4 MHz** | +8.80 ns / **61.7 MHz** |
+| Hold slack (TT) | +0.304 ns | +0.322 ns |
+| Công suất tổng (TT, ước lượng) | 80.00 mW | 7.50 mW |
+| – trong đó: internal / switching / leakage | 34.14 mW / 45.86 mW / 0.50 µW | 4.79 mW / 2.71 mW / 0.16 µW |
+| DRC (Magic / KLayout / router) | 0 / 0 / 0 | 0 / 0 / 0 |
+| LVS (Netgen) – số lỗi | 0 | 0 |
+| Antenna – số net vi phạm | 26 | 8 |
+| XOR GDS Magic ↔ KLayout | 0 | 0 |
+| Vi phạm max slew / max cap – TT | 7 / 21 | 15 / 0 |
+| Vi phạm max slew / max cap – góc xấu nhất | 1,187 / 44 | 347 / 0 |
+| Gate-level (netlist sau đi dây) ≡ RTL | 64/64 riscv-tests | 41/41 riscv-tests |
+
+Fmax = 1 / (chu kỳ ràng buộc − setup slack) tại từng góc PVT, theo STA của OpenROAD sau đi dây (có ký sinh SPEF). Công suất do OpenSTA ước lượng với hoạt động chuyển mạch mặc định, không lấy từ mô phỏng – chỉ dùng để so sánh tương đối. Gate-level: netlist cuối cùng chạy bằng Icarus Verilog với mô hình chức năng `sky130_fd_sc_hd`, cùng testbench `tb/asic/tb_core_gl.v` với RTL (Verilator); một test khớp khi cả hai PASS với cùng số chu kỳ, số lần ghi và chữ ký ghi bộ nhớ (`results/asic/gl_<top>.csv`).
+
+### Hình
+
+![Layout rv_core](../results/asic/layout_rv_core.png)
+
+*Layout `rv_core` (GDS cuối, KLayout).* Đường găng: `results/asic/timing_rv_core.txt`.
+
+![Layout rv_core_sc](../results/asic/layout_rv_core_sc.png)
+
+*Layout `rv_core_sc` (GDS cuối, KLayout).* Đường găng: `results/asic/timing_rv_core_sc.txt`.
+
+Tái tạo: `make asic` (lần đầu khoảng 1 giờ; kết quả cũ được dùng lại nếu RTL và `asic/<top>/config.json` không đổi).
+
+## 11. Coverage
 
 Nguồn: `results/coverage/summary.md`.
 
@@ -263,16 +369,16 @@ Gộp mọi lần chạy: unit testbench, riscv-tests (cả ma trận cấu hìn
 
 | Thư mục | Line | Toggle |
 |---|---|---|
-| rtl (khác) | 100.0% (92/92) | 97.4% (151/155) |
-| rtl/core | 99.8% (592/593) | 100.0% (476/476) |
+| rtl (khác) | 100.0% (98/98) | 97.8% (180/184) |
+| rtl/core | 99.8% (592/593) | 100.0% (477/477) |
 | rtl/periph | 97.5% (119/122) | 98.6% (212/215) |
 
 ### Bảng C2 – Theo file
 
 | File | Line | Toggle |
 |---|---|---|
-| `rtl/bus/apb_bridge.sv` | 100.0% (6/6) | 95.7% (22/23) |
-| `rtl/bus/dbus_xbar.sv` | 100.0% (13/13) | 100.0% (24/24) |
+| `rtl/bus/apb_bridge.sv` | 100.0% (6/6) | 95.8% (23/24) |
+| `rtl/bus/dbus_xbar.sv` | 100.0% (13/13) | 100.0% (27/27) |
 | `rtl/core/alu.sv` | 92.3% (12/13) | 100.0% (7/7) |
 | `rtl/core/bp/bht.sv` | 100.0% (3/3) | 100.0% (10/10) |
 | `rtl/core/bp/btb.sv` | 100.0% (11/11) | 100.0% (21/21) |
@@ -283,15 +389,16 @@ Gộp mọi lần chạy: unit testbench, riscv-tests (cả ma trận cấu hìn
 | `rtl/core/ex_stage.sv` | 100.0% (38/38) | 100.0% (80/80) |
 | `rtl/core/forward_unit.sv` | 100.0% (7/7) | 100.0% (12/12) |
 | `rtl/core/id_stage.sv` | 100.0% (81/81) | 100.0% (68/68) |
-| `rtl/core/if_stage.sv` | 100.0% (17/17) | 100.0% (26/26) |
+| `rtl/core/if_stage.sv` | 100.0% (17/17) | 100.0% (27/27) |
 | `rtl/core/imm_gen.sv` | 100.0% (8/8) | 100.0% (3/3) |
 | `rtl/core/lsu.sv` | 100.0% (21/21) | 100.0% (16/16) |
 | `rtl/core/mem_stage.sv` | 100.0% (71/71) | 100.0% (77/77) |
 | `rtl/core/muldiv.sv` | 100.0% (32/32) | 100.0% (23/23) |
 | `rtl/core/regfile.sv` | 100.0% (9/9) | 100.0% (10/10) |
 | `rtl/core/wb_stage.sv` | 100.0% (7/7) | 100.0% (27/27) |
-| `rtl/core_sc/rv_core_sc.sv` | 100.0% (59/59) | 100.0% (50/50) |
-| `rtl/mem/ram_dp.sv` | 100.0% (4/4) | 94.7% (18/19) |
+| `rtl/core_sc/rv_core_sc.sv` | 100.0% (59/59) | 100.0% (58/58) |
+| `rtl/mem/ram_bank16.sv` | 100.0% (6/6) | 100.0% (8/8) |
+| `rtl/mem/ram_dp.sv` | 100.0% (4/4) | 96.4% (27/28) |
 | `rtl/periph/gpio/gpio_apb.sv` | 100.0% (14/14) | 100.0% (22/22) |
 | `rtl/periph/intc/intc_apb.sv` | 100.0% (10/10) | 100.0% (15/15) |
 | `rtl/periph/sim/sim_ctrl.sv` | 75.0% (9/12) | 82.4% (14/17) |
@@ -307,7 +414,7 @@ Gộp mọi lần chạy: unit testbench, riscv-tests (cả ma trận cấu hìn
 
 Các dòng chưa phủ và giải thích: `results/coverage/uncovered.md`. Functional coverage: `results/coverage/functional.md`.
 
-## 9. Functional coverage
+## 12. Functional coverage
 
 Nguồn: `results/coverage/functional.md`.
 
@@ -315,60 +422,60 @@ Nguồn: `results/coverage/functional.md`.
 
 | Điểm cover | Số lần | Instance đạt / tổng | Kết quả |
 |---|---|---|---|
-| `c_btb_alloc` | 2847 | 2/2 | ĐẠT |
-| `c_btb_hit` | 2748345 | 1/1 | ĐẠT |
-| `c_btb_lookup_hit` | 2748767 | 2/2 | ĐẠT |
-| `c_btb_lookup_miss` | 4375485 | 2/2 | ĐẠT |
-| `c_btb_replace` | 1150251 | 2/2 | ĐẠT |
-| `c_exc_breakpoint` | 7 | 1/1 | ĐẠT |
-| `c_exc_ecall` | 9 | 1/1 | ĐẠT |
-| `c_exc_illegal` | 22 | 1/1 | ĐẠT |
+| `c_btb_alloc` | 3574 | 2/2 | ĐẠT |
+| `c_btb_hit` | 2749218 | 1/1 | ĐẠT |
+| `c_btb_lookup_hit` | 2749640 | 2/2 | ĐẠT |
+| `c_btb_lookup_miss` | 4396644 | 2/2 | ĐẠT |
+| `c_btb_replace` | 1150812 | 2/2 | ĐẠT |
+| `c_exc_breakpoint` | 8 | 1/1 | ĐẠT |
+| `c_exc_ecall` | 10 | 1/1 | ĐẠT |
+| `c_exc_illegal` | 24 | 1/1 | ĐẠT |
 | `c_exc_insn_access` | 2 | 1/1 | ĐẠT |
 | `c_exc_insn_misaligned` | 9 | 1/1 | ĐẠT |
 | `c_exc_load_access` | 4 | 1/1 | ĐẠT |
-| `c_exc_load_misaligned` | 49 | 1/1 | ĐẠT |
+| `c_exc_load_misaligned` | 58 | 1/1 | ĐẠT |
 | `c_exc_store_access` | 2 | 1/1 | ĐẠT |
-| `c_exc_store_misaligned` | 42 | 1/1 | ĐẠT |
-| `c_fifo_empty` | 44428792 | 4/4 | ĐẠT |
+| `c_exc_store_misaligned` | 50 | 1/1 | ĐẠT |
+| `c_fifo_empty` | 44516920 | 4/4 | ĐẠT |
 | `c_fifo_full` | 3291009 | 4/4 | ĐẠT |
 | `c_fifo_push_full` | 2792 | 2/4 | ĐẠT |
 | `c_fifo_push_pop` | 9324 | 3/4 | ĐẠT |
-| `c_fwd_exmem_rs1` | 1000397 | 1/1 | ĐẠT |
-| `c_fwd_exmem_rs2` | 218825 | 1/1 | ĐẠT |
-| `c_fwd_memwb_rs1` | 1350295 | 1/1 | ĐẠT |
-| `c_fwd_memwb_rs2` | 331007 | 1/1 | ĐẠT |
-| `c_id_redirect` | 231603 | 1/1 | ĐẠT |
-| `c_insn32_straddle` | 791266 | 1/1 | ĐẠT |
+| `c_fwd_exmem_rs1` | 1003047 | 1/1 | ĐẠT |
+| `c_fwd_exmem_rs2` | 221741 | 1/1 | ĐẠT |
+| `c_fwd_memwb_rs1` | 1352453 | 1/1 | ĐẠT |
+| `c_fwd_memwb_rs2` | 331555 | 1/1 | ĐẠT |
+| `c_id_redirect` | 231897 | 1/1 | ĐẠT |
+| `c_insn32_straddle` | 795151 | 1/1 | ĐẠT |
 | `c_irq_during_div` | 2879 | 1/1 | ĐẠT |
 | `c_irq_mei` | 144 | 1/1 | ĐẠT |
 | `c_irq_msi` | 2 | 1/1 | ĐẠT |
 | `c_irq_mti` | 1187 | 1/1 | ĐẠT |
-| `c_m_div` | 1440 | 1/1 | ĐẠT |
-| `c_m_divu` | 1914 | 1/1 | ĐẠT |
-| `c_m_mul` | 39096 | 1/1 | ĐẠT |
-| `c_m_mulh` | 196 | 1/1 | ĐẠT |
-| `c_m_mulhsu` | 196 | 1/1 | ĐẠT |
-| `c_m_mulhu` | 234 | 1/1 | ĐẠT |
-| `c_m_rem` | 436 | 1/1 | ĐẠT |
-| `c_m_remu` | 3076 | 1/1 | ĐẠT |
-| `c_mispred_branch` | 85349 | 1/1 | ĐẠT |
+| `c_m_div` | 1449 | 1/1 | ĐẠT |
+| `c_m_divu` | 1923 | 1/1 | ĐẠT |
+| `c_m_mul` | 39147 | 1/1 | ĐẠT |
+| `c_m_mulh` | 245 | 1/1 | ĐẠT |
+| `c_m_mulhsu` | 245 | 1/1 | ĐẠT |
+| `c_m_mulhu` | 283 | 1/1 | ĐẠT |
+| `c_m_rem` | 445 | 1/1 | ĐẠT |
+| `c_m_remu` | 3085 | 1/1 | ĐẠT |
+| `c_mispred_branch` | 86378 | 1/1 | ĐẠT |
 | `c_mispred_btb_alias` | 1 | 1/1 | ĐẠT |
 | `c_mispred_jal` | 710 | 1/1 | ĐẠT |
-| `c_mispred_jalr` | 25037 | 1/1 | ĐẠT |
-| `c_ret_auipc` | 3509 | 1/1 | ĐẠT |
-| `c_ret_branch` | 722231 | 1/1 | ĐẠT |
-| `c_ret_compressed` | 3845916 | 1/1 | ĐẠT |
-| `c_ret_csr` | 8761 | 1/1 | ĐẠT |
-| `c_ret_fence` | 310 | 1/1 | ĐẠT |
-| `c_ret_fencei` | 14 | 1/1 | ĐẠT |
-| `c_ret_jal` | 46833 | 1/1 | ĐẠT |
-| `c_ret_jalr` | 1185 | 1/1 | ĐẠT |
-| `c_ret_load` | 813671 | 1/1 | ĐẠT |
-| `c_ret_lui` | 47531 | 1/1 | ĐẠT |
-| `c_ret_mret` | 1469 | 1/1 | ĐẠT |
-| `c_ret_op` | 197680 | 1/1 | ĐẠT |
-| `c_ret_opimm` | 426881 | 1/1 | ĐẠT |
-| `c_ret_store` | 222916 | 1/1 | ĐẠT |
+| `c_mispred_jalr` | 25060 | 1/1 | ĐẠT |
+| `c_ret_auipc` | 4184 | 1/1 | ĐẠT |
+| `c_ret_branch` | 724752 | 1/1 | ĐẠT |
+| `c_ret_compressed` | 3855488 | 1/1 | ĐẠT |
+| `c_ret_csr` | 9024 | 1/1 | ĐẠT |
+| `c_ret_fence` | 374 | 1/1 | ĐẠT |
+| `c_ret_fencei` | 16 | 1/1 | ĐẠT |
+| `c_ret_jal` | 46851 | 1/1 | ĐẠT |
+| `c_ret_jalr` | 1201 | 1/1 | ĐẠT |
+| `c_ret_load` | 814017 | 1/1 | ĐẠT |
+| `c_ret_lui` | 48792 | 1/1 | ĐẠT |
+| `c_ret_mret` | 1488 | 1/1 | ĐẠT |
+| `c_ret_op` | 198169 | 1/1 | ĐẠT |
+| `c_ret_opimm` | 428950 | 1/1 | ĐẠT |
+| `c_ret_store` | 223282 | 1/1 | ĐẠT |
 | `c_spi_lsb` | 6936 | 2/2 | ĐẠT |
 | `c_spi_mode0` | 39967 | 2/2 | ĐẠT |
 | `c_spi_mode1` | 3468 | 2/2 | ĐẠT |
@@ -376,9 +483,9 @@ Nguồn: `results/coverage/functional.md`.
 | `c_spi_mode3` | 4216 | 2/2 | ĐẠT |
 | `c_spi_msb` | 44183 | 2/2 | ĐẠT |
 | `c_stall_bus` | 1063536 | 1/1 | ĐẠT |
-| `c_stall_csr_use` | 1521 | 1/1 | ĐẠT |
-| `c_stall_load_use` | 954844 | 1/1 | ĐẠT |
-| `c_stall_muldiv` | 224723 | 1/1 | ĐẠT |
+| `c_stall_csr_use` | 1564 | 1/1 | ĐẠT |
+| `c_stall_load_use` | 955009 | 1/1 | ĐẠT |
+| `c_stall_muldiv` | 225449 | 1/1 | ĐẠT |
 | `c_trap_after_mispred` | 127 | 1/1 | ĐẠT |
 | `c_uart_8n1` | 4104640 | 2/2 | ĐẠT |
 | `c_uart_err` | 7552 | 2/2 | ĐẠT |
@@ -387,6 +494,6 @@ Nguồn: `results/coverage/functional.md`.
 | `c_uart_rx` | 326 | 2/2 | ĐẠT |
 | `c_uart_stop2` | 47040 | 1/2 | ĐẠT |
 
-## 10. Hình waveform
+## 13. Hình waveform
 
-Sinh tự động từ VCD bằng `scripts/make_waves.py` (thư mục `results/waves/`): `load_use_forwarding.png`, `compressed.png`, `mispredict_flush.png`, `trap_entry_exit.png`, `apb_transaction.png`, `uart_frame.png`, `spi_mode0.png`, `spi_mode3.png`, `walkthrough_pipeline.png`; bảng pipeline theo chu kỳ: `results/waves/walkthrough_table.md`.
+Sinh tự động từ VCD bằng `scripts/make_waves.py` (thư mục `results/waves/`): `load_use_forwarding.png`, `compressed.png`, `mispredict_flush.png`, `trap_entry_exit.png`, `apb_transaction.png` (Wishbone → APB4), `uart_frame.png`, `spi_mode0.png`, `spi_mode3.png`, `walkthrough_pipeline.png`; lock-step RTL/Spike: `results/cosim/lockstep.png`; bảng pipeline theo chu kỳ: `results/waves/walkthrough_table.md`.

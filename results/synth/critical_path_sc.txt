@@ -1,70 +1,125 @@
-  clk-to-q  0.52  0.52 Source u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_PFUMX_Z_C0_LUT4_Z_1_B_TRELLIS_FF_Q.Q
-   routing  0.69  1.21 Net u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_PFUMX_Z_C0_LUT4_Z_1_B[0] (45,33) -> (46,33)
-                         Sink u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_PFUMX_Z_C0_LUT4_Z_B_LUT4_Z.A
-     logic  0.24  1.45 Source u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_PFUMX_Z_C0_LUT4_Z_B_LUT4_Z.F
-   routing  0.50  1.95 Net u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_PFUMX_Z_C0_LUT4_Z_B[5] (46,33) -> (46,33)
-                         Sink u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_A_LUT4_A_Z_PFUMX_C0_Z_L6MUX21_Z_2_D1_PFUMX_Z_ALUT_LUT4_Z.M
-     logic  0.26  2.20 Source u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_A_LUT4_A_Z_PFUMX_C0_Z_L6MUX21_Z_2_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
-   routing  0.92  3.12 Net u_csr.wdata_LUT4_Z_2_C_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_A_LUT4_A_Z_PFUMX_C0_Z[2] (46,33) -> (46,31)
-                         Sink dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.D
-     logic  0.24  3.36 Source dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.F
-   routing  0.00  3.36 Net dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1_PFUMX_Z_ALUT (46,31) -> (46,31)
-                         Sink dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z.F1
-     logic  0.17  3.53 Source dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z.OFX
-   routing  0.00  3.53 Net dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1 (46,31) -> (46,31)
-                         Sink dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.FXB
-     logic  0.24  3.77 Source dbus_wdata_L6MUX21_Z_1_D0_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
-   routing  0.00  3.77 Net dbus_wdata_L6MUX21_Z_1_D0 (46,31) -> (46,31)
-                         Sink dbus_wdata_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.FXA
-     logic  0.24  4.01 Source dbus_wdata_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
-   routing  2.23  6.24 Net dbus_addr_LUT4_Z_10_C_LUT4_Z_D_LUT4_C_Z_LUT4_C_Z_CCU2C_S0_COUT_CCU2C_CIN_A0[2] (46,31) -> (68,19)
-                         Sink dbus_wdata_LUT4_Z_11_C_LUT4_Z_D_LUT4_Z_3_D_LUT4_Z_A_LUT4_B_Z_LUT4_D_Z_LUT4_D_Z_PFUMX_C0_Z_LUT4_Z_2.D
-     logic  0.24  6.47 Source dbus_wdata_LUT4_Z_11_C_LUT4_Z_D_LUT4_Z_3_D_LUT4_Z_A_LUT4_B_Z_LUT4_D_Z_LUT4_D_Z_PFUMX_C0_Z_LUT4_Z_2.F
-   routing  1.09  7.56 Net dbus_addr_LUT4_Z_10_C_LUT4_Z_D_LUT4_C_Z_LUT4_Z_C_LUT4_Z_A[2] (68,19) -> (71,13)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_C_LUT4_Z_C_LUT4_Z_D_LUT4_Z_D_LUT4_Z.D
-     logic  0.24  7.80 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_C_LUT4_Z_C_LUT4_Z_D_LUT4_Z_D_LUT4_Z.F
-   routing  0.43  8.22 Net dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_C_LUT4_Z_C_LUT4_Z_D_LUT4_Z_D[0] (71,13) -> (71,13)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_D_LUT4_Z.C
-     logic  0.24  8.46 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_D_LUT4_Z.F
-   routing  0.86  9.31 Net dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_D[2] (71,13) -> (69,13)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z.D
-     logic  0.24  9.55 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z.F
-   routing  0.88  10.43 Net dbus_addr_LUT4_Z_10_C_LUT4_Z_D_LUT4_C_Z_LUT4_C_Z_CCU2C_S0_COUT_CCU2C_CIN_S1_LUT4_Z_1_D_LUT4_Z_1_D_LUT4_Z_D[2] (69,13) -> (68,13)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.B
-     logic  0.24  10.66 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.F
-   routing  0.00  10.66 Net dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT (68,13) -> (68,13)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_BLUT_LUT4_Z.F1
-     logic  0.17  10.83 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_BLUT_LUT4_Z.OFX
-   routing  0.00  10.83 Net dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0 (68,13) -> (68,13)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.FXA
-     logic  0.24  11.07 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
-   routing  0.00  11.07 Net dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1 (68,13) -> (68,13)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.FXB
-     logic  0.24  11.31 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
-   routing  0.65  11.96 Net dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_D_Z_LUT4_Z_2_C_LUT4_D_Z[5] (68,13) -> (68,15)
-                         Sink dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_LUT4_D_Z_L6MUX21_Z_1_D1_PFUMX_Z_ALUT_LUT4_Z.M
-     logic  0.26  12.21 Source dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_LUT4_D_Z_L6MUX21_Z_1_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
-   routing  1.30  13.51 Net dbus_addr_LUT4_Z_18_D_LUT4_Z_D_LUT4_Z_D_LUT4_D_Z_LUT4_Z_1_D_LUT4_D_Z_CCU2C_S1_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S1_LUT4_D_Z[6] (68,15) -> (65,23)
-                         Sink dbus_addr_LUT4_Z_10_C_LUT4_Z_D_LUT4_C_Z_LUT4_C_Z_CCU2C_S0_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.M
-     logic  0.26  13.77 Source dbus_addr_LUT4_Z_10_C_LUT4_Z_D_LUT4_C_Z_LUT4_C_Z_CCU2C_S0_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_LUT4_D_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
-   routing  0.63  14.40 Net dbus_addr_LUT4_Z_10_C_LUT4_Z_D_LUT4_C_Z_LUT4_C_Z_CCU2C_S0_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_LUT4_D_Z[4] (65,23) -> (65,24)
-                         Sink irq_mtip_LUT4_B_1_Z_PFUMX_Z_BLUT_LUT4_Z.M
-     logic  0.26  14.66 Source irq_mtip_LUT4_B_1_Z_PFUMX_Z_BLUT_LUT4_Z.OFX
-   routing  0.99  15.65 Net dbus_we_LUT4_C_D[5] (65,24) -> (56,24)
-                         Sink dbus_err_LUT4_A_Z_PFUMX_ALUT_BLUT_LUT4_Z.M
-     logic  0.26  15.90 Source dbus_err_LUT4_A_Z_PFUMX_ALUT_BLUT_LUT4_Z.OFX
-   routing  0.00  15.90 Net dbus_err_LUT4_A_Z_PFUMX_ALUT_Z (56,24) -> (56,24)
-                         Sink dbus_err_LUT4_A.FXB
-     logic  0.24  16.15 Source dbus_err_LUT4_A.OFX
-   routing  1.06  17.20 Net dbus_err_LUT4_A_Z_PFUMX_ALUT_Z_L6MUX21_D1_Z[4] (56,24) -> (60,30)
-                         Sink rst_n_LUT4_C.D
-     logic  0.24  17.44 Source rst_n_LUT4_C.F
-   routing  1.70  19.14 Net irq_meip_LUT4_B_A_LUT4_A_Z_CCU2C_S1_S0_LUT4_D_Z_LUT4_D_Z_LUT4_Z_6_B_CCU2C_S0_S1_LUT4_C_Z_LUT4_Z_C_LUT4_C_Z_LUT4_Z_D_LUT4_B_C[3] (60,30) -> (55,16)
-                         Sink u_csr.wdata_PFUMX_Z_14_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_S1_CCU2C_S1_S0_LUT4_C_Z_LUT4_Z_C_LUT4_Z_C_LUT4_Z_D_LUT4_D_Z_LUT4_C.D
-     logic  0.24  19.37 Source u_csr.wdata_PFUMX_Z_14_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_S1_CCU2C_S1_S0_LUT4_C_Z_LUT4_Z_C_LUT4_Z_C_LUT4_Z_D_LUT4_D_Z_LUT4_C.F
-   routing  1.33  20.70 Net irq_meip_LUT4_B_Z_LUT4_Z_2_B_CCU2C_B1_CIN_CCU2C_COUT_S0[3] (55,16) -> (59,19)
-                         Sink irq_msip_LUT4_B_1_A_TRELLIS_FF_Q_CE_LUT4_Z.D
-     logic  0.24  20.94 Source irq_msip_LUT4_B_1_A_TRELLIS_FF_Q_CE_LUT4_Z.F
-   routing  1.67  22.61 Net irq_msip_LUT4_B_1_A_TRELLIS_FF_Q_CE (59,19) -> (49,23)
-                         Sink irq_meip_LUT4_B_Z_LUT4_Z_2_B_CCU2C_B1_S1_LUT4_A_Z_LUT4_Z_2_A_CCU2C_S0_B0_LUT4_Z_B_TRELLIS_FF_Q_1.CE
-     setup  0.00  22.61 Source irq_meip_LUT4_B_Z_LUT4_Z_2_B_CCU2C_B1_S1_LUT4_A_Z_LUT4_Z_2_A_CCU2C_S0_B0_LUT4_Z_B_TRELLIS_FF_Q_1.CE
+# nextpnr seed 5 (median of 5)
+  clk-to-q  0.52  0.52 Source u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_1_B_TRELLIS_FF_Q_1.Q
+   routing  0.87  1.40 Net u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_1_B[0] (33,9) -> (33,9)
+                         Sink u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_LUT4_Z.A
+     logic  0.24  1.63 Source u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_LUT4_Z.F
+   routing  0.72  2.35 Net u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B[4] (33,9) -> (33,8)
+                         Sink u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_LUT4_B.M
+     logic  0.26  2.61 Source u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_LUT4_B.OFX
+   routing  0.63  3.24 Net u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z[4] (33,8) -> (32,8)
+                         Sink u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_LUT4_D.M
+     logic  0.26  3.50 Source u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_LUT4_D.OFX
+   routing  0.91  4.41 Net u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_PFUMX_C0_Z[4] (32,8) -> (32,11)
+                         Sink u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_PFUMX_C0_Z_LUT4_D_2.M
+     logic  0.26  4.66 Source u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_PFUMX_C0_Z_LUT4_D_2.OFX
+   routing  0.00  4.66 Net u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_PFUMX_C0_Z_PFUMX_C0_Z (32,11) -> (32,11)
+                         Sink u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_PFUMX_C0_Z_LUT4_D_1.FXB
+     logic  0.24  4.90 Source u_csr.wdata_PFUMX_Z_4_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_B_PFUMX_C0_Z_PFUMX_C0_Z_LUT4_D_1.OFX
+   routing  2.29  7.20 Net dbus_dat_o_LUT4_Z_8_D[2] (32,11) -> (48,16)
+                         Sink u_csr.wdata_PFUMX_Z_3_BLUT_LUT4_Z_D_CCU2C_A0$CCU2_COMB1.B
+     logic  0.45  7.64 Source u_csr.wdata_PFUMX_Z_3_BLUT_LUT4_Z_D_CCU2C_A0$CCU2_COMB1.FCO
+   routing  0.00  7.64 Net u_csr.wdata_PFUMX_Z_3_BLUT_LUT4_Z_D_CCU2C_A0_COUT (48,16) -> (48,16)
+                         Sink u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB0.FCI
+     logic  0.07  7.71 Source u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB0.FCO
+   routing  0.00  7.71 Net u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_FCI_INT (48,16) -> (48,16)
+                         Sink u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB1.FCI
+     logic  0.00  7.71 Source u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB1.FCO
+   routing  0.00  7.71 Net u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1_COUT (48,16) -> (48,16)
+                         Sink u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1_COUT_CCU2C_CIN$CCU2_COMB0.FCI
+     logic  0.07  7.78 Source u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1_COUT_CCU2C_CIN$CCU2_COMB0.FCO
+   routing  0.00  7.78 Net u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1_COUT_CCU2C_CIN$CCU2_FCI_INT (48,16) -> (48,16)
+                         Sink u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1_COUT_CCU2C_CIN$CCU2_COMB1.FCI
+     logic  0.00  7.78 Source u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_CCU2C_A1_COUT_CCU2C_CIN$CCU2_COMB1.FCO
+   routing  0.00  7.78 Net u_csr.wdata_PFUMX_Z_10_ALUT_LUT4_Z_D_CCU2C_A1_CIN (48,16) -> (49,16)
+                         Sink u_csr.wdata_PFUMX_Z_10_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB0.FCI
+     logic  0.07  7.86 Source u_csr.wdata_PFUMX_Z_10_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB0.FCO
+   routing  0.00  7.86 Net u_csr.wdata_PFUMX_Z_10_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_FCI_INT (49,16) -> (49,16)
+                         Sink u_csr.wdata_PFUMX_Z_10_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB1.FCI
+     logic  0.00  7.86 Source u_csr.wdata_PFUMX_Z_10_ALUT_LUT4_Z_D_CCU2C_A1$CCU2_COMB1.FCO
+   routing  0.00  7.86 Net u_csr.wdata_PFUMX_Z_10_ALUT_LUT4_Z_D_CCU2C_A1_COUT (49,16) -> (49,16)
+                         Sink dbus_dat_o_LUT4_Z_7_C_CCU2C_B0$CCU2_COMB0.FCI
+     logic  0.07  7.93 Source dbus_dat_o_LUT4_Z_7_C_CCU2C_B0$CCU2_COMB0.FCO
+   routing  0.00  7.93 Net dbus_dat_o_LUT4_Z_7_C_CCU2C_B0$CCU2_FCI_INT (49,16) -> (49,16)
+                         Sink dbus_dat_o_LUT4_Z_7_C_CCU2C_B0$CCU2_COMB1.FCI
+     logic  0.00  7.93 Source dbus_dat_o_LUT4_Z_7_C_CCU2C_B0$CCU2_COMB1.FCO
+   routing  0.00  7.93 Net dbus_dat_o_LUT4_Z_7_C_CCU2C_B0_COUT (49,16) -> (49,16)
+                         Sink dbus_dat_o_LUT4_Z_12_C_CCU2C_B1$CCU2_COMB0.FCI
+     logic  0.07  8.00 Source dbus_dat_o_LUT4_Z_12_C_CCU2C_B1$CCU2_COMB0.FCO
+   routing  0.00  8.00 Net dbus_dat_o_LUT4_Z_12_C_CCU2C_B1$CCU2_FCI_INT (49,16) -> (49,16)
+                         Sink dbus_dat_o_LUT4_Z_12_C_CCU2C_B1$CCU2_COMB1.FCI
+     logic  0.00  8.00 Source dbus_dat_o_LUT4_Z_12_C_CCU2C_B1$CCU2_COMB1.FCO
+   routing  0.00  8.00 Net dbus_dat_o_LUT4_Z_12_C_CCU2C_B1_COUT (49,16) -> (49,16)
+                         Sink dbus_dat_o_LUT4_Z_3_C_CCU2C_B1$CCU2_COMB0.FCI
+     logic  0.07  8.07 Source dbus_dat_o_LUT4_Z_3_C_CCU2C_B1$CCU2_COMB0.FCO
+   routing  0.00  8.07 Net dbus_dat_o_LUT4_Z_3_C_CCU2C_B1$CCU2_FCI_INT (49,16) -> (49,16)
+                         Sink dbus_dat_o_LUT4_Z_3_C_CCU2C_B1$CCU2_COMB1.FCI
+     logic  0.00  8.07 Source dbus_dat_o_LUT4_Z_3_C_CCU2C_B1$CCU2_COMB1.FCO
+   routing  0.00  8.07 Net dbus_dat_o_LUT4_Z_3_C_CCU2C_B1_COUT (49,16) -> (50,16)
+                         Sink dbus_dat_o_LUT4_Z_10_C_CCU2C_B0$CCU2_COMB0.FCI
+     logic  0.07  8.14 Source dbus_dat_o_LUT4_Z_10_C_CCU2C_B0$CCU2_COMB0.FCO
+   routing  0.00  8.14 Net dbus_dat_o_LUT4_Z_10_C_CCU2C_B0$CCU2_FCI_INT (50,16) -> (50,16)
+                         Sink dbus_dat_o_LUT4_Z_10_C_CCU2C_B0$CCU2_COMB1.FCI
+     logic  0.00  8.14 Source dbus_dat_o_LUT4_Z_10_C_CCU2C_B0$CCU2_COMB1.FCO
+   routing  0.00  8.14 Net dbus_dat_o_LUT4_Z_10_C_CCU2C_B0_COUT (50,16) -> (50,16)
+                         Sink dbus_dat_o_LUT4_Z_10_C_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB0.FCI
+     logic  0.07  8.21 Source dbus_dat_o_LUT4_Z_10_C_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB0.FCO
+   routing  0.00  8.21 Net dbus_dat_o_LUT4_Z_10_C_CCU2C_B0_COUT_CCU2C_CIN$CCU2_FCI_INT (50,16) -> (50,16)
+                         Sink dbus_dat_o_LUT4_Z_10_C_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB1.FCI
+     logic  0.00  8.21 Source dbus_dat_o_LUT4_Z_10_C_CCU2C_B0_COUT_CCU2C_CIN$CCU2_COMB1.FCO
+   routing  0.00  8.21 Net u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_CIN (50,16) -> (50,16)
+                         Sink u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0$CCU2_COMB0.FCI
+     logic  0.07  8.28 Source u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0$CCU2_COMB0.FCO
+   routing  0.00  8.28 Net u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0$CCU2_FCI_INT (50,16) -> (50,16)
+                         Sink u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0$CCU2_COMB1.FCI
+     logic  0.00  8.28 Source u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0$CCU2_COMB1.FCO
+   routing  0.00  8.28 Net u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT (50,16) -> (50,16)
+                         Sink u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB0.FCI
+     logic  0.07  8.35 Source u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB0.FCO
+   routing  0.00  8.35 Net u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN$CCU2_FCI_INT (50,16) -> (50,16)
+                         Sink u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB1.FCI
+     logic  0.00  8.35 Source u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN$CCU2_COMB1.FCO
+   routing  0.00  8.35 Net $nextpnr_CCU2C_31$CIN (50,16) -> (51,16)
+                         Sink $nextpnr_CCU2C_31$CCU2_COMB0.FCI
+     logic  0.44  8.80 Source $nextpnr_CCU2C_31$CCU2_COMB0.F
+   routing  0.83  9.62 Net u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN_COUT (51,16) -> (51,16)
+                         Sink $nextpnr_CCU2C_31$CCU2_COMB1.A
+     logic  0.45  10.07 Source $nextpnr_CCU2C_31$CCU2_COMB1.FCO
+   routing  0.00  10.07 Net $nextpnr_CCU2C_31$COUT (51,16) -> (51,16)
+                         Sink u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_CIN$CCU2_COMB0.FCI
+     logic  0.07  10.14 Source u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_CIN$CCU2_COMB0.FCO
+   routing  0.00  10.14 Net u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_CIN$CCU2_FCI_INT (51,16) -> (51,16)
+                         Sink u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_CIN$CCU2_COMB1.FCI
+     logic  0.40  10.55 Source u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN_COUT_CCU2C_CIN$CCU2_COMB1.F
+   routing  0.93  11.48 Net u_csr.wdata_PFUMX_Z_21_ALUT_LUT4_Z_D_CCU2C_A0_COUT_CCU2C_CIN_COUT_LUT4_D_Z[4] (51,16) -> (52,17)
+                         Sink u_csr.wdata_LUT4_Z_4_C_LUT4_Z_D_CCU2C_A0_S0_L6MUX21_Z_1_D1_PFUMX_Z_BLUT_LUT4_Z.M
+     logic  0.26  11.73 Source u_csr.wdata_LUT4_Z_4_C_LUT4_Z_D_CCU2C_A0_S0_L6MUX21_Z_1_D1_PFUMX_Z_BLUT_LUT4_Z.OFX
+   routing  0.00  11.73 Net u_csr.wdata_LUT4_Z_4_C_LUT4_Z_D_CCU2C_A0_S0_L6MUX21_Z_1_D1 (52,17) -> (52,17)
+                         Sink u_csr.wdata_LUT4_Z_4_C_LUT4_Z_D_CCU2C_A0_S0_L6MUX21_Z_1_D1_PFUMX_Z_ALUT_LUT4_Z.FXB
+     logic  0.24  11.97 Source u_csr.wdata_LUT4_Z_4_C_LUT4_Z_D_CCU2C_A0_S0_L6MUX21_Z_1_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.94  12.91 Net u_csr.wdata_LUT4_Z_4_C_LUT4_Z_D_CCU2C_A0_S0[6] (52,17) -> (45,17)
+                         Sink u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_1_D_LUT4_D_1_Z_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  13.17 Source u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_1_D_LUT4_D_1_Z_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.89  14.06 Net u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_1_D_LUT4_D_1_Z[6] (45,17) -> (44,19)
+                         Sink irq_mtip_LUT4_D_Z_PFUMX_ALUT_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.M
+     logic  0.26  14.32 Source irq_mtip_LUT4_D_Z_PFUMX_ALUT_Z_L6MUX21_Z_1_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.72  15.03 Net ibus_ack_i_LUT4_C_Z[4] (44,19) -> (45,20)
+                         Sink u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.D
+     logic  0.24  15.27 Source u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.F
+   routing  0.00  15.27 Net u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1_PFUMX_Z_ALUT (45,20) -> (45,20)
+                         Sink u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z.F1
+     logic  0.17  15.44 Source u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z.OFX
+   routing  0.00  15.44 Net u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1 (45,20) -> (45,20)
+                         Sink u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.FXB
+     logic  0.24  15.68 Source u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
+   routing  0.64  16.32 Net u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z_D[1] (45,20) -> (44,23)
+                         Sink u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z.D
+     logic  0.24  16.56 Source u_csr.wdata_PFUMX_Z_20_C0_LUT4_D_Z_CCU2C_S1_COUT_CCU2C_CIN_COUT_CCU2C_CIN_COUT_CCU2C_CIN_S0_CCU2C_S0_S1_LUT4_C_Z_LUT4_C_Z_LUT4_Z.F
+   routing  1.66  18.21 Net irq_meip_LUT4_B_Z_LUT4_D_Z_LUT4_Z_A_LUT4_A_C[3] (44,23) -> (47,9)
+                         Sink rst_n_LUT4_B_2.D
+     logic  0.24  18.45 Source rst_n_LUT4_B_2.F
+   routing  0.75  19.20 Net rst_n_LUT4_B_2_Z[2] (47,9) -> (47,8)
+                         Sink u_csr.wdata_PFUMX_Z_1_C0_LUT4_C_D_LUT4_Z_B_CCU2C_S1_COUT_CCU2C_CIN_S0_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_Z_C_LUT4_D_Z_LUT4_Z_3_D_LUT4_C_4_B_LUT4_B_3.D
+     logic  0.24  19.43 Source u_csr.wdata_PFUMX_Z_1_C0_LUT4_C_D_LUT4_Z_B_CCU2C_S1_COUT_CCU2C_CIN_S0_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_Z_C_LUT4_D_Z_LUT4_Z_3_D_LUT4_C_4_B_LUT4_B_3.F
+   routing  2.20  21.63 Net u_csr.wdata_PFUMX_Z_1_C0_LUT4_C_D_LUT4_Z_B_CCU2C_S1_COUT_CCU2C_CIN_S0_CCU2C_S0_CIN_CCU2C_COUT_CIN_CCU2C_COUT_S0_LUT4_Z_C_LUT4_D_Z_LUT4_Z_3_D_LUT4_C_4_B_LUT4_B_3_Z (47,8) -> (33,16)
+                         Sink u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_1_B_TRELLIS_FF_Q_1.CE
+     setup  0.00  21.63 Source u_csr.wdata_PFUMX_Z_6_ALUT_LUT4_Z_D_L6MUX21_Z_SD_LUT4_Z_D_LUT4_Z_1_B_TRELLIS_FF_Q_1.CE

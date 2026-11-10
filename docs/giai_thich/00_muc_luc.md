@@ -22,6 +22,7 @@ nhớ thuộc lòng mà mở file kết quả khi cần.
 | `14_timer_gpio_intc.md` | TIMER64, GPIO, INTC, SIM_CTRL |
 | `15_soc_top_phan_mem.md` | soc_top, reset, firmware, driver |
 | `16_xac_minh.md` | Môi trường xác minh 3 mức, Spike, coverage |
+| `17_layout_asic.md` | Layout ASIC bằng OpenLane/sky130: các bước flow, đọc số liệu, gate-level |
 | `walkthrough_pipeline.md` | Theo dõi từng chu kỳ: load-use, nhánh sai, lệnh nén, ngắt |
 | `huong_dan_chay.md` | Lệnh chạy lại mọi kết quả, mở waveform, đổi tham số |
 | `bao_ve_QA.md` | Câu hỏi hội đồng và trả lời |

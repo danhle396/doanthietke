@@ -1,0 +1,4 @@
+branch_smc
+trap after mispredicted branch: mcause=11 mepc=ok
+self-modifying code: before=0,0 after=101,106
+RESULT branch_smc: PASS (4 checks, 0 errors)

@@ -3,11 +3,15 @@
 //   Fetches 32 bits at pc_q (halfword aligned, RAM merges across words),
 //   detects 16-bit instructions, makes the IF-stage prediction (BP_MODE 2)
 //   and selects the next PC:
-//     MEM (trap/mret/fence.i) > EX mispredict > ID redirect > hold (stall)
-//     > IF prediction > sequential.
+//     MEM (trap/mret/fence.i) > EX mispredict > ID redirect > hold (stall
+//     or fetch not terminated) > IF prediction > sequential.
+//   The fetched word is used only in a cycle terminated by ibus_ack or
+//   ibus_err (Wishbone); otherwise the PC is held and a bubble enters ID.
+//   The SoC instruction slave answers in the same cycle, so this never
+//   happens there.
 //
 // Ports:
-//   ibus_*          : instruction bus (combinational)
+//   ibus_*          : instruction bus (Wishbone read, wired in rv_core)
 //   bp_taken/target : IF prediction from branch_predictor (mode 2)
 //   *_redirect/target : redirect requests (already arbitrated)
 //   stall_if/stall_id/flush_if_id : from hazard_unit
@@ -23,6 +27,7 @@ module if_stage #(
   // instruction bus
   output logic [31:0] ibus_addr,
   input  logic [31:0] ibus_rdata,
+  input  logic        ibus_ack,
   input  logic        ibus_err,
   // prediction
   output logic [31:0] pc,
@@ -49,7 +54,7 @@ module if_stage #(
 );
 
   logic [31:0] pc_q, pc_d;
-  logic        is_c;
+  logic        is_c, fetch_ok;
   logic [31:0] seq_npc, pred_npc;
 
   assign pc        = pc_q;
@@ -57,12 +62,13 @@ module if_stage #(
   assign is_c      = ENABLE_C && (ibus_rdata[1:0] != 2'b11);
   assign seq_npc   = pc_q + (is_c ? 32'd2 : 32'd4);
   assign pred_npc  = bp_taken ? bp_target : seq_npc;
+  assign fetch_ok  = ibus_ack || ibus_err;
 
   always_comb begin
     if (mem_redirect)     pc_d = mem_target;
     else if (ex_redirect) pc_d = ex_target;
     else if (id_redirect) pc_d = id_target;
-    else if (stall_if)    pc_d = pc_q;
+    else if (stall_if || !fetch_ok) pc_d = pc_q;
     else                  pc_d = pred_npc;
   end
 
@@ -82,7 +88,7 @@ module if_stage #(
     end else if (flush_if_id) begin
       id_valid    <= 1'b0;
     end else if (!stall_id) begin
-      id_valid    <= 1'b1;
+      id_valid    <= fetch_ok;
       id_pc       <= pc_q;
       id_insn     <= ibus_rdata;
       id_is_c     <= is_c;

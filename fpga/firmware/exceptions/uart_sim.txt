@@ -1,0 +1,19 @@
+exceptions
+illegal: mcause=2 mepc=ok mtval=ffffffff
+illegal misc-mem: mcause=2 mepc=ok mtval=200f
+illegal sret: mcause=2 mepc=ok mtval=10200073
+illegal system f3=4: mcause=2 mepc=ok mtval=4073
+csr not existing: mcause=2 mepc=ok mtval=7c002573
+csr read-only write: mcause=2 mepc=ok mtval=c0051073
+mcycle write: ok
+ecall: mcause=11 mepc=ok mtval=0
+ebreak: mcause=3 mepc=ok mtval=80000648
+load misaligned: mcause=4 mepc=ok mtval=80000fcd
+lh misaligned: mcause=4 mepc=ok mtval=80000fcf
+store misaligned: mcause=6 mepc=ok mtval=80000fce
+load access fault: mcause=5 mepc=ok mtval=0
+store access fault: mcause=7 mepc=ok mtval=20000000
+apb empty slot: mcause=5 mepc=ok mtval=10005000
+fetch access fault: mcause=1 mepc=ok mtval=1000
+jump misaligned: n/a (C enabled)
+RESULT exceptions: PASS (62 checks, 0 errors)

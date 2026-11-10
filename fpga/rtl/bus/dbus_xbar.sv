@@ -1,0 +1,89 @@
+// ============================================================================
+// dbus_xbar.sv - Wishbone B4 (classic) data-bus interconnect: one master
+//   (core data port), two slaves, shared-bus address decoder.
+//   RAM window          -> ram_dp data port   (STB gated by the decoder)
+//   0x1000_0000-0xFFFF  -> apb_bridge         (Wishbone -> APB4)
+//   anything else       -> ERR in the cycle of the request (access fault)
+//   Address, data, WE and SEL are broadcast; only the selected slave sees
+//   CYC/STB, and its ACK/ERR/DAT are returned to the master.
+//
+// Ports:
+//   m_*   : master side (from the core)
+//   ram_* : RAM data port (zero wait states, no ERR)
+//   apb_* : APB bridge (wait states, ERR on PSLVERR / empty slot)
+// Parameters:
+//   RAM_BASE, RAM_SIZE (bytes), APB_BASE, APB_SIZE (bytes)
+// ============================================================================
+module dbus_xbar #(
+  parameter logic [31:0] RAM_BASE = 32'h8000_0000,
+  parameter logic [31:0] RAM_SIZE = 32'h0002_0000,
+  parameter logic [31:0] APB_BASE = 32'h1000_0000,
+  parameter logic [31:0] APB_SIZE = 32'h0001_0000
+) (
+  // master
+  input  logic        m_cyc_i,
+  input  logic        m_stb_i,
+  input  logic        m_we_i,
+  input  logic [3:0]  m_sel_i,
+  input  logic [31:0] m_adr_i,
+  input  logic [31:0] m_dat_i,
+  output logic [31:0] m_dat_o,
+  output logic        m_ack_o,
+  output logic        m_err_o,
+  // RAM slave
+  output logic        ram_cyc_o,
+  output logic        ram_stb_o,
+  output logic        ram_we_o,
+  output logic [3:0]  ram_sel_o,
+  output logic [31:0] ram_adr_o,
+  output logic [31:0] ram_dat_o,
+  input  logic [31:0] ram_dat_i,
+  input  logic        ram_ack_i,
+  // APB bridge slave
+  output logic        apb_cyc_o,
+  output logic        apb_stb_o,
+  output logic        apb_we_o,
+  output logic [3:0]  apb_sel_o,
+  output logic [31:0] apb_adr_o,
+  output logic [31:0] apb_dat_o,
+  input  logic [31:0] apb_dat_i,
+  input  logic        apb_ack_i,
+  input  logic        apb_err_i
+);
+
+  logic in_ram, in_apb;
+
+  assign in_ram = (m_adr_i >= RAM_BASE) && ((m_adr_i - RAM_BASE) < RAM_SIZE);
+  assign in_apb = (m_adr_i >= APB_BASE) && ((m_adr_i - APB_BASE) < APB_SIZE);
+
+  assign ram_cyc_o = m_cyc_i && in_ram;
+  assign ram_stb_o = m_stb_i && in_ram;
+  assign ram_we_o  = m_we_i;
+  assign ram_sel_o = m_sel_i;
+  assign ram_adr_o = m_adr_i;
+  assign ram_dat_o = m_dat_i;
+
+  assign apb_cyc_o = m_cyc_i && in_apb;
+  assign apb_stb_o = m_stb_i && in_apb;
+  assign apb_we_o  = m_we_i;
+  assign apb_sel_o = m_sel_i;
+  assign apb_adr_o = m_adr_i;
+  assign apb_dat_o = m_dat_i;
+
+  always_comb begin
+    if (in_ram) begin
+      m_ack_o = ram_ack_i;
+      m_err_o = 1'b0;
+      m_dat_o = ram_dat_i;
+    end else if (in_apb) begin
+      m_ack_o = apb_ack_i;
+      m_err_o = apb_err_i;
+      m_dat_o = apb_dat_i;
+    end else begin
+      m_ack_o = 1'b0;
+      m_err_o = m_cyc_i && m_stb_i;
+      m_dat_o = 32'b0;
+    end
+  end
+
+endmodule

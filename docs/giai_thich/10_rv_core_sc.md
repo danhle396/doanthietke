@@ -12,7 +12,8 @@
 - Cùng danh sách port với `rv_core`; chọn bằng `soc_top #(.CORE_SC(1))`.
 - RV32I + Zicsr + Zifencei + trap/ngắt (dùng chung `csr_file`). Lệnh M và lệnh 16 bit → illegal.
 - Dùng chung `decoder`, `imm_gen`, `alu`, `branch_unit`, `lsu`, `regfile` (tắt write-through), `wb_stage` (commit log).
-- Khi `dbus_ready = 0` (truy cập APB), toàn lõi đứng yên: không ghi PC, regfile hay CSR.
+- Khi giao dịch Wishbone (lấy lệnh hoặc dữ liệu) chưa có `ACK/ERR` (ví dụ truy cập APB), toàn lõi đứng yên: không
+  ghi PC, regfile hay CSR.
 - Ngắt được kiểm tra trước khi thực thi lệnh tại PC hiện tại (`mepc` = PC đó).
 
 ## Kết quả

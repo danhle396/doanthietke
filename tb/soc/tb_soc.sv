@@ -22,7 +22,9 @@ module tb_soc #(
   parameter int BP_MODE     = 2,
   parameter int BHT_ENTRIES = 256,
   parameter int BTB_ENTRIES = 32,
-  parameter bit CORE_SC     = 1'b0
+  parameter bit CORE_SC     = 1'b0,
+  parameter int RAM_DEPTH   = 32768,
+  parameter bit RAM_SYNC    = 1'b0
 );
 
   logic        clk = 1'b0;
@@ -36,7 +38,8 @@ module tb_soc #(
 
   soc_top #(
     .ENABLE_M(ENABLE_M), .ENABLE_C(ENABLE_C), .BP_MODE(BP_MODE),
-    .BHT_ENTRIES(BHT_ENTRIES), .BTB_ENTRIES(BTB_ENTRIES), .CORE_SC(CORE_SC)
+    .BHT_ENTRIES(BHT_ENTRIES), .BTB_ENTRIES(BTB_ENTRIES), .CORE_SC(CORE_SC),
+    .RAM_DEPTH(RAM_DEPTH), .RAM_SYNC(RAM_SYNC)
   ) dut (
     .clk, .rst_n,
     .uart_tx, .uart_rx,
@@ -46,6 +49,35 @@ module tb_soc #(
 
   // ---------------- Bus functional models ----------------
 `include "tb_soc_bfms.svh"
+
+  // ---------------- Wishbone protocol checkers ----------------
+  wb_checker #(.NAME("ibus")) u_wbchk_ibus (
+    .clk, .rst_n(dut.rst_sn), .cyc(dut.ibus_cyc), .stb(dut.ibus_stb), .we(1'b0), .sel(4'hF),
+    .adr(dut.ibus_adr), .dat_w(32'b0), .ack(dut.ibus_ack), .err(dut.ibus_err));
+  wb_checker #(.NAME("dbus")) u_wbchk_dbus (
+    .clk, .rst_n(dut.rst_sn), .cyc(dut.dbus_cyc), .stb(dut.dbus_stb), .we(dut.dbus_we),
+    .sel(dut.dbus_sel), .adr(dut.dbus_adr), .dat_w(dut.dbus_wdat), .ack(dut.dbus_ack),
+    .err(dut.dbus_err));
+  wb_checker #(.NAME("ram")) u_wbchk_ram (
+    .clk, .rst_n(dut.rst_sn), .cyc(dut.ram_cyc), .stb(dut.ram_stb), .we(dut.ram_we),
+    .sel(dut.ram_sel), .adr(dut.ram_adr), .dat_w(dut.ram_wdat), .ack(dut.ram_ack), .err(1'b0));
+  wb_checker #(.NAME("apb_bridge")) u_wbchk_apb (
+    .clk, .rst_n(dut.rst_sn), .cyc(dut.br_cyc), .stb(dut.br_stb), .we(dut.br_we),
+    .sel(dut.br_sel), .adr(dut.br_adr), .dat_w(dut.br_wdat), .ack(dut.br_ack), .err(dut.br_err));
+
+  task automatic wb_final_check(inout bit pass, inout string why);
+    int unsigned v;
+    v = u_wbchk_ibus.violations + u_wbchk_dbus.violations + u_wbchk_ram.violations +
+        u_wbchk_apb.violations;
+    $display("[wb] ibus fetch=%0d err=%0d | dbus ack=%0d err=%0d wait=%0d | ram ack=%0d | apb_bridge ack=%0d err=%0d wait=%0d | violations=%0d",
+             u_wbchk_ibus.transfers, u_wbchk_ibus.errors, u_wbchk_dbus.transfers,
+             u_wbchk_dbus.errors, u_wbchk_dbus.wait_cycles, u_wbchk_ram.transfers,
+             u_wbchk_apb.transfers, u_wbchk_apb.errors, u_wbchk_apb.wait_cycles, v);
+    if (v != 0 && pass) begin
+      pass = 1'b0;
+      why  = $sformatf("%0d Wishbone protocol violations", v);
+    end
+  endtask
 
   // ---------------- Performance observation ----------------
   logic [63:0] obs_mcycle, obs_minstret;
@@ -133,6 +165,7 @@ module tb_soc #(
     finished = 1;
     repeat (8) @(posedge clk);  // let WB print the last commits
     bfm_final_check(pass, why);
+    wb_final_check(pass, why);
     print_perf();
     if (pass) begin
       $display("PASS");
@@ -165,11 +198,11 @@ module tb_soc #(
 
   always @(posedge clk) begin
     if (rst_n && !finished) begin
-      if (dut.dbus_req && dut.dbus_we && dut.dbus_ready &&
-          dut.dbus_addr == tohost_addr && dut.dbus_wdata[0]) begin
+      if (dut.dbus_cyc && dut.dbus_stb && dut.dbus_we && dut.dbus_ack &&
+          dut.dbus_adr == tohost_addr && dut.dbus_wdat[0]) begin
         // tohost: code = value >> 1, 0 = PASS
-        end_pass = ((dut.dbus_wdata >> 1) == 0);
-        end_why  = end_pass ? "tohost" : $sformatf("tohost code %0d", dut.dbus_wdata >> 1);
+        end_pass = ((dut.dbus_wdat >> 1) == 0);
+        end_why  = end_pass ? "tohost" : $sformatf("tohost code %0d", dut.dbus_wdat >> 1);
         fork finish_test(end_pass, end_why); join_none
       end else if (dut.u_sim.exit_req_q) begin
         end_pass = (dut.u_sim.exit_code_q == 0);

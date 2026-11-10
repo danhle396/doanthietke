@@ -1,0 +1,8 @@
+spi_flash
+jedec id: ef 40 16
+erase: wip polls=11
+program: wip polls=5
+verify: 256 bytes ok
+mode3 jedec id: ef 40 16
+done irqs=75
+RESULT spi_flash: PASS (281 checks, 0 errors)

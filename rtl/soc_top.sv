@@ -3,10 +3,12 @@
 //   rv_core (or rv_core_sc when CORE_SC = 1), 128 KB ram_dp, dbus_xbar,
 //   apb_bridge and APB slaves:
 //     slot 0 UART, 1 SPI, 2 TIMER64, 3 GPIO, 4 INTC, 15 SIM_CTRL
+//   Buses: Wishbone B4 classic between the core, the RAM ports, dbus_xbar
+//   and apb_bridge; AMBA APB4 between apb_bridge and the peripherals.
 //
 // Ports: clock/reset, UART, SPI master, 16-bit GPIO (tri-state outside).
 // Parameters: ENABLE_M, ENABLE_C, BP_MODE, BHT_ENTRIES, BTB_ENTRIES, CORE_SC,
-//             RAM_DEPTH (32-bit words, default 32768 = 128 KB)
+//             RAM_DEPTH (32-bit words, default 32768 = 128 KB), RAM_SYNC
 // ============================================================================
 module soc_top #(
   parameter bit ENABLE_M    = 1'b1,
@@ -15,7 +17,8 @@ module soc_top #(
   parameter int BHT_ENTRIES = 256,
   parameter int BTB_ENTRIES = 32,
   parameter bit CORE_SC     = 1'b0,
-  parameter int RAM_DEPTH   = 32768   // words; smaller only for FPGA timing estimates
+  parameter int RAM_DEPTH   = 32768,  // words (32768 = 128 KB); smaller for FPGA builds
+  parameter bit RAM_SYNC    = 1'b0    // 1: falling-edge block-RAM implementation (FPGA)
 ) (
   input  logic        clk,
   input  logic        rst_n,
@@ -37,20 +40,24 @@ module soc_top #(
   rst_sync u_rst (.clk, .rst_n_in(rst_n), .rst_n_out(rst_sn));
 
   // ---------------- Core ----------------
-  logic [31:0] ibus_addr, ibus_rdata;
-  logic        ibus_err;
-  logic        dbus_req, dbus_we, dbus_ready, dbus_err;
-  logic [3:0]  dbus_be;
-  logic [31:0] dbus_addr, dbus_wdata, dbus_rdata;
+  // Wishbone B4 classic buses: ibus (core -> RAM instruction port),
+  // dbus (core -> dbus_xbar -> RAM data port / apb_bridge).
+  logic        ibus_cyc, ibus_stb, ibus_ack, ibus_err;
+  logic [31:0] ibus_adr, ibus_dat;
+  logic        dbus_cyc, dbus_stb, dbus_we, dbus_ack, dbus_err;
+  logic [3:0]  dbus_sel;
+  logic [31:0] dbus_adr, dbus_wdat, dbus_rdat;
   logic        irq_mtip, irq_msip, irq_meip;
   logic [63:0] mtime;
 
   if (CORE_SC) begin : g_sc
     rv_core_sc u_core (
       .clk, .rst_n(rst_sn),
-      .ibus_addr, .ibus_rdata, .ibus_err,
-      .dbus_req, .dbus_we, .dbus_be, .dbus_addr, .dbus_wdata,
-      .dbus_ready, .dbus_err, .dbus_rdata,
+      .ibus_cyc_o(ibus_cyc), .ibus_stb_o(ibus_stb), .ibus_adr_o(ibus_adr),
+      .ibus_dat_i(ibus_dat), .ibus_ack_i(ibus_ack), .ibus_err_i(ibus_err),
+      .dbus_cyc_o(dbus_cyc), .dbus_stb_o(dbus_stb), .dbus_we_o(dbus_we), .dbus_sel_o(dbus_sel),
+      .dbus_adr_o(dbus_adr), .dbus_dat_o(dbus_wdat), .dbus_dat_i(dbus_rdat),
+      .dbus_ack_i(dbus_ack), .dbus_err_i(dbus_err),
       .irq_mtip, .irq_msip, .irq_meip, .mtime
     );
   end else begin : g_pipe
@@ -59,34 +66,40 @@ module soc_top #(
       .BHT_ENTRIES(BHT_ENTRIES), .BTB_ENTRIES(BTB_ENTRIES)
     ) u_core (
       .clk, .rst_n(rst_sn),
-      .ibus_addr, .ibus_rdata, .ibus_err,
-      .dbus_req, .dbus_we, .dbus_be, .dbus_addr, .dbus_wdata,
-      .dbus_ready, .dbus_err, .dbus_rdata,
+      .ibus_cyc_o(ibus_cyc), .ibus_stb_o(ibus_stb), .ibus_adr_o(ibus_adr),
+      .ibus_dat_i(ibus_dat), .ibus_ack_i(ibus_ack), .ibus_err_i(ibus_err),
+      .dbus_cyc_o(dbus_cyc), .dbus_stb_o(dbus_stb), .dbus_we_o(dbus_we), .dbus_sel_o(dbus_sel),
+      .dbus_adr_o(dbus_adr), .dbus_dat_o(dbus_wdat), .dbus_dat_i(dbus_rdat),
+      .dbus_ack_i(dbus_ack), .dbus_err_i(dbus_err),
       .irq_mtip, .irq_msip, .irq_meip, .mtime
     );
   end
 
   // ---------------- Memory & bus ----------------
-  logic        ram_req, ram_we, ram_ready;
-  logic [3:0]  ram_be;
-  logic [31:0] ram_addr, ram_wdata, ram_rdata;
-  logic        br_req, br_we, br_ready, br_err;
-  logic [3:0]  br_be;
-  logic [31:0] br_addr, br_wdata, br_rdata;
+  logic        ram_cyc, ram_stb, ram_we, ram_ack;
+  logic [3:0]  ram_sel;
+  logic [31:0] ram_adr, ram_wdat, ram_rdat;
+  logic        br_cyc, br_stb, br_we, br_ack, br_err;
+  logic [3:0]  br_sel;
+  logic [31:0] br_adr, br_wdat, br_rdat;
 
-  ram_dp #(.DEPTH(RAM_DEPTH)) u_ram (
+  ram_dp #(.DEPTH(RAM_DEPTH), .SYNC(RAM_SYNC)) u_ram (
     .clk,
-    .i_addr (ibus_addr), .i_rdata(ibus_rdata), .i_err(ibus_err),
-    .d_req  (ram_req), .d_we(ram_we), .d_be(ram_be), .d_addr(ram_addr),
-    .d_wdata(ram_wdata), .d_rdata(ram_rdata), .d_ready(ram_ready)
+    .wbi_cyc_i(ibus_cyc), .wbi_stb_i(ibus_stb), .wbi_adr_i(ibus_adr),
+    .wbi_dat_o(ibus_dat), .wbi_ack_o(ibus_ack), .wbi_err_o(ibus_err),
+    .wbd_cyc_i(ram_cyc), .wbd_stb_i(ram_stb), .wbd_we_i(ram_we), .wbd_sel_i(ram_sel),
+    .wbd_adr_i(ram_adr), .wbd_dat_i(ram_wdat), .wbd_dat_o(ram_rdat), .wbd_ack_o(ram_ack)
   );
 
   dbus_xbar #(.RAM_SIZE(RAM_DEPTH * 4)) u_xbar (
-    .c_req(dbus_req), .c_we(dbus_we), .c_be(dbus_be), .c_addr(dbus_addr),
-    .c_wdata(dbus_wdata), .c_ready(dbus_ready), .c_err(dbus_err), .c_rdata(dbus_rdata),
-    .ram_req, .ram_we, .ram_be, .ram_addr, .ram_wdata, .ram_ready, .ram_rdata,
-    .apb_req(br_req), .apb_we(br_we), .apb_be(br_be), .apb_addr(br_addr),
-    .apb_wdata(br_wdata), .apb_ready(br_ready), .apb_err(br_err), .apb_rdata(br_rdata)
+    .m_cyc_i(dbus_cyc), .m_stb_i(dbus_stb), .m_we_i(dbus_we), .m_sel_i(dbus_sel),
+    .m_adr_i(dbus_adr), .m_dat_i(dbus_wdat), .m_dat_o(dbus_rdat),
+    .m_ack_o(dbus_ack), .m_err_o(dbus_err),
+    .ram_cyc_o(ram_cyc), .ram_stb_o(ram_stb), .ram_we_o(ram_we), .ram_sel_o(ram_sel),
+    .ram_adr_o(ram_adr), .ram_dat_o(ram_wdat), .ram_dat_i(ram_rdat), .ram_ack_i(ram_ack),
+    .apb_cyc_o(br_cyc), .apb_stb_o(br_stb), .apb_we_o(br_we), .apb_sel_o(br_sel),
+    .apb_adr_o(br_adr), .apb_dat_o(br_wdat), .apb_dat_i(br_rdat),
+    .apb_ack_i(br_ack), .apb_err_i(br_err)
   );
 
   logic [31:0] paddr, pwdata, prdata;
@@ -97,8 +110,9 @@ module soc_top #(
 
   apb_bridge #(.SLOT_MASK(SLOT_MASK)) u_apb (
     .clk, .rst_n(rst_sn),
-    .s_req(br_req), .s_we(br_we), .s_be(br_be), .s_addr(br_addr), .s_wdata(br_wdata),
-    .s_ready(br_ready), .s_err(br_err), .s_rdata(br_rdata),
+    .wb_cyc_i(br_cyc), .wb_stb_i(br_stb), .wb_we_i(br_we), .wb_sel_i(br_sel),
+    .wb_adr_i(br_adr), .wb_dat_i(br_wdat), .wb_dat_o(br_rdat),
+    .wb_ack_o(br_ack), .wb_err_o(br_err),
     .paddr, .psel, .penable, .pwrite, .pwdata, .pstrb, .pprot,
     .prdata, .pready, .pslverr, .slot
   );

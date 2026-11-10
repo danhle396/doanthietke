@@ -39,6 +39,8 @@ CONFIGS = {
     "m1c0_bp2": make_cfg(ENABLE_M=1, ENABLE_C=0, BP_MODE=2),
     "m0c0_bp2": make_cfg(ENABLE_M=0, ENABLE_C=0, BP_MODE=2),
     "sc": make_cfg(CORE_SC=1),
+    # FPGA (DE2) build: falling-edge banked RAM, 32 KB
+    "m1c1_bp2_sync": make_cfg(ENABLE_M=1, ENABLE_C=1, BP_MODE=2, RAM_SYNC=1, RAM_DEPTH=8192),
 }
 MATRIX = list(CONFIGS)
 

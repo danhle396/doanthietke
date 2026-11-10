@@ -66,7 +66,7 @@ RISC-V, hoặc khi công cụ buộc phải chọn cách làm khác.
 
 ## D10. Slot APB trống
 - **Quyết định:** bridge vẫn đi qua SETUP/ACCESS nhưng không bật `PSEL`; ở ACCESS tự trả
-  `ready = 1, err = 1`. Slot có slave do parameter `SLOT_MASK` khai báo.
+  `ready = 1, err = 1` (từ D28: kết thúc chu kỳ Wishbone bằng `ERR`). Slot có slave do parameter `SLOT_MASK` khai báo.
 
 ## D11. Redirect ở ID khi đích không căn lề
 - **Quyết định:** với `ENABLE_C = 0`, ID không redirect JAL/branch tới đích có `bit[1] = 1`; EX gắn
@@ -151,6 +151,12 @@ RISC-V, hoặc khi công cụ buộc phải chọn cách làm khác.
   50 MHz, `--timing-allow-fail`). Fmax báo cáo là tần số của miền clock (đường thanh ghi → thanh ghi); đường vào/ra
   chân không được ràng buộc. `soc_top` được đặt với RAM 1 KB (`RAM_DEPTH = 256`, LUT RAM; bản 4 KB cần > 5 GB bộ nhớ trong Yosys) để có cả đường đọc lệnh
   tổ hợp. Không làm OpenSTA/sky130 (cách b) dù có sẵn công cụ – một nguồn ước lượng là đủ cho so sánh tương đối.
+  (Sau này có thêm layout ASIC đầy đủ bằng OpenLane/sky130 cho lõi – D30; Fmax ECP5 vẫn là số dùng cho SoC.)
+
+- **Bổ sung (27/10/2026):** sau khi đổi bus sang Wishbone (thay đổi chỉ vài cell), Fmax một seed của
+  `soc_top_m0c0_1k` đổi từ 47,2 xuống 34,8 MHz còn `soc_top_1k` tăng từ 42,3 lên 45,0 MHz – nhiễu của bước đặt–định
+  tuyến, không phải do thiết kế. Từ đó mỗi thiết kế chạy nextpnr với 5 seed (1–5) trên cùng netlist; báo trung vị
+  (dùng cho thí nghiệm 5) và khoảng min–max (`FMAX_SEEDS` để đổi số seed).
 
 ## D25. Loại bỏ khối M/C khi tắt extension
 - **Bối cảnh:** khi `ENABLE_M = 0`, lệnh M là illegal nên `ex_is_md` luôn bằng 0, nhưng Yosys không chứng minh được
@@ -165,3 +171,75 @@ RISC-V, hoặc khi công cụ buộc phải chọn cách làm khác.
   ánh tần số thật.
 - **Quyết định:** thí nghiệm 5 dùng Fmax của SoC đầy đủ (RAM 1 KB LUT RAM) cho cả ba lõi (`soc_top_sc_1k`,
   `soc_top_m0c0_1k`, `soc_top_1k`); bảng S3 vẫn liệt kê Fmax lõi đứng riêng để tham khảo.
+
+## D27. RAM đồng bộ cho FPGA (board DE2)
+- **Bối cảnh:** `ram_dp` đọc tổ hợp không ánh xạ được sang block RAM M4K của Cyclone II (chỉ đọc đồng bộ);
+  dựng 32 KB bằng thanh ghi là không thể.
+- **Quyết định:** thêm `SYNC = 1` cho `ram_dp`: hai bank 16 bit (`ram_bank16`, nửa thấp/nửa cao của word) chạy ở
+  **cạnh xuống** của clock. Địa chỉ đến từ thanh ghi (`pc_q`, `ex_mem`) nên ổn định trước cạnh xuống; dữ liệu có
+  trước cạnh lên kế tiếp – lõi không phải sửa. Lệnh vắt qua ranh giới word lấy nửa thấp từ bank 1 tại word `i`
+  và nửa cao từ bank 0 tại word `i + 1`, vẫn trong 1 chu kỳ. Store ghi ở cạnh xuống của chính chu kỳ đó; đọc
+  cùng chu kỳ trả dữ liệu cũ, như mô hình tổ hợp. Cái giá: đường địa chỉ → RAM và RAM → thanh ghi chỉ còn nửa chu
+  kỳ.
+- **Kiểm chứng:** cấu hình `m1c1_bp2_sync` (RAM 32 KB) trong ma trận riscv-tests: 64/64 PASS, khớp Spike 64/64;
+  9 benchmark trên RAM đồng bộ 128 KB cho **số chu kỳ và mọi performance counter trùng khớp** với RAM tổ hợp.
+- **Board:** `fpga/` (sinh bởi `scripts/make_fpga.py`) dùng `altsyncram` (M4K) cho `ram_bank16`, PLL 24 MHz
+  (UART 115200 với `BAUD_DIV = 12`), RAM 32 KB; `rsort` và `memcpy` không vừa 32 KB nên không đưa lên board.
+
+## D28. Bus Wishbone B4 classic cho lõi và interconnect
+- **Bối cảnh:** đề tài yêu cầu một chuẩn interconnect SoC (AXI, OBI hoặc Wishbone). Bus cũ là giao thức tự định
+  nghĩa `req/ready/err` với phản hồi trong cùng chu kỳ; mọi số liệu hiệu năng dựa trên điều đó.
+- **Phương án:** OBI và AXI(-Lite) yêu cầu pha phản hồi sớm nhất ở chu kỳ sau pha địa chỉ (AXI còn cấm đường tổ
+  hợp từ vào ra) → phải tách IF thành 2 tầng và chuyển dữ liệu load về WB, hoặc chịu thêm 1 chu kỳ mỗi truy cập.
+  Wishbone B4 classic cho phép slave trả `ACK` ngay trong chu kỳ yêu cầu và ánh xạ gần 1–1 với bus cũ.
+- **Quyết định:** cổng `ibus_*`/`dbus_*` của `rv_core` và `rv_core_sc` là master Wishbone (`CYC, STB, WE, SEL,
+  ADR, DAT, ACK, ERR`); bên trong lõi giữ dạng `req/ready` (`ready = ACK | ERR`). IF chỉ nhận lệnh khi có
+  `ACK/ERR` (không có → giữ PC, bubble); lõi single-cycle đứng yên khi chưa có. `CYC/STB` của bus lệnh = reset đã
+  nhả. `ram_dp` có hai cổng slave, `dbus_xbar` là interconnect một master – hai slave (vùng trống → `ERR` cùng chu
+  kỳ), `apb_bridge` là cầu Wishbone → APB4 (`PSLVERR`/slot trống → `ERR`). Khác chuẩn duy nhất: `ADR` bus lệnh có
+  thể căn 2 byte, slave trả 32 bit bắt đầu tại đó.
+- **Kiểm chứng:** `tb/bfm/wb_checker.sv` (CYC/STB khi reset, STB ⇒ CYC, ACK/ERR loại trừ nhau và chỉ khi có STB,
+  yêu cầu giữ nguyên tới khi kết thúc) trên 4 liên kết trong mọi mô phỏng `tb_soc` – vi phạm làm test FAIL; unit
+  test mới `tb_dbus_xbar`; `tb_apb_bridge` chuyển sang cổng Wishbone. Regression đầy đủ PASS, 0 vi phạm; số chu kỳ
+  và mọi performance counter của 9 benchmark **trùng khớp** trước/sau khi đổi bus (cả RAM tổ hợp và RAM đồng bộ).
+
+## D29. Co-simulation C++ lock-step với Spike
+- **Bối cảnh:** đề cương yêu cầu co-simulation "Verilator + C/C++ + firmware" và chứng minh lock-step; `compare_spike.py`
+  chỉ so hai file log sau khi chạy xong.
+- **Quyết định:** harness Verilator C++ `cosim/cosim_main.cpp` (top `soc_top`, không dùng testbench SV) khởi động Spike
+  bằng `fork/exec`, đọc commit log (`--log-commits`, stderr) qua pipe – pipe đầy thì Spike tự chờ, nên hai bên chạy
+  song song theo từng lệnh. `wb_stage` gọi hàm DPI-C `cosim_commit` ở mỗi lệnh retire (chỉ khi `-DCOSIM`, không ảnh
+  hưởng tổng hợp và testbench). Quy tắc so sánh, taint và KNOWN chép từ `compare_spike.py` (D19) để hai cách cho cùng
+  kết luận. Lệch → dừng ngay, in lệnh sai và 6 lệnh khớp trước đó.
+- **Kiểm chứng harness:** `-DCOSIM_MUTANT` cài lỗi SLTU (bit 31 của hiệu thay cho bit mượn) trong `alu.sv`;
+  `rv32ui-p-sltu`/`sltiu` bị dừng ở lệnh sai đầu tiên, benchmark không lộ – cho thấy giá trị của test có hướng.
+- **Không đưa vào `make regress`:** trùng phạm vi với `make spike` (đã trong regress); chạy riêng bằng `make cosim`.
+
+## D30. Layout ASIC bằng OpenLane 2 / sky130A
+- **Bối cảnh:** spec (mục 12.2) để place & route ASIC ngoài phạm vi; Fmax ở D24 chỉ là ước lượng FPGA. Đề cương
+  yêu cầu đánh giá PPA, và máy có sẵn OpenLane 2.3.10 (image Docker) cùng PDK sky130A (Volare, `0fe599b`).
+- **Quyết định:** chạy flow `Classic` của OpenLane 2 cho **lõi** `rv_core` (tham số mặc định: M, C, BP_MODE 2) và
+  `rv_core_sc`, mỗi lõi một thư mục `asic/<top>/config.json`; `scripts/run_asic.py` (`make asic`) gọi Docker, mô
+  phỏng gate-level và sinh `results/asic/`. Không làm layout `soc_top`: RAM 128 KB phải dựng bằng flip-flop (flow
+  không có macro SRAM), lớn gấp nhiều lần lõi.
+- **Đọc RTL:** frontend Yosys 0.46 trong image báo lỗi cú pháp ở `import rv_pkg::*;` đặt ở đầu file (Yosys của OSS
+  CAD Suite thì nhận) → dùng Synlig (`USE_SYNLIG`), không sửa RTL. `SYNTHESIS` được định nghĩa để bỏ commit log.
+- **Cấu hình:** clock 25 ns (40 MHz, gần Fmax ECP5 của D24), `FP_CORE_UTIL` 40 %, mật độ đặt cell 50 %. Đã thử bốn
+  cấu hình trên `rv_core` (số net vi phạm antenna / vi phạm slew ở TT / số cell sau đi dây):
+  (1) mặc định – 124 / 29 / 51,5 k;
+  (2) thêm tối ưu timing sau global route (33 phút) và chèn diode heuristic với ngưỡng mặc định 90 µm – 12 / 160 /
+  80,3 k: diode trên mọi net dài làm tăng tải, setup SS không cải thiện sau đi dây chi tiết;
+  (3) sửa thiết kế sau global route với biên slew/cap 30 %, 10 vòng sửa antenna, không diode heuristic – 145 / 6 /
+  51,7 k: sửa antenna ở global route về 0 nhưng dây thật sau đi dây chi tiết dài hơn ước lượng;
+  (4) = (3) + diode heuristic chỉ trên net dài hơn 250 µm + biên antenna 30 % – 26 / 7 / 62,6 k.
+  Chọn (4): antenna giảm 5,6 lần so với (3), góc TT gần như sạch, diện tích cell chỉ tăng 6 %. Kết quả trong
+  `results/asic/` là của cấu hình (4), áp dụng cho cả hai lõi.
+- **Sign-off:** theo mặc định của OpenLane – DRC (Magic, KLayout), LVS (Netgen), XOR hai bản GDS, setup/hold ở góc TT.
+  Fmax được báo ở cả ba góc TT/SS/FF. Vi phạm max slew/cap và antenna còn lại được ghi trong bảng, không che giấu.
+- **Kiểm chứng layout:** netlist cuối (sau đi dây) chạy gate-level bằng Icarus Verilog + mô hình chức năng
+  `sky130_fd_sc_hd` (`-DFUNCTIONAL -DUNIT_DELAY=#1`: trễ 1 ns ở đầu ra flip-flop để tránh race, cổng tổ hợp không trễ);
+  cùng testbench `tb/asic/tb_core_gl.v` chạy RTL bằng Verilator. Mọi riscv-tests PASS của cấu hình tương ứng phải
+  PASS trên cả hai với cùng số chu kỳ, số lần ghi và chữ ký ghi bộ nhớ.
+- **Hạn chế:** công suất là ước lượng OpenSTA với hoạt động chuyển mạch mặc định; độ trễ vào/ra giả định 20 % chu kỳ
+  thay cho bộ nhớ thật; Fmax của `rv_core_sc` đứng riêng không so được với lõi pipeline (mọi đường găng đi qua bộ nhớ
+  ngoài khối, như D26).

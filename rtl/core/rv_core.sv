@@ -5,8 +5,13 @@
 //   at MEM (commit point).
 //
 // Ports:
-//   ibus_*  : combinational instruction bus (32 bits from a halfword address)
-//   dbus_*  : data bus, request held until dbus_ready
+//   ibus_*  : instruction bus, Wishbone B4 classic master, read only. ADR is
+//             the halfword-aligned PC; the slave returns the 32 bits starting
+//             there (instruction straddling a word boundary in one transfer).
+//             CYC/STB stay asserted out of reset: one fetch per cycle.
+//   dbus_*  : data bus, Wishbone B4 classic master (SEL = byte enables);
+//             CYC/STB and the request are held until ACK or ERR
+//             (ERR -> load/store access fault).
 //   irq_*   : machine timer / software / external interrupt lines
 //   mtime   : value for the time/timeh CSRs
 //
@@ -29,22 +34,49 @@ module rv_core
 ) (
   input  logic        clk,
   input  logic        rst_n,
-  output logic [31:0] ibus_addr,
-  input  logic [31:0] ibus_rdata,
-  input  logic        ibus_err,
-  output logic        dbus_req,
-  output logic        dbus_we,
-  output logic [3:0]  dbus_be,
-  output logic [31:0] dbus_addr,
-  output logic [31:0] dbus_wdata,
-  input  logic        dbus_ready,
-  input  logic        dbus_err,
-  input  logic [31:0] dbus_rdata,
+  // instruction bus (Wishbone master, read only)
+  output logic        ibus_cyc_o,
+  output logic        ibus_stb_o,
+  output logic [31:0] ibus_adr_o,
+  input  logic [31:0] ibus_dat_i,
+  input  logic        ibus_ack_i,
+  input  logic        ibus_err_i,
+  // data bus (Wishbone master)
+  output logic        dbus_cyc_o,
+  output logic        dbus_stb_o,
+  output logic        dbus_we_o,
+  output logic [3:0]  dbus_sel_o,
+  output logic [31:0] dbus_adr_o,
+  output logic [31:0] dbus_dat_o,
+  input  logic [31:0] dbus_dat_i,
+  input  logic        dbus_ack_i,
+  input  logic        dbus_err_i,
   input  logic        irq_mtip,
   input  logic        irq_msip,
   input  logic        irq_meip,
   input  logic [63:0] mtime
 );
+
+  // ---------------- Wishbone master ports ----------------
+  // Internal request/ready view used by IF and MEM.
+  logic [31:0] ibus_addr;
+  logic        dbus_req, dbus_we, dbus_ready, dbus_err;
+  logic [3:0]  dbus_be;
+  logic [31:0] dbus_addr, dbus_wdata, dbus_rdata;
+
+  assign ibus_cyc_o = rst_n;
+  assign ibus_stb_o = rst_n;
+  assign ibus_adr_o = ibus_addr;
+
+  assign dbus_cyc_o = dbus_req;
+  assign dbus_stb_o = dbus_req;
+  assign dbus_we_o  = dbus_we;
+  assign dbus_sel_o = dbus_be;
+  assign dbus_adr_o = dbus_addr;
+  assign dbus_dat_o = dbus_wdata;
+  assign dbus_ready = dbus_ack_i || dbus_err_i;
+  assign dbus_err   = dbus_err_i;
+  assign dbus_rdata = dbus_dat_i;
 
   // ---------------- Pipeline control ----------------
   logic stall_if, stall_id, stall_ex, stall_mem;
@@ -116,7 +148,10 @@ module rv_core
   // =========================================================================
   if_stage #(.RESET_PC(RESET_PC), .ENABLE_C(ENABLE_C)) u_if (
     .clk, .rst_n,
-    .ibus_addr, .ibus_rdata, .ibus_err,
+    .ibus_addr,
+    .ibus_rdata  (ibus_dat_i),
+    .ibus_ack    (ibus_ack_i),
+    .ibus_err    (ibus_err_i),
     .pc          (if_pc),
     .bp_taken    (bp_if_taken),
     .bp_target   (bp_if_target),

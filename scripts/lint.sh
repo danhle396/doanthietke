@@ -16,6 +16,7 @@ configs=(
   "-GCORE_SC=0 -GBHT_ENTRIES=16 -GBTB_ENTRIES=4"
   "-GCORE_SC=0 -GBHT_ENTRIES=1024 -GBTB_ENTRIES=64"
   "-GCORE_SC=1"
+  "-GCORE_SC=0 -GRAM_SYNC=1 -GRAM_DEPTH=8192"
 )
 mkdir -p build
 for cfg in "${configs[@]}"; do

@@ -6,7 +6,9 @@
     BHT x BTB sweep), rv_core_sc, every peripheral and soc_top with ram_dp as
     a black box (RAM not counted).
   * Fmax: Yosys synth_ecp5 + nextpnr-ecp5 (LFE5U-85F, CABGA756) - an FPGA
-    estimate only, no ASIC place & route. soc_top is placed with a 1 KB RAM
+    estimate only, no ASIC place & route. nextpnr runs with FMAX_SEEDS
+    placement seeds (default 5) on the same netlist; the median is reported
+    with the min-max range. soc_top is placed with a 1 KB RAM
     (RAM_DEPTH = 256, LUT RAM) so that the instruction-fetch path is timed
     (a 4 KB combinational-read RAM needs > 5 GB in Yosys on this machine).
     Results of earlier runs are reused when no RTL/script file is newer.
@@ -19,6 +21,7 @@ Usage: synth_report.py [--no-fmax] [--no-sweep]
 import argparse
 import csv
 import json
+import os
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -29,6 +32,8 @@ from common import BUILD, JOBS, RESULTS, ROOT, YOSYS, rtl_files, run  # noqa: E4
 
 OUT = RESULTS / "synth"
 WORK = BUILD / "synth"
+# nextpnr placement seeds per design (Fmax = median); FMAX_SEEDS=1 for a quick run
+SEEDS = list(range(1, int(os.environ.get("FMAX_SEEDS", "5")) + 1))
 FILES = " ".join(rtl_files())
 
 CORE_CFGS = {  # name -> rv_core parameters
@@ -82,6 +87,8 @@ def generic_area(name, top, params, blackbox=""):
 
 
 def fmax(name, top, params):
+    """Yosys synth_ecp5 once, then nextpnr-ecp5 with FMAX_SEEDS placement seeds on the same
+    netlist; Fmax = median over the seeds (single-seed results vary by tens of percent)."""
     d = WORK / "ecp5"
     d.mkdir(parents=True, exist_ok=True)
     js = d / f"{name}.json"
@@ -89,23 +96,32 @@ def fmax(name, top, params):
     ys = d / f"{name}.ys"
     ys.write_text(tmpl.format(files=FILES, top=top, chparam=chparam(top, params), json=js))
     log = d / f"{name}.yosys.log"
-    pnr_log = d / f"{name}.pnr.log"
-    if not (_fresh(pnr_log) and "Max frequency" in pnr_log.read_text()):
+    pnr_logs = [d / f"{name}.pnr.s{s}.log" for s in SEEDS]
+    if not all(_fresh(p) and "Max frequency" in p.read_text() for p in pnr_logs):
         try:
             run([YOSYS, "-q", "-l", str(log), "-s", str(ys)], timeout=7200)
         except Exception as e:
             return dict(name=name, top=top, fmax_mhz=None, lut4=0, ff=0, critical_path="", error=str(e)[:200])
-        run(["nextpnr-ecp5", "--85k", "--package", "CABGA756", "--json", str(js),
-             "--freq", "50", "--timing-allow-fail", "--seed", "1"], check=False, timeout=7200,
-            log=pnr_log)
+        for seed, p in zip(SEEDS, pnr_logs):
+            run(["nextpnr-ecp5", "--85k", "--package", "CABGA756", "--json", str(js),
+                 "--freq", "50", "--timing-allow-fail", "--seed", str(seed)], check=False, timeout=7200,
+                log=p)
     text = log.read_text()
     stat = text[text.rfind("Printing statistics"):]
     luts = sum(int(m.group(1)) for m in re.finditer(r"^\s+(\d+)\s+LUT4\s*$", stat, re.M))
     ffs = sum(int(m.group(1)) for m in re.finditer(r"^\s+(\d+)\s+TRELLIS_FF\s*$", stat, re.M))
-    out = pnr_log.read_text()
-    m = re.findall(r"Max frequency for clock '[^']*': ([\d.]+) MHz", out)
-    f = float(m[-1]) if m else None
-    # critical path excerpt (clock-to-clock report)
+    per_seed = []
+    for seed, p in zip(SEEDS, pnr_logs):
+        m = re.findall(r"Max frequency for clock '[^']*': ([\d.]+) MHz", p.read_text())
+        if m:
+            per_seed.append((float(m[-1]), seed, p))
+    if not per_seed:
+        js.unlink(missing_ok=True)
+        return dict(name=name, top=top, fmax_mhz=None, lut4=luts, ff=ffs, critical_path="")
+    per_seed.sort()
+    f_med, seed_med, p_med = per_seed[len(per_seed) // 2]          # median (odd number of seeds)
+    # critical path excerpt of the median run (clock-to-clock report)
+    out = p_med.read_text()
     cp = ""
     mm = re.search(r"Info: Critical path report for clock.*?(?=\nInfo: Critical path report|\nWarning: Max frequency|\nInfo: Max frequency)",
                    out, re.S)
@@ -113,9 +129,11 @@ def fmax(name, top, params):
         lines = [l.replace("Info: ", "") for l in mm.group(0).splitlines()
                  if re.search(r"Source|Sink|clk-to-q|setup|Net ", l)]
         cp = "\n".join(lines)
-        (OUT / f"critical_path_{name}.txt").write_text(cp + "\n")
+        (OUT / f"critical_path_{name}.txt").write_text(f"# nextpnr seed {seed_med} (median of {len(per_seed)})\n"
+                                                       + cp + "\n")
     js.unlink(missing_ok=True)
-    return dict(name=name, top=top, fmax_mhz=f, lut4=luts, ff=ffs, critical_path=cp)
+    return dict(name=name, top=top, fmax_mhz=f_med, fmax_min=per_seed[0][0], fmax_max=per_seed[-1][0],
+                fmax_seeds={s: f for f, s, _ in per_seed}, lut4=luts, ff=ffs, critical_path=cp)
 
 
 def summarize_cp(cp):
@@ -164,7 +182,9 @@ def main():
         sweep_cells={a["name"].replace("sweep_", ""): a["cells"] for a in area
                      if a["name"].startswith("sweep_")},
         fmax_mhz={r["name"]: r["fmax_mhz"] for r in fm},
-        ecp5={r["name"]: dict(lut4=r["lut4"], ff=r["ff"], fmax_mhz=r["fmax_mhz"]) for r in fm},
+        ecp5={r["name"]: dict(lut4=r["lut4"], ff=r["ff"], fmax_mhz=r["fmax_mhz"],
+                              fmax_min=r.get("fmax_min"), fmax_max=r.get("fmax_max"),
+                              fmax_seeds=r.get("fmax_seeds")) for r in fm},
     )
     old = OUT / "summary.json"
     if args.no_fmax and old.exists():  # keep previous Fmax results
@@ -177,7 +197,8 @@ def main():
     lines = ["# Tổng hợp – diện tích và Fmax", "",
              "Diện tích: Yosys `synth -flatten` (thư viện generic, đơn vị = số cell logic sau tối ưu); "
              "`ram_dp` là black box nên **RAM 128 KB không được tính**. Fmax: Yosys `synth_ecp5` + "
-             "`nextpnr-ecp5` (LFE5U-85F, CABGA756, seed 1) – chỉ là **ước lượng trên FPGA**; không làm "
+             f"`nextpnr-ecp5` (LFE5U-85F, CABGA756), {len(SEEDS)} seed đặt–định tuyến trên cùng netlist, báo **trung vị** "
+             "và khoảng min–max (một seed riêng lẻ dao động tới vài chục %) – chỉ là **ước lượng trên FPGA**; không làm "
              "place & route ASIC (ngoài phạm vi). Tái tạo: `make synth`.", "",
              "## Bảng S1 – Diện tích lõi và ngoại vi (generic)", "",
              "| Khối | Tham số | Cell | Flip-flop |", "|---|---|---|---|"]
@@ -195,13 +216,15 @@ def main():
         lines.append("")
     if summary["ecp5"]:
         lines += ["## Bảng S3 – ECP5: tài nguyên và Fmax ước lượng", "",
-                  "| Thiết kế | LUT4 | FF | Fmax (MHz) | Đường găng (tóm tắt) |", "|---|---|---|---|---|"]
+                  f"| Thiết kế | LUT4 | FF | Fmax trung vị (MHz) | min – max ({len(SEEDS)} seed) | "
+                  "Đường găng (seed trung vị, tóm tắt) |", "|---|---|---|---|---|---|"]
         for r in fm or []:
             lines.append(f"| `{r['name']}` | {r['lut4']} | {r['ff']} | {r['fmax_mhz']} | "
-                         f"{summarize_cp(r['critical_path'])} |")
+                         f"{r.get('fmax_min')} – {r.get('fmax_max')} | {summarize_cp(r['critical_path'])} |")
         if not fm:
             for k, v in summary["ecp5"].items():
-                lines.append(f"| `{k}` | {v['lut4']} | {v['ff']} | {v['fmax_mhz']} | |")
+                lines.append(f"| `{k}` | {v['lut4']} | {v['ff']} | {v['fmax_mhz']} | "
+                             f"{v.get('fmax_min')} – {v.get('fmax_max')} | |")
         lines += ["", "Chi tiết từng chặng: `results/synth/critical_path_<tên>.txt`. "
                   "`soc_top_*_1k` dùng RAM 1 KB (LUT RAM) thay cho 128 KB để đặt được trên FPGA "
                   "và tính cả đường đọc RAM tổ hợp; Fmax của lõi đứng riêng (`m1c1_bp2`, `sc`…) **không** "

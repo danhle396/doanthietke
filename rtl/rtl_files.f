@@ -20,6 +20,7 @@ rtl/core/mem_stage.sv
 rtl/core/wb_stage.sv
 rtl/core/rv_core.sv
 rtl/core_sc/rv_core_sc.sv
+rtl/mem/ram_bank16.sv
 rtl/mem/ram_dp.sv
 rtl/bus/dbus_xbar.sv
 rtl/bus/apb_bridge.sv

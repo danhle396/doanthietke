@@ -102,10 +102,10 @@ def soc():
     fig, ax = canvas(12, 7, "Hình 3.1. Sơ đồ khối SoC")
     box(ax, 4, 45, 26, 18, "rv_core\nIF ID EX MEM WB\nBHT/BTB  MulDiv  CSR", fill=0, fs=9)
     box(ax, 45, 52, 22, 10, "ram_dp 128 KB\ncổng I | cổng D", fill=5)
-    box(ax, 45, 34, 22, 9, "dbus_xbar", fill=5)
-    box(ax, 80, 34, 22, 9, "apb_bridge (APB4)", fill=3)
-    arrow(ax, 30, 58, 45, 58, "ibus")
-    arrow(ax, 30, 48, 45, 40, "dbus")
+    box(ax, 45, 34, 22, 9, "dbus_xbar\n(Wishbone)", fill=5)
+    box(ax, 80, 34, 22, 9, "apb_bridge\nWishbone → APB4", fill=3)
+    arrow(ax, 30, 58, 45, 58, "ibus (Wishbone)")
+    arrow(ax, 30, 48, 45, 40, "dbus (Wishbone)")
     arrow(ax, 56, 43, 56, 52, "")
     arrow(ax, 67, 38.5, 80, 38.5, "")
     names = ["UART\nslot 0", "SPI\nslot 1", "TIMER64\nslot 2", "GPIO\nslot 3", "INTC\nslot 4", "SIM_CTRL\nslot 15"]
@@ -118,10 +118,10 @@ def soc():
     box(ax, 4, 30, 18, 7, "rst_sync", fill=5)
     save(fig, "soc", """
 flowchart LR
-  CORE[rv_core] -- ibus --> RAM[(ram_dp 128 KB)]
-  CORE -- dbus --> XBAR[dbus_xbar]
-  XBAR --> RAM
-  XBAR --> BR[apb_bridge]
+  CORE[rv_core] -- ibus Wishbone --> RAM[(ram_dp 128 KB)]
+  CORE -- dbus Wishbone --> XBAR[dbus_xbar]
+  XBAR -- Wishbone --> RAM
+  XBAR -- Wishbone --> BR[apb_bridge]
   BR --> UART & SPI & TIMER[TIMER64] & GPIO & INTC & SIM[SIM_CTRL]
   TIMER -- mtip/msip/mtime --> CORE
   UART & SPI & GPIO --> INTC -- meip --> CORE
@@ -153,7 +153,7 @@ def fsm(name, title, states, edges, mermaid, size=(9, 4.2)):
         mx = (sx + ex) / 2 + rad * (ey - sy) / 2
         my = (sy + ey) / 2 - rad * (ex - sx) / 2
         below = (-rad * (ex - sx)) < 0 or (rad == 0 and False)
-        ax.text(mx, my + (-3.2 if below else 1.0), lab, ha="center", fontsize=7, color=INK2)
+        ax.text(mx, my + (-3.2 if below else 2.6), lab, ha="center", fontsize=7, color=INK2)
     save(fig, name, mermaid)
 
 
@@ -162,17 +162,17 @@ def main():
     soc()
     fsm("apb_fsm", "Hình 3.2. FSM của apb_bridge",
         {"IDLE": (12, 22), "SETUP": (45, 22), "ACCESS": (78, 22)},
-        [("IDLE", "SETUP", "s_req: chốt PADDR/PWRITE/PWDATA/PSTRB", 0.25),
+        [("IDLE", "SETUP", "CYC & STB: chốt PADDR/PWRITE/PWDATA/PSTRB", 0.25),
          ("SETUP", "ACCESS", "PSEL=1, PENABLE=0", 0.25),
          ("ACCESS", "ACCESS", "PREADY=0 (wait)", 0),
-         ("ACCESS", "IDLE", "PREADY=1: s_ready, rdata, err=PSLVERR", 0.45)],
+         ("ACCESS", "IDLE", "PREADY=1: ACK, hoặc ERR nếu PSLVERR", 0.45)],
         """
 stateDiagram-v2
   [*] --> IDLE
-  IDLE --> SETUP: s_req
+  IDLE --> SETUP: CYC & STB
   SETUP --> ACCESS
   ACCESS --> ACCESS: !PREADY
-  ACCESS --> IDLE: PREADY
+  ACCESS --> IDLE: PREADY / ACK or ERR
 """)
     fsm("uart_rx_fsm", "Hình 3.3. FSM bộ thu UART (lấy mẫu ×16)",
         {"IDLE": (10, 22), "START": (32, 22), "DATA": (54, 22), "PARITY": (76, 30), "STOP": (76, 10)},

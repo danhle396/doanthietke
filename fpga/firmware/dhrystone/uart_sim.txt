@@ -1,0 +1,5 @@
+[bench] name=dhrystone cycles=333617 instret=277083 cpi_x1000=1204
+[bench] branch=43512 branch_miss=4006 jump=16503 jump_miss=6003 acc_x1000=833
+[bench] stall_load_use=13011 stall_muldiv=16500 stall_bus=0 compressed=151032
+Microseconds for one run through Dhrystone: 667
+Dhrystones per Second:                      1499

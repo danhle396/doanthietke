@@ -1,9 +1,11 @@
-// tb_apb_bridge.sv - dbus -> APB4 bridge.
+// tb_apb_bridge.sv - Wishbone -> APB4 bridge.
 //   Two slave models with random wait states (slots 0 and 2, SLOT_MASK
 //   16'h0005), error offset 0xFFC (PSLVERR), empty slots (bridge answers
 //   err without PSEL). Checks read data / byte-enable writes against a
 //   model, minimum latency (3 cycles), protocol (monitored by the slaves and
-//   by this TB: one-hot PSEL, PENABLE only in ACCESS), request held until ready.
+//   by this TB: one-hot PSEL, PENABLE only in ACCESS), request held until
+//   ACK/ERR, Wishbone rules on the slave port (wb_checker).
+//   s_req drives CYC and STB; s_ready = ACK | ERR, s_err = ERR.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 
@@ -14,6 +16,7 @@ module tb_apb_bridge;
   logic        s_req, s_we, s_ready, s_err;
   logic [3:0]  s_be;
   logic [31:0] s_addr, s_wdata, s_rdata;
+  logic        wb_ack, wb_err;
   logic [31:0] paddr, pwdata, prdata;
   logic [15:0] psel;
   logic        penable, pwrite, pready, pslverr;
@@ -23,8 +26,17 @@ module tb_apb_bridge;
   always #5 clk = ~clk;
 
   apb_bridge #(.SLOT_MASK(16'h0005)) dut (
-    .clk, .rst_n, .s_req, .s_we, .s_be, .s_addr, .s_wdata, .s_ready, .s_err, .s_rdata,
+    .clk, .rst_n,
+    .wb_cyc_i(s_req), .wb_stb_i(s_req), .wb_we_i(s_we), .wb_sel_i(s_be), .wb_adr_i(s_addr),
+    .wb_dat_i(s_wdata), .wb_dat_o(s_rdata), .wb_ack_o(wb_ack), .wb_err_o(wb_err),
     .paddr, .psel, .penable, .pwrite, .pwdata, .pstrb, .pprot, .prdata, .pready, .pslverr, .slot);
+
+  assign s_ready = wb_ack || wb_err;
+  assign s_err   = wb_err;
+
+  wb_checker #(.NAME("apb_bridge")) u_wbchk (
+    .clk, .rst_n, .cyc(s_req), .stb(s_req), .we(s_we), .sel(s_be), .adr(s_addr), .dat_w(s_wdata),
+    .ack(wb_ack), .err(wb_err));
 
   logic [31:0] rd0, rd2;
   logic        rdy0, rdy2, err0, err2;
@@ -135,6 +147,7 @@ module tb_apb_bridge;
     `CHECK(s0.violations == 0 && s2.violations == 0,
            $sformatf("slave protocol violations %0d/%0d", s0.violations, s2.violations))
     `CHECK(proto_err == 0, $sformatf("bridge protocol errors %0d", proto_err))
+    `CHECK(u_wbchk.violations == 0, $sformatf("Wishbone violations %0d", u_wbchk.violations))
     `CHECK(s0.waits_total > 0, "no wait states were exercised")
     $display("[tb_apb_bridge] accesses slot0=%0d slot2=%0d, wait cycles=%0d",
              s0.accesses, s2.accesses, s0.waits_total);

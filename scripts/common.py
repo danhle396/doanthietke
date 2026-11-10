@@ -81,9 +81,13 @@ def make_cfg(**kw):
 
 def cfg_name(cfg):
     if cfg["CORE_SC"]:
-        return "sc"
-    return (f"m{cfg['ENABLE_M']}c{cfg['ENABLE_C']}_bp{cfg['BP_MODE']}"
-            f"_bht{cfg['BHT_ENTRIES']}_btb{cfg['BTB_ENTRIES']}")
+        name = "sc"
+    else:
+        name = (f"m{cfg['ENABLE_M']}c{cfg['ENABLE_C']}_bp{cfg['BP_MODE']}"
+                f"_bht{cfg['BHT_ENTRIES']}_btb{cfg['BTB_ENTRIES']}")
+    if cfg.get("RAM_SYNC"):     # FPGA RAM model (falling-edge banks), see ram_dp.sv
+        name += f"_sync{cfg.get('RAM_DEPTH', 32768) * 4 // 1024}k"
+    return name
 
 
 def cfg_variant(cfg):
@@ -94,7 +98,7 @@ def cfg_variant(cfg):
 
 
 TB_SOC_SOURCES = ["tb/bfm/uart_bfm.sv", "tb/bfm/spi_slave_bfm.sv", "tb/bfm/spi_flash_bfm.sv",
-                  "tb/soc/tb_soc.sv"]
+                  "tb/bfm/wb_checker.sv", "tb/soc/tb_soc.sv"]
 TB_INCDIRS = ["tb/soc", "tb/bfm"]
 
 

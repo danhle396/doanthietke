@@ -1,0 +1,8 @@
+# Keep LF in the working tree on every OS: a Windows checkout with CRLF breaks
+# the bash scripts and the Makefile inside WSL. Windows batch files need CRLF.
+* text=auto eol=lf
+*.bat text eol=crlf
+
+*.png binary
+*.docx binary
+*.elf binary

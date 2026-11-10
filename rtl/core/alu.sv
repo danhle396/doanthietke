@@ -24,7 +24,13 @@ module alu
   logic        lt_u;
 
   assign diff = {1'b0, a} - {1'b0, b};
+`ifdef COSIM_MUTANT
+  // Deliberate bug, only for the co-simulation demonstration (scripts/run_cosim.py):
+  // SLTU takes bit 31 of the difference instead of the borrow.
+  assign lt_u = diff[31];
+`else
   assign lt_u = diff[32];
+`endif
   assign lt_s = (a[31] != b[31]) ? a[31] : diff[31];
 
   always_comb begin

@@ -2,8 +2,9 @@
 
 ## Chức năng
 
-- Giữ thanh ghi `pc_q` (reset = `0x8000_0000`), đưa thẳng ra `ibus_addr`.
-- Nhận `ibus_rdata` (32 bit bắt đầu tại `pc_q`) **trong cùng chu kỳ** vì RAM đọc tổ hợp.
+- Giữ thanh ghi `pc_q` (reset = `0x8000_0000`), đưa thẳng ra `ibus_adr_o` (master Wishbone chỉ đọc).
+- Nhận `ibus_dat_i` (32 bit bắt đầu tại `pc_q`) kèm `ACK` **trong cùng chu kỳ** vì RAM đọc tổ hợp; chu kỳ không có
+  `ACK/ERR` → giữ PC, đưa bubble vào ID (không xảy ra với RAM của SoC).
 - Biết lệnh dài 16 hay 32 bit: `is_c = ENABLE_C && rdata[1:0] != 2'b11`, `seq_npc = pc_q + (is_c ? 2 : 4)`.
 - BP_MODE 2: tra BTB + BHT theo `pc_q`; nếu BTB hit và (JAL/JALR hoặc BHT đoán taken) → `pred_npc = btb_target`.
 - Chọn PC kế và ghi `if_id = {valid, pc, insn 32 bit, is_c, pred_npc, fault}`.

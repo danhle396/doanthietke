@@ -16,26 +16,32 @@ PASS = exit code 0 và dòng `PASS`.
 | `tb_bp` | BHT bão hòa 2 chiều, BTB hit/miss/alias/thay thế/xóa, wrapper mode 1 và 2 |
 | `tb_csr` | reset, RW/RS/RC, mặt nạ WARL, illegal (không tồn tại / ghi read-only), trap/mret, vectored, ưu tiên ngắt, counter |
 | `tb_fifo` | full/empty/level, push+pop đồng thời, FWFT, ngẫu nhiên (độ sâu 4 và 16) |
-| `tb_apb_bridge` | 2 slave có wait state ngẫu nhiên, PSLVERR, slot trống, kiểm tra giao thức |
+| `tb_apb_bridge` | cầu Wishbone → APB4: 2 slave có wait state ngẫu nhiên, PSLVERR → ERR, slot trống, kiểm tra giao thức APB và Wishbone |
+| `tb_dbus_xbar` | interconnect Wishbone: biên vùng RAM/APB, vùng trống → ERR cùng chu kỳ, 4.000 truy cập ngẫu nhiên (slave APB có wait state, ERR), định tuyến CYC/STB, mux phản hồi, `wb_checker` trên 3 liên kết |
 | `tb_uart` | loopback 6 định dạng × 3 baud, lỗi frame/parity, overrun, false start, ngắt watermark |
 | `tb_spi` | 4 mode × MSB/LSB × 3 CLK_DIV với `spi_slave_bfm`, chu kỳ SCLK, DONE/overrun, flash mode 0/3 |
 | `tb_timer`, `tb_gpio`, `tb_intc` | mọi thanh ghi, ngắt, PSTRB, PSLVERR |
 
-BFM (`tb/bfm`): `apb_master_bfm`, `apb_slave_model`, `uart_bfm`, `spi_slave_bfm` (4 mode, chế độ echo),
+BFM và checker (`tb/bfm`): `wb_checker` (giao thức Wishbone B4 classic), `apb_master_bfm`, `apb_slave_model`, `uart_bfm`, `spi_slave_bfm` (4 mode, chế độ echo),
 `spi_flash_bfm` (W25Q rút gọn: 9F, 03, 06, 04, 02, 05, 20).
 
 ## Mức 2 – Lõi: riscv-tests + Spike (`make isa`, `make spike`)
 
 - Môi trường riêng `sw/riscv-tests-env/p` (chỉ M-mode).
-- Ma trận: `m1c1` × BP_MODE 0/1/2 (ELF `imc`), `m1c0_bp2` (`im`), `m0c0_bp2` (`i`), single-cycle (`i`, rv32ui).
+- Ma trận: `m1c1` × BP_MODE 0/1/2 (ELF `imc`), `m1c0_bp2` (`im`), `m0c0_bp2` (`i`), single-cycle (`i`, rv32ui),
+  `m1c1_bp2_sync` (RAM đồng bộ 32 KB của board DE2, D27).
 - Loại trừ có lý do: `rv32ui-p-ma_data`, `rv32mi-p-breakpoint`, `rv32mi-p-pmpaddr` (xem `results/isa/summary.md`).
 - So sánh commit log với `spike --log-commits` cho mọi riscv-test và benchmark (CONSOLE=sim), có taint tracking cho
   giá trị counter (D19).
+- Co-simulation C++ (`make cosim`, D29): cùng phép so sánh nhưng **trong lúc chạy** – harness Verilator C++ + Spike
+  qua pipe + DPI-C ở WB, dừng tại lệnh sai đầu tiên; kiểm chứng harness bằng RTL có lỗi cài sẵn (`-DCOSIM_MUTANT`).
 
 ## Mức 3 – Hệ thống (`sw/tests`, `make systest`)
 
 Firmware C chạy trên `tb_soc` với BFM UART, flash SPI (CS0), SPI slave (CS1), GPIO loopback + kích thích.
-Tiêu chí: mã thoát SIM_CTRL = 0, output UART khớp file kỳ vọng (`*` cho số phụ thuộc thời gian), BFM không thấy lỗi.
+Tiêu chí: mã thoát SIM_CTRL = 0, output UART khớp file kỳ vọng (`*` cho số phụ thuộc thời gian), BFM không thấy lỗi,
+0 vi phạm giao thức Wishbone (`wb_checker` trên ibus, dbus, cổng dữ liệu RAM, cầu APB – chạy trong mọi mô phỏng
+`tb_soc`, kể cả riscv-tests và benchmark).
 
 | Test | Kiểm tra |
 |---|---|

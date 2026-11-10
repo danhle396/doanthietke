@@ -9,16 +9,16 @@ Mỗi yêu cầu của `PROJECT_SPEC.md` mục 3–12 → file hiện thực →
 |---|---|---|---|
 | RAM 128 KB tại `0x8000_0000`, reset PC | `rtl/mem/ram_dp.sv`, `rtl/core/if_stage.sv` (`RESET_PC`) | mọi riscv-test, system test | ĐẠT |
 | UART/SPI/TIMER/GPIO/INTC/SIM_CTRL ở slot 0–4, 15 | `rtl/soc_top.sv` | system test `hello`, `spi_*`, `timer_irq`, `gpio_irq`, `irq_priority` | ĐẠT |
-| Slot trống → PSLVERR | `rtl/bus/apb_bridge.sv` (`SLOT_MASK`) | `tb_apb_bridge`, system test `exceptions` (apb empty slot) | ĐẠT |
-| Vùng khác → access fault (fetch 1, load 5, store 7) | `rtl/bus/dbus_xbar.sv`, `ram_dp` (`i_err`) | `exceptions` | ĐẠT |
+| Slot trống → PSLVERR (→ Wishbone `ERR`) | `rtl/bus/apb_bridge.sv` (`SLOT_MASK`) | `tb_apb_bridge`, system test `exceptions` (apb empty slot) | ĐẠT |
+| Vùng khác → access fault (fetch 1, load 5, store 7) | `rtl/bus/dbus_xbar.sv`, `ram_dp` (Wishbone `ERR`) | `exceptions`, `tb_dbus_xbar` | ĐẠT |
 
 ## Mục 4 – Lõi
 
 | Yêu cầu | Hiện thực | Bằng chứng | Trạng thái |
 |---|---|---|---|
-| Tham số RESET_PC, ENABLE_M, ENABLE_C, BP_MODE, BHT/BTB_ENTRIES | `rtl/core/rv_core.sv` | ma trận riscv-tests (6 cấu hình), quét 16 cấu hình BHT×BTB | ĐẠT |
+| Tham số RESET_PC, ENABLE_M, ENABLE_C, BP_MODE, BHT/BTB_ENTRIES | `rtl/core/rv_core.sv` | ma trận riscv-tests (7 cấu hình), quét 16 cấu hình BHT×BTB | ĐẠT |
 | `misa = 0x4000_1104` (đầy đủ) | `rtl/core/csr_file.sv` | `tb_csr`; Spike KNOWN (misa writable trong Spike) | ĐẠT |
-| Port lõi (ibus tổ hợp, dbus giữ tới ready) | `rv_core.sv`, `mem_stage.sv` | `tb_apb_bridge`, system test với APB wait | ĐẠT |
+| Port lõi: master Wishbone B4 (ibus chỉ đọc, dbus giữ tới ACK/ERR) | `rv_core.sv`, `rv_core_sc.sv`, `if_stage.sv`, `mem_stage.sv` | `wb_checker` trong mọi mô phỏng `tb_soc` (0 vi phạm), system test với APB wait | ĐẠT |
 | Load/store không căn lề → trap 4/6, không request | `rtl/core/lsu.sv`, `mem_stage.sv` | `rv32mi-p-ma_addr`, `*-misaligned`, `exceptions` | ĐẠT |
 | 4 thanh ghi pipeline có `valid`, mang pc/insn_raw/is_c/pred_npc/exc | `*_stage.sv` | Spike lock-step (commit log dùng insn_raw) | ĐẠT |
 | Lệnh có ngoại lệ là NOP | `id_stage.sv` (xóa cờ), `ex_stage.sv`, `mem_stage.sv` | `rv32mi-p-illegal`, `exceptions` | ĐẠT |
@@ -56,8 +56,8 @@ Mỗi yêu cầu của `PROJECT_SPEC.md` mục 3–12 → file hiện thực →
 
 | Yêu cầu | Hiện thực | Bằng chứng | Trạng thái |
 |---|---|---|---|
-| dbus_xbar: RAM / APB / lỗi | `dbus_xbar.sv` | `exceptions` | ĐẠT |
-| APB4 FSM, chốt khi SETUP, PSTRB=0 khi đọc, PSLVERR, slot trống | `apb_bridge.sv` | `tb_apb_bridge` (giao thức kiểm bởi slave model) | ĐẠT |
+| dbus_xbar: interconnect Wishbone RAM / APB / lỗi | `dbus_xbar.sv` | `tb_dbus_xbar`, `exceptions` | ĐẠT |
+| Cầu Wishbone → APB4: FSM, chốt khi SETUP, PSTRB=0 khi đọc, PSLVERR → ERR, slot trống | `apb_bridge.sv` | `tb_apb_bridge` (giao thức APB kiểm bởi slave model, Wishbone bởi `wb_checker`) | ĐẠT |
 | Quy ước slave (PSTRB, push, pop 1 lần, PSLVERR offset lạ) | `rtl/periph/*` | `tb_uart`, `tb_spi`, `tb_timer`, `tb_gpio`, `tb_intc` | ĐẠT |
 
 ## Mục 7 – Ngắt
@@ -83,7 +83,7 @@ Mỗi yêu cầu của `PROJECT_SPEC.md` mục 3–12 → file hiện thực →
 
 | Yêu cầu | Hiện thực | Bằng chứng | Trạng thái |
 |---|---|---|---|
-| Port, tham số, rst_sync, CORE_SC | `rtl/soc_top.sv`, `rtl/rst_sync.sv` | ma trận (sc), lint 8 cấu hình | ĐẠT |
+| Port, tham số, rst_sync, CORE_SC | `rtl/soc_top.sv`, `rtl/rst_sync.sv` | ma trận (sc), lint 9 cấu hình | ĐẠT |
 | Một TB top `tb_soc` cho mọi loại test, `-G` | `tb/soc/tb_soc.sv` | `scripts/common.py` (`build_soc`) | ĐẠT |
 | Mỗi cấu hình build Verilator một lần | `build/verilator/<cfg>/Vtb_soc` | `scripts/common.py` | ĐẠT |
 
@@ -124,7 +124,21 @@ Mỗi yêu cầu của `PROJECT_SPEC.md` mục 3–12 → file hiện thực →
 |---|---|---|---|
 | Makefile: check-env, fetch, lint, unit, sw, isa, spike, systest, perf, cov, synth, docs, regress, clean | `Makefile` | `make regress` từ bản clone sạch (`results/regress.md`) | ĐẠT |
 | Cấu trúc thư mục mục 14 | toàn repo | – | ĐẠT |
-| `docs/giai_thich/` đủ file, walkthrough, hướng dẫn chạy, ≥ 50 câu hỏi | `docs/giai_thich/*` | 58 câu trong `bao_ve_QA.md` | ĐẠT |
+| `docs/giai_thich/` đủ file, walkthrough, hướng dẫn chạy, ≥ 50 câu hỏi | `docs/giai_thich/*` | 70 câu trong `bao_ve_QA.md` | ĐẠT |
 | Báo cáo 5 chương, hình/bảng có số và nguồn, `.docx` | `docs/report/*` | `docs/report/baocao.docx` (pandoc 3.6.4) | ĐẠT |
 | Hình Mermaid/WaveDrom + waveform từ VCD | `docs/diagrams/`, `scripts/vcd2png.py`, `scripts/make_waves.py` | `results/waves/*.png` | ĐẠT |
 | `.gtkw` cho các cảnh waveform | `docs/gtkw/*.gtkw` | – | ĐẠT |
+
+## Bổ sung ngoài spec (yêu cầu của đề cương)
+
+| Yêu cầu | Hiện thực | Bằng chứng | Trạng thái |
+|---|---|---|---|
+| SoC interconnect theo chuẩn (Wishbone) | `rv_core.sv`, `rv_core_sc.sv`, `ram_dp.sv`, `dbus_xbar.sv`, `apb_bridge.sv` (D28) | `wb_checker` trên 4 liên kết trong mọi mô phỏng `tb_soc` (0 vi phạm); `tb_dbus_xbar`; số chu kỳ 9 benchmark trùng khớp trước/sau | ĐẠT |
+| RAM dùng được block RAM đồng bộ của FPGA | `ram_dp.sv` (`SYNC`), `ram_bank16.sv` (D27) | riscv-tests `m1c1_bp2_sync` 64/64, Spike 64/64, số chu kỳ trùng khớp | ĐẠT |
+| Project FPGA cho board DE2 (Quartus II, gán chân, PLL, firmware `.mif`) | `fpga/`, `scripts/make_fpga.py` | 16 firmware mô phỏng PASS trên cấu hình board; `de2_top` mô phỏng với stub PASS; elaborate Yosys sạch | ĐẠT (mô phỏng) |
+| Co-simulation Verilator + C/C++ + firmware, lock-step với Spike khi chạy | `cosim/cosim_main.cpp`, DPI-C trong `wb_stage.sv`, `scripts/run_cosim.py` (D29) | `results/cosim/summary.md` (259/259, ~8,3 triệu lệnh); RTL có lỗi cài sẵn bị bắt (`mutant.md`) | ĐẠT |
+| Waveform chứng minh lock-step | `scripts/run_cosim.py` (`+trace_csv`) | `results/cosim/lockstep.png` (Hình 4.11) | ĐẠT |
+| Bảng thông lượng (MIPS, DMIPS, CoreMark, bus/ngoại vi) | `scripts/throughput.py` | `results/perf/throughput.md` (Bảng 4.15–4.17) | ĐẠT |
+| Layout ASIC (RTL → GDSII) và PPA trên quy trình thật | `asic/<top>/config.json`, `scripts/run_asic.py`, `tb/asic/tb_core_gl.v` (D30) | `results/asic/summary.md`: hai lõi DRC/LVS/XOR = 0, Fmax 3 góc PVT, công suất ước lượng (Bảng 4.18, Hình 4.12–4.13); gate-level netlist sau đi dây ≡ RTL trên 64/64 và 41/41 riscv-tests | ĐẠT (chỉ lõi; còn vi phạm antenna/slew ghi trong bảng) |
+| Compile Quartus, timing, nạp board, đo thực nghiệm, công suất | `fpga/README.md` (hướng dẫn) | – | CHƯA – chờ chạy trên máy có Quartus II và board |
+| Sơ đồ hệ thống chỉnh sửa được | `docs/diagrams/he_thong.drawio` | – | ĐẠT |

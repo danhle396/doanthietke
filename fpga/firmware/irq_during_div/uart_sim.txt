@@ -1,0 +1,3 @@
+irq_during_div
+1600 divisions ok=1, interrupts=many, in div window=yes
+RESULT irq_during_div: PASS (3 checks, 0 errors)

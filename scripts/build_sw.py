@@ -4,7 +4,9 @@
 Each program is a directory with *.c / *.S files and an optional `flags.txt`
 (extra compiler flags, one line). Output goes to
   build/sw/<kind>/<variant>_<console>/<name>.{elf,hex,dump}
-where kind = tests | bench, variant = i | im | imc, console = uart | sim.
+where kind = tests | bench | fpga, variant = i | im | imc, console = uart | sim | de2.
+console = de2 is the DE2 FPGA board build: UART console at 115200 baud with a
+24 MHz CPU clock (BAUD_DIV 12), CPU_HZ defined, linked for 32 KB of RAM.
 
 Usage:
   build_sw.py                       # all tests (imc/uart) + all benchmarks (i, im, imc / sim)
@@ -23,7 +25,32 @@ SW = ROOT / "sw"
 COMMON_FLAGS = ["-mabi=ilp32", "-O2", "-g", "-ffreestanding", "-nostdlib", "-nostartfiles",
                 "-fno-tree-loop-distribute-patterns", "-fno-builtin", "-Wall",
                 "-ffunction-sections", "-fdata-sections"]
-KIND_DIR = {"tests": SW / "tests", "bench": SW / "benchmarks", "examples": SW / "examples"}
+KIND_DIR = {"tests": SW / "tests", "bench": SW / "benchmarks", "examples": SW / "examples",
+            "fpga": SW / "fpga"}
+# DE2 board build (see fpga/README.md): 24 MHz CPU clock, 32 KB RAM
+DE2_CPU_HZ = 24_000_000
+DE2_BAUD_DIV = 12          # 24 MHz / (16 x 13) = 115384 baud (+0.16 %)
+DE2_RAM_KB = 32
+
+
+def link_script(console):
+    """Linker script for a console: the board build gets a 32 KB RAM copy."""
+    ld = SW / "common/link.ld"
+    if console != "de2":
+        return ld
+    out = BUILD / "sw" / "link_de2.ld"
+    text = ld.read_text().replace("LENGTH = 128K", f"LENGTH = {DE2_RAM_KB}K")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if not out.exists() or out.read_text() != text:
+        out.write_text(text)
+    return out
+
+
+def console_defs(console):
+    if console != "de2":
+        return [f"-DCONSOLE_{console.upper()}"]
+    return ["-DCONSOLE_UART", "-DBOARD_DE2", f"-DCPU_HZ={DE2_CPU_HZ}u",
+            "-UCONSOLE_BAUD_DIV", f"-DCONSOLE_BAUD_DIV={DE2_BAUD_DIV}"]
 
 
 def program_dirs(kind):
@@ -71,15 +98,16 @@ def _build_program(kind, pdir, variant, console):
         extra = _expand(fl.read_text()).split()
     deps = srcs + list((SW / "common").glob("*.h")) + list((SW / "drivers").glob("*.h")) + \
         list(pdir.glob("*.h")) + [SW / "common/link.ld"] + ([fl] if fl.exists() else []) + \
-        list((SW / "benchmarks/_common").glob("*"))
+        list((SW / "benchmarks/_common").glob("*")) + [Path(__file__)]
     newest = max(p.stat().st_mtime for p in deps)
     hexf = elf.with_suffix(".hex")
     if hexf.exists() and hexf.stat().st_mtime > newest:
         return elf
-    cmd = [RISCV_PREFIX + "gcc", f"-march={MARCH[variant]}"] + COMMON_FLAGS + extra + [
-        f"-DCONSOLE_{console.upper()}", f"-DBENCH_NAME=\"{pdir.name}\""] + incs + [
+    ld = link_script(console)
+    cmd = [RISCV_PREFIX + "gcc", f"-march={MARCH[variant]}"] + COMMON_FLAGS + extra + \
+        console_defs(console) + [f"-DBENCH_NAME=\"{pdir.name}\""] + incs + [
         f"-I{SW / 'common'}", f"-I{SW / 'drivers'}", f"-I{pdir}",
-        f"-T{SW / 'common/link.ld'}", "-Wl,--gc-sections", "-Wl,-Map," + str(out / f"{pdir.name}.map"),
+        f"-T{ld}", "-Wl,--gc-sections", "-Wl,-Map," + str(out / f"{pdir.name}.map"),
         "-o", str(elf)] + [str(s) for s in srcs] + ["-lgcc"]
     run(cmd, log=out / f"{pdir.name}.build.log")
     elf2hex(elf, hexf)
@@ -90,10 +118,10 @@ def _build_program(kind, pdir, variant, console):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--kind", choices=["tests", "bench"], action="append")
+    ap.add_argument("--kind", choices=["tests", "bench", "fpga"], action="append")
     ap.add_argument("--name", action="append")
     ap.add_argument("--variant", action="append", choices=list(MARCH))
-    ap.add_argument("--console", action="append", choices=["uart", "sim"])
+    ap.add_argument("--console", action="append", choices=["uart", "sim", "de2"])
     args = ap.parse_args()
 
     jobs = []

@@ -22,12 +22,12 @@ SYS_PYTHON   ?= $(firstword $(wildcard /usr/bin/python3) python3)
 JOBS         ?= $(shell nproc)
 export RISCV_PREFIX VERILATOR YOSYS SPIKE PYTHON JOBS
 
-.PHONY: all help check-env venv fetch lint unit sw isa spike systest perf cov synth docs regress clean
+.PHONY: all help check-env venv fetch lint unit sw isa spike systest perf cov synth docs fpga cosim asic regress clean
 
 all: regress
 
 help:
-	@echo "Targets: check-env fetch lint unit sw isa spike systest perf cov synth docs regress clean"
+	@echo "Targets: check-env fetch lint unit sw isa spike cosim systest perf cov synth docs fpga asic regress clean"
 
 $(PYTHON):
 	$(SYS_PYTHON) -m venv $(ROOT)/.venv
@@ -56,11 +56,16 @@ isa: $(PYTHON)
 spike: $(PYTHON)
 	$(PYTHON) scripts/compare_spike.py --all
 
+# C++ co-simulation, lock-step with Spike while running (cosim/cosim_main.cpp)
+cosim: $(PYTHON)
+	$(PYTHON) scripts/run_cosim.py
+
 systest: $(PYTHON)
 	$(PYTHON) scripts/run_systest.py
 
 perf: $(PYTHON)
 	$(PYTHON) scripts/run_perf.py
+	$(PYTHON) scripts/throughput.py
 
 cov: $(PYTHON)
 	$(PYTHON) scripts/run_cov.py
@@ -70,6 +75,14 @@ synth: $(PYTHON)
 
 docs: $(PYTHON)
 	$(PYTHON) scripts/build_docs.py
+
+# DE2 board: self-contained Quartus II project in fpga/ (see fpga/README.md)
+fpga: $(PYTHON)
+	$(PYTHON) scripts/make_fpga.py
+
+# ASIC layout of the cores with OpenLane 2 / sky130A in Docker (see results/asic/summary.md)
+asic: $(PYTHON)
+	$(PYTHON) scripts/run_asic.py
 
 regress: $(PYTHON)
 	$(PYTHON) scripts/regress.py

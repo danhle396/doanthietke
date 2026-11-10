@@ -1,8 +1,9 @@
 // ============================================================================
 // rv_core_sc.sv - Single-cycle RV32I + Zicsr + Zifencei reference core.
-//   Same port list as rv_core. Every instruction completes in one cycle
-//   (fetch -> decode -> execute -> memory -> write-back are combinational);
-//   the whole core stalls while dbus_ready = 0. Reuses decoder, imm_gen, alu,
+//   Same port list as rv_core (Wishbone instruction and data masters).
+//   Every instruction completes in one cycle (fetch -> decode -> execute ->
+//   memory -> write-back are combinational); the whole core stalls while the
+//   fetch or the data access is not terminated by ACK/ERR. Reuses decoder, imm_gen, alu,
 //   branch_unit, lsu, regfile, csr_file and wb_stage (commit log) of rv_core.
 //   ENABLE_M / ENABLE_C are fixed to 0 (M and 16-bit encodings are illegal).
 //
@@ -21,17 +22,23 @@ module rv_core_sc
 ) (
   input  logic        clk,
   input  logic        rst_n,
-  output logic [31:0] ibus_addr,
-  input  logic [31:0] ibus_rdata,
-  input  logic        ibus_err,
-  output logic        dbus_req,
-  output logic        dbus_we,
-  output logic [3:0]  dbus_be,
-  output logic [31:0] dbus_addr,
-  output logic [31:0] dbus_wdata,
-  input  logic        dbus_ready,
-  input  logic        dbus_err,
-  input  logic [31:0] dbus_rdata,
+  // instruction bus (Wishbone master, read only)
+  output logic        ibus_cyc_o,
+  output logic        ibus_stb_o,
+  output logic [31:0] ibus_adr_o,
+  input  logic [31:0] ibus_dat_i,
+  input  logic        ibus_ack_i,
+  input  logic        ibus_err_i,
+  // data bus (Wishbone master)
+  output logic        dbus_cyc_o,
+  output logic        dbus_stb_o,
+  output logic        dbus_we_o,
+  output logic [3:0]  dbus_sel_o,
+  output logic [31:0] dbus_adr_o,
+  output logic [31:0] dbus_dat_o,
+  input  logic [31:0] dbus_dat_i,
+  input  logic        dbus_ack_i,
+  input  logic        dbus_err_i,
   input  logic        irq_mtip,
   input  logic        irq_msip,
   input  logic        irq_meip,
@@ -40,8 +47,28 @@ module rv_core_sc
 
   logic [31:0] pc_q, insn;
 
-  assign ibus_addr = pc_q;
-  assign insn      = ibus_rdata;
+  // ---------------- Wishbone master ports ----------------
+  logic        ibus_err, fetch_ok;
+  logic        dbus_req, dbus_we, dbus_ready, dbus_err;
+  logic [3:0]  dbus_be;
+  logic [31:0] dbus_addr, dbus_wdata, dbus_rdata;
+
+  assign ibus_cyc_o = rst_n;
+  assign ibus_stb_o = rst_n;
+  assign ibus_adr_o = pc_q;
+  assign ibus_err   = ibus_err_i;
+  assign fetch_ok   = ibus_ack_i || ibus_err_i;
+  assign insn       = ibus_dat_i;
+
+  assign dbus_cyc_o = dbus_req;
+  assign dbus_stb_o = dbus_req;
+  assign dbus_we_o  = dbus_we;
+  assign dbus_sel_o = dbus_be;
+  assign dbus_adr_o = dbus_addr;
+  assign dbus_dat_o = dbus_wdata;
+  assign dbus_ready = dbus_ack_i || dbus_err_i;
+  assign dbus_err   = dbus_err_i;
+  assign dbus_rdata = dbus_dat_i;
 
   // ---------------- Decode ----------------
   logic        d_illegal, d_use_rs1, d_use_rs2, d_rd_we, d_opb_imm;
@@ -139,7 +166,7 @@ module rv_core_sc
   assign take_irq = irq_req && !bus_started_q;
 
   lsu u_lsu (
-    .valid     (!ibus_err && !pre_exc && !take_irq),
+    .valid     (fetch_ok && !ibus_err && !pre_exc && !take_irq),
     .is_load   (d_load),
     .is_store  (d_store),
     .funct3    (d_funct3),
@@ -151,7 +178,7 @@ module rv_core_sc
   );
 
   logic stall;
-  assign stall   = dbus_req && !dbus_ready;
+  assign stall   = (dbus_req && !dbus_ready) || !fetch_ok;
   assign lsu_exc = !pre_exc && (d_load || d_store) && misaligned;
   assign acc_exc = dbus_req && dbus_ready && dbus_err;
 

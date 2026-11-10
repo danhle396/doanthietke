@@ -69,17 +69,20 @@ def main():
          "Mọi bảng trong chương này được trích từ các file trong `results/` (ghi ở chú thích bảng) và được sinh lại "
          "bằng `scripts/make_chapter4.py`; lệnh tái tạo số liệu ghi trong `docs/giai_thich/huong_dan_chay.md`.", "",
          "## 4.1. Môi trường xác minh ba mức", "",
-         "1. **Mức khối** – 13 testbench SystemVerilog tự kiểm tra (Verilator `--binary --timing`), mỗi testbench có "
+         "1. **Mức khối** – 14 testbench SystemVerilog tự kiểm tra (Verilator `--binary --timing`), mỗi testbench có "
          "mô hình tham chiếu, test có hướng với giá trị biên và test ngẫu nhiên có seed (`+seed=`). Bộ giải nén C được "
-         "so với bảng kỳ vọng do chính GNU assembler sinh (`.option rvc` / `.option norvc`).",
+         "so với bảng kỳ vọng do chính GNU assembler sinh (`.option rvc` / `.option norvc`). Interconnect Wishbone và "
+         "cầu Wishbone → APB4 được kiểm bằng truy cập ngẫu nhiên kèm bộ kiểm tra giao thức `wb_checker`.",
          "2. **Mức lõi** – bộ riscv-tests chính thức, chạy với môi trường riêng chỉ có Machine mode, trên ma trận cấu "
          "hình RTL × biến thể ELF; commit log của RTL được so khớp từng lệnh với mô hình tham chiếu Spike.",
          "3. **Mức hệ thống** – firmware C chạy trên `tb_soc` cùng các BFM: UART (giải mã TX, gửi RX), flash SPI kiểu "
          "W25Q (CS0), SPI slave đủ 4 mode (CS1), kích thích GPIO. Tiêu chí PASS: mã thoát 0, output UART khớp file kỳ "
-         "vọng, BFM không phát hiện lỗi.", "",
+         "vọng, BFM không phát hiện lỗi, và 0 vi phạm giao thức Wishbone trên bốn liên kết bus (ibus, dbus, cổng dữ "
+         "liệu RAM, cầu APB) – `wb_checker` chạy trong mọi mô phỏng `tb_soc`.", "",
          "Bảng 4.1. Kết quả unit testbench (nguồn: `results/unit/summary.md`).", ""] + unit + [""]
     L += ["## 4.2. riscv-tests", "",
-          f"Tổng cộng {n_pass} lượt test PASS, {n_fail} FAIL trên 6 cấu hình (Bảng 4.2). Ba test được loại trừ có lý "
+          f"Tổng cộng {n_pass} lượt test PASS, {n_fail} FAIL trên 7 cấu hình (Bảng 4.2; `m1c1_bp2_sync` là cấu hình "
+          "RAM đồng bộ 32 KB dùng cho board DE2). Ba test được loại trừ có lý "
           "do: `rv32ui-p-ma_data` (lõi trap khi truy cập không căn lề – hợp lệ theo đặc tả, hành vi trap được kiểm bởi "
           "`rv32mi-p-ma_addr`), `rv32mi-p-breakpoint` (cần CSR debug trigger, dòng 33 `csrw tselect, x0`) và "
           "`rv32mi-p-pmpaddr` (cần PMP, dòng 27 `csrw pmpcfg0, zero`).", "",
@@ -94,6 +97,8 @@ def main():
           "`rv32mi-p-ma_fetch` rẽ nhánh khác sau đó).", "",
           "Bảng 4.3. Kết quả so sánh (nguồn: `results/spike/summary.md`; chi tiết từng chương trình trong "
           "`results/spike/<cấu hình>.md`).", ""] + sp + [""]
+    L += ["Cùng phép so sánh này còn được làm **trong lúc chạy** bằng harness C++ (co-simulation lock-step, mục "
+          "4.9).", ""]
     L += ["## 4.4. System test", "",
           "Bảng 4.4. System test (nguồn: `results/systest/summary.md`).", ""] + sysrows + [""]
     L += ["## 4.5. Waveform minh họa", "",
@@ -102,7 +107,7 @@ def main():
           "![Hình 4.2. Lệnh nén](../../results/waves/compressed.png)", "",
           "![Hình 4.3. Sai dự đoán và flush](../../results/waves/mispredict_flush.png)", "",
           "![Hình 4.4. Vào/ra trap](../../results/waves/trap_entry_exit.png)", "",
-          "Các hình giao dịch APB, khung UART và khung SPI mode 0/3 được trình bày ở Chương 3 (Hình 3.3, 3.5, 3.7, 3.8). "
+          "Các hình giao dịch Wishbone → APB4, khung UART và khung SPI mode 0/3 được trình bày ở Chương 3 (Hình 3.3, 3.5, 3.7, 3.8). "
           "Bảng diễn biến pipeline theo từng chu kỳ của đoạn chương trình minh họa: `results/waves/walkthrough_table.md` "
           "và phần giải thích trong `docs/giai_thich/walkthrough_pipeline.md`.", ""]
     L += ["## 4.6. Coverage", ""]
@@ -165,13 +170,15 @@ def main():
               "hơn RV32IMC vì không có bộ nhân nằm trên đường găng.", ""]
     L += ["## 4.8. Diện tích, Fmax và đường găng", "",
           "Diện tích tính bằng số cell sau Yosys `synth -flatten` (thư viện generic), **không gồm RAM 128 KB** (black "
-          "box). Fmax là ước lượng trên FPGA Lattice ECP5 (nextpnr); không thực hiện place & route ASIC.", "",
+          "box). Fmax là ước lượng trên FPGA Lattice ECP5 (nextpnr): mỗi thiết kế được đặt–định tuyến với 5 seed trên "
+          "cùng netlist, báo trung vị và khoảng min–max, vì một seed riêng lẻ có thể lệch vài chục phần trăm chỉ do "
+          "thay đổi rất nhỏ của netlist. Place & route ASIC (sky130, chỉ lõi): mục 4.11.", "",
           "Bảng 4.11. Diện tích (nguồn: `results/synth/area.csv`).", ""]
     L += table_after("synth/summary.md", "Bảng S1") + [""]
     L += ["Bảng 4.12. Tài nguyên ECP5 và Fmax (nguồn: `results/synth/summary.md`).", ""]
     L += table_after("synth/summary.md", "Bảng S3") + [""]
     if cp:
-        L += [f"Đường găng của lõi `m1c1_bp2` ({fm.get('m1c1_bp2')} MHz) gồm các chặng sau (trích "
+        L += [f"Đường găng của lõi `m1c1_bp2` (seed trung vị, {fm.get('m1c1_bp2')} MHz) gồm các chặng sau (trích "
               "`results/synth/critical_path_m1c1_bp2.txt`, chỉ giữ tên nguồn/đích):", "", "```"]
         hops = []
         for l in cp:
@@ -186,12 +193,17 @@ def main():
             L += ["Đường găng bắt đầu ở thanh ghi `ex_mem` (chỉ số `rd` của lệnh ở MEM), qua bộ so sánh forward và mux "
                   "toán hạng (`fwd_rs1/fwd_rs2`), vào **bộ nhân** (khối DSP `MULT18X18D` của ECP5, cùng chuỗi cộng "
                   "carry `CCU2C` ghép các tích riêng 18×18 thành tích 33×33), rồi qua mux chọn kết quả về thanh ghi "
-                  "`ex_mem.result` (tên `dbus_addr` sau tổng hợp vì nó điều khiển trực tiếp địa chỉ bus). Đây đúng là "
+                  "`ex_mem.result`. Đây đúng là "
                   "ứng viên mà đặc tả dự kiến: bộ nhân tổ hợp 1 chu kỳ đứng sau chuỗi forwarding. Hướng cải thiện: chia "
                   "bộ nhân thành 2 tầng (MulDiv nhiều chu kỳ cho MULH*), hoặc dùng thanh ghi đầu ra DSP.", ""]
         else:
-            L += ["Đường găng đi qua chuỗi forwarding → khối tính toán ở EX → thanh ghi kết quả/điều khiển; xem file "
-                  "để biết chi tiết từng chặng.", ""]
+            L += ["Đường găng bắt đầu ở thanh ghi `ex_mem` (chỉ số `rd` và `rd_we` của lệnh ở MEM), qua bộ so khớp "
+                  "forwarding và mux toán hạng (`fwd_rs1/fwd_rs2`), vào chuỗi cộng carry dài (`CCU2C`) của khối tính "
+                  "toán ở EX, rồi tới tín hiệu điều khiển đi vào chân enable của thanh ghi. Đặc điểm này giống nhau ở "
+                  "cả 5 seed: forwarding nối thẳng vào EX trong cùng chu kỳ là giới hạn tần số. Bộ nhân (4 khối DSP "
+                  "`MULT18X18D`) nằm cùng tầng nhưng không phải đường dài nhất ở các seed đã chạy. Hướng cải thiện: "
+                  "chèn thanh ghi sau mux forward (đổi lại thêm stall), tách bộ nhân hai tầng, rút ngắn logic "
+                  "stall/redirect.", ""]
         sc_cp = R / "synth/critical_path_soc_top_sc_1k.txt"
         if sc_cp.exists():
             L += [f"Với SoC dùng lõi single-cycle (`soc_top_sc_1k`, {fm.get('soc_top_sc_1k')} MHz), đường găng đi từ "
@@ -199,6 +211,85 @@ def main():
                   "một chu kỳ, nên tần số thấp hơn hẳn SoC pipeline "
                   f"(`soc_top_1k`: {fm.get('soc_top_1k')} MHz). Fmax của lõi đứng riêng (Bảng 4.12, dòng `sc`) "
                   "không gồm RAM nên không dùng để so sánh.", ""]
+    if (R / "cosim/summary.md").exists():
+        L += ["## 4.9. Co-simulation C++ lock-step với Spike", "",
+              "So sánh ở mục 4.3 làm sau khi mô phỏng kết thúc (hai file commit log). Harness C++ `cosim/cosim_main.cpp` "
+              "(Verilator `--cc --exe`) so sánh **trong lúc chạy**: Spike chạy cùng file ELF như một tiến trình con và ghi "
+              "commit log vào một pipe; mỗi khi RTL retire một lệnh, `wb_stage` gọi hàm DPI-C `cosim_commit` (chỉ có khi "
+              "build với `-DCOSIM`), harness đọc lệnh kế tiếp của Spike và so PC, mã lệnh, thanh ghi đích và giá trị, "
+              "địa chỉ load, địa chỉ và dữ liệu store. Lệch là dừng ngay, in lệnh sai và 6 lệnh khớp trước đó. Quy tắc "
+              "taint cho giá trị counter và khác biệt đã biết giống mục 4.3. Tái tạo: `make cosim`.", "",
+              "Bảng 4.13. Co-simulation trên ma trận cấu hình (nguồn: `results/cosim/summary.md`).", ""]
+        L += table_after("cosim/summary.md") + [""]
+        L += ["Để kiểm chứng chính harness, RTL được build thêm với `-DCOSIM_MUTANT`: SLTU/SLTIU lấy bit 31 của "
+              "hiệu thay cho bit mượn – một lỗi thực tế, sai khi hai toán hạng khác nhau ở bit 31. Co-simulation "
+              "phát hiện lỗi ngay tại lệnh sai đầu tiên (Bảng 4.14). Các benchmark không lộ lỗi này vì không gặp tổ "
+              "hợp toán hạng gây sai – lý do cần bộ test có hướng như riscv-tests bên cạnh benchmark.", "",
+              "Bảng 4.14. Phát hiện lỗi cài sẵn (nguồn: `results/cosim/mutant.md`).", ""]
+        L += table_after("cosim/mutant.md") + [""]
+        L += ["![Hình 4.11. Lock-step RTL – Spike: chu kỳ không retire (stall/flush) không làm lệch so sánh vì "
+              "so theo từng lệnh](../../results/cosim/lockstep.png)", ""]
+    if (R / "perf/throughput.md").exists():
+        L += ["## 4.10. Thông lượng", "",
+              "Thời gian chạy và MIPS của các benchmark ở 24 MHz (clock CPU trên board DE2) và ở Fmax ước lượng; "
+              "tốc độ truyền của bus và ngoại vi suy ra từ timing RTL (truy cập APB đo bằng `wb_checker`). Nguồn: "
+              "`results/perf/throughput.md` (`scripts/throughput.py`).", "",
+              "Bảng 4.15. Thời gian chạy và MIPS.", ""]
+        L += table_after("perf/throughput.md", "Bảng T1") + [""]
+        L += ["Bảng 4.16. Dhrystone và CoreMark.", ""] + table_after("perf/throughput.md", "Bảng T2") + [""]
+        L += ["Bảng 4.17. Bus và ngoại vi.", ""] + table_after("perf/throughput.md", "Bảng T3") + [""]
+    if (R / "asic/summary.json").exists():
+        a = json.loads((R / "asic/summary.json").read_text())
+        p, s = a["rv_core"], a.get("rv_core_sc")
+        tt, ss, ff = "nom_tt_025C_1v80", "nom_ss_100C_1v60", "nom_ff_n40C_1v95"
+        L += ["## 4.11. Layout ASIC với OpenLane 2 (sky130A)", "",
+              "Mục 4.8 chỉ ước lượng Fmax trên FPGA. Để có số liệu PPA của một quy trình ASIC thật, hai lõi được đưa "
+              "qua toàn bộ flow RTL → GDSII của OpenLane 2.3.10 (Docker) với PDK mã nguồn mở SkyWater sky130A, thư "
+              "viện `sky130_fd_sc_hd`: tổng hợp (Yosys, đọc SystemVerilog bằng Synlig), floorplan, lưới nguồn, đặt "
+              "cell, dựng cây clock, đi dây (OpenROAD), trích ký sinh và STA đa góc (OpenSTA), xuất GDS (Magic và "
+              "KLayout), DRC, LVS (Netgen). Chỉ làm layout cho **lõi**: cổng Wishbone là chân của khối, còn RAM "
+              "128 KB của SoC cần macro SRAM mà flow không có (quyết định D30). Ràng buộc clock "
+              f"{p['period_ns']:g} ns ({1000 / p['period_ns']:g} MHz), độ trễ vào/ra mặc định 20 % chu kỳ. "
+              "Tái tạo: `make asic`.", "",
+              "Bảng 4.18. Kết quả place & route (nguồn: `results/asic/summary.md`).", ""]
+        L += table_after("asic/summary.md", "Bảng A1") + [""]
+        L += [f"Lõi pipeline chiếm die {p['die_um'][0]:g} × {p['die_um'][1]:g} µm với "
+              f"{p['std_cells']:,} cell (gồm tap, fill, diode, buffer). Ở góc điển hình TT, đường găng sau đi dây "
+              f"cho Fmax {p['fmax_mhz'][tt]:.1f} MHz – cao hơn ước lượng ECP5 ở mục 4.8 vì cell chuẩn nhanh hơn "
+              f"LUT. Ở góc chậm SS (100 °C, 1,60 V) Fmax còn {p['fmax_mhz'][ss]:.1f} MHz, nên mục tiêu 40 MHz "
+              "chỉ đạt ở góc TT và FF; OpenLane mặc định chỉ coi vi phạm setup ở góc TT là lỗi sign-off. "
+              "DRC, LVS và so sánh XOR giữa hai bản GDS đều bằng 0."]
+        if s:
+            L[-1] += (f" Lõi single-cycle nhỏ hơn khoảng {p['cell_area_um2'] / s['cell_area_um2']:.1f} lần về "
+                      f"diện tích cell ({s['cell_area_um2']:,.0f} so với {p['cell_area_um2']:,.0f} µm²). "
+                      "Fmax của nó không so trực tiếp được với lõi pipeline: lõi single-cycle không có đường "
+                      "thanh ghi → thanh ghi bên trong, mọi đường găng đi qua bộ nhớ bên ngoài khối (chân "
+                      "`ibus`/`dbus`) với 20 % chu kỳ dành cho mỗi phía – cùng lý do như mục 4.8.")
+        L += [""]
+        L += ["Đường găng của lõi pipeline ở góc TT (`results/asic/timing_rv_core.txt`) bắt đầu ở thanh ghi "
+              "`mem_is_load` của tầng MEM (đầu vào logic forwarding/hazard), qua các cổng so khớp chỉ số thanh ghi, "
+              "một chuỗi cell nối tiếp dài của khối cộng/so sánh ở EX, logic redirect, và kết thúc ở thanh ghi PC "
+              "(bit 30, cũng là chân `ibus_adr_o[30]`) – cùng dạng với đường găng trên ECP5 ở mục 4.8: forwarding "
+              "nối thẳng vào EX rồi quyết định PC trong một chu kỳ. Với lõi single-cycle, đường găng đi từ chân "
+              "`ibus_dat_i` (mã lệnh) qua giải mã, đọc tệp thanh ghi, cộng địa chỉ tới chân `dbus_adr_o`; chu kỳ "
+              "thật của SoC single-cycle còn phải cộng thời gian đọc RAM lệnh và RAM dữ liệu.", ""]
+        L += ["Kiểm tra chức năng của layout: netlist cuối cùng (sau đi dây, có buffer, cell clone, diode) được "
+              "mô phỏng gate-level bằng Icarus Verilog với mô hình chức năng của `sky130_fd_sc_hd`, cùng một "
+              "testbench (`tb/asic/tb_core_gl.v`) chạy RTL bằng Verilator. Mọi riscv-tests đã PASS ở mục 4.2 "
+              "đều PASS trên netlist với **cùng số chu kỳ, cùng số lần ghi và cùng chữ ký ghi bộ nhớ** như RTL "
+              f"({p.get('gl_match', ['–', '–'])[0]}/{p.get('gl_match', ['–', '–'])[1]} với `rv_core`"
+              + (f", {s['gl_match'][0]}/{s['gl_match'][1]} với `rv_core_sc`" if s and "gl_match" in s else "")
+              + "). Như vậy tổng hợp và các bước tối ưu của OpenROAD không làm thay đổi hành vi theo chu kỳ.", ""]
+        L += ["Hạn chế cần nêu rõ: công suất là ước lượng của OpenSTA với hoạt động chuyển mạch mặc định (không "
+              "lấy từ mô phỏng thực tế); STA dùng độ trễ vào/ra giả định chứ không có bộ nhớ thật; còn một số vi "
+              "phạm max slew/max cap và một số net vi phạm antenna (Bảng 4.18) – OpenLane báo cảnh báo, không "
+              "chặn sign-off, nhưng cần sửa trước khi tape-out thật.", ""]
+        L += ["![Hình 4.12. Layout lõi pipeline `rv_core` (lớp li1, met1–met5)](../../results/asic/layout_rv_core.png)",
+              ""]
+        if s:
+            L += [f"![Hình 4.13. Layout lõi single-cycle `rv_core_sc` – ảnh phóng to: die "
+                  f"{s['die_mm2']:.2f} mm² so với {p['die_mm2']:.2f} mm² của Hình 4.12]"
+                  "(../../results/asic/layout_rv_core_sc.png)", ""]
     (ROOT / "docs/report/chuong4_xac_minh.md").write_text("\n".join(L))
     print("[ch4] docs/report/chuong4_xac_minh.md written")
 

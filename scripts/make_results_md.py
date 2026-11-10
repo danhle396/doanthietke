@@ -43,15 +43,23 @@ def main():
             "phụ thuộc thời gian, được theo dõi taint qua thanh ghi và bộ nhớ (decision D19). Truy cập không căn lề: "
             "cả RTL và Spike đều trap nên không phát sinh khác biệt. Chi tiết từng chương trình: "
             "`results/spike/<cấu hình>.md`.", ""]
-    out += section("systest/summary.md", "5. System test")
-    out += section("perf/summary.md", "6. Hiệu năng")
-    out += section("synth/summary.md", "7. Tổng hợp")
-    out += section("coverage/summary.md", "8. Coverage")
-    out += section("coverage/functional.md", "9. Functional coverage")
-    out += ["## 10. Hình waveform", "",
+    out += section("cosim/summary.md", "5. Co-simulation C++ lock-step với Spike")
+    out += ["Harness Verilator C++ `cosim/cosim_main.cpp` chạy `soc_top` và Spike (tiến trình con) cùng lúc; mỗi lệnh "
+            "RTL retire (DPI `cosim_commit` ở WB) được so ngay với lệnh Spike commit kế tiếp, lệch là dừng. Kiểm tra "
+            "chính harness: RTL có lỗi SLTU cài sẵn (`-DCOSIM_MUTANT`) bị phát hiện tại lệnh sai đầu tiên "
+            "(`results/cosim/mutant.md`). Hình lock-step: `results/cosim/lockstep.png`.", ""]
+    out += section("systest/summary.md", "6. System test")
+    out += section("perf/summary.md", "7. Hiệu năng")
+    out += section("perf/throughput.md", "8. Thông lượng")
+    out += section("synth/summary.md", "9. Tổng hợp")
+    out += section("asic/summary.md", "10. Layout ASIC (OpenLane 2 / sky130A)")
+    out += section("coverage/summary.md", "11. Coverage")
+    out += section("coverage/functional.md", "12. Functional coverage")
+    out += ["## 13. Hình waveform", "",
             "Sinh tự động từ VCD bằng `scripts/make_waves.py` (thư mục `results/waves/`): "
             "`load_use_forwarding.png`, `compressed.png`, `mispredict_flush.png`, `trap_entry_exit.png`, "
-            "`apb_transaction.png`, `uart_frame.png`, `spi_mode0.png`, `spi_mode3.png`, `walkthrough_pipeline.png`; "
+            "`apb_transaction.png` (Wishbone → APB4), `uart_frame.png`, `spi_mode0.png`, `spi_mode3.png`, "
+            "`walkthrough_pipeline.png`; lock-step RTL/Spike: `results/cosim/lockstep.png`; "
             "bảng pipeline theo chu kỳ: `results/waves/walkthrough_table.md`.", ""]
     (ROOT / "docs/results.md").write_text("\n".join(out))
     print("[results] docs/results.md written")

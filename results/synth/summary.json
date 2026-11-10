@@ -1,27 +1,27 @@
 {
   "area": {
     "rv_core_m1c1_bp0": {
-      "cells": 24568,
+      "cells": 24567,
       "ffs": 2532
     },
     "rv_core_m1c1_bp1": {
-      "cells": 28926,
+      "cells": 28970,
       "ffs": 3045
     },
     "rv_core_m1c1_bp2": {
-      "cells": 32797,
+      "cells": 32801,
       "ffs": 4966
     },
     "rv_core_m1c0_bp2": {
-      "cells": 30987,
+      "cells": 30995,
       "ffs": 4871
     },
     "rv_core_m0c0_bp2": {
-      "cells": 21368,
+      "cells": 21370,
       "ffs": 4699
     },
     "rv_core_sc": {
-      "cells": 10474,
+      "cells": 10477,
       "ffs": 1509
     },
     "uart_apb": {
@@ -45,11 +45,11 @@
       "ffs": 3
     },
     "apb_bridge": {
-      "cells": 180,
+      "cells": 182,
       "ffs": 71
     },
     "dbus_xbar": {
-      "cells": 170,
+      "cells": 173,
       "ffs": 0
     },
     "sim_ctrl": {
@@ -61,11 +61,11 @@
       "ffs": 2
     },
     "sweep_bht16_btb8": {
-      "cells": 26426,
+      "cells": 26427,
       "ffs": 3062
     },
     "sweep_bht16_btb16": {
-      "cells": 27402,
+      "cells": 27412,
       "ffs": 3542
     },
     "sweep_bht16_btb32": {
@@ -73,124 +73,187 @@
       "ffs": 4486
     },
     "sweep_bht16_btb64": {
-      "cells": 33265,
+      "cells": 33277,
       "ffs": 6342
     },
     "sweep_bht64_btb8": {
-      "cells": 27123,
+      "cells": 27170,
       "ffs": 3158
     },
     "sweep_bht64_btb16": {
-      "cells": 28115,
+      "cells": 28112,
       "ffs": 3638
     },
     "sweep_bht64_btb32": {
-      "cells": 30127,
+      "cells": 30096,
       "ffs": 4582
     },
     "sweep_bht64_btb64": {
-      "cells": 33911,
+      "cells": 33915,
       "ffs": 6438
     },
     "sweep_bht256_btb8": {
-      "cells": 29828,
+      "cells": 29826,
       "ffs": 3542
     },
     "sweep_bht256_btb16": {
-      "cells": 30808,
+      "cells": 30811,
       "ffs": 4022
     },
     "sweep_bht256_btb32": {
-      "cells": 32797,
+      "cells": 32801,
       "ffs": 4966
     },
     "sweep_bht256_btb64": {
-      "cells": 36671,
+      "cells": 36664,
       "ffs": 6822
     },
     "sweep_bht1024_btb8": {
-      "cells": 40824,
+      "cells": 40870,
       "ffs": 5078
     },
     "sweep_bht1024_btb16": {
-      "cells": 41822,
+      "cells": 41829,
       "ffs": 5558
     },
     "sweep_bht1024_btb32": {
-      "cells": 43843,
+      "cells": 43819,
       "ffs": 6502
     },
     "sweep_bht1024_btb64": {
-      "cells": 47685,
+      "cells": 47690,
       "ffs": 8358
     },
     "soc_top": {
-      "cells": 37769,
+      "cells": 37779,
       "ffs": 6077
     }
   },
   "sweep_cells": {
-    "bht16_btb8": 26426,
-    "bht16_btb16": 27402,
+    "bht16_btb8": 26427,
+    "bht16_btb16": 27412,
     "bht16_btb32": 29403,
-    "bht16_btb64": 33265,
-    "bht64_btb8": 27123,
-    "bht64_btb16": 28115,
-    "bht64_btb32": 30127,
-    "bht64_btb64": 33911,
-    "bht256_btb8": 29828,
-    "bht256_btb16": 30808,
-    "bht256_btb32": 32797,
-    "bht256_btb64": 36671,
-    "bht1024_btb8": 40824,
-    "bht1024_btb16": 41822,
-    "bht1024_btb32": 43843,
-    "bht1024_btb64": 47685
+    "bht16_btb64": 33277,
+    "bht64_btb8": 27170,
+    "bht64_btb16": 28112,
+    "bht64_btb32": 30096,
+    "bht64_btb64": 33915,
+    "bht256_btb8": 29826,
+    "bht256_btb16": 30811,
+    "bht256_btb32": 32801,
+    "bht256_btb64": 36664,
+    "bht1024_btb8": 40870,
+    "bht1024_btb16": 41829,
+    "bht1024_btb32": 43819,
+    "bht1024_btb64": 47690
   },
   "fmax_mhz": {
-    "m1c1_bp2": 43.85,
-    "m1c1_bp0": 47.91,
-    "m0c0_bp2": 46.47,
-    "sc": 44.22,
-    "soc_top_1k": 42.27,
-    "soc_top_m0c0_1k": 47.16,
-    "soc_top_sc_1k": 25.59
+    "m1c1_bp2": 40.44,
+    "m1c1_bp0": 44.76,
+    "m0c0_bp2": 45.48,
+    "sc": 46.22,
+    "soc_top_1k": 44.07,
+    "soc_top_m0c0_1k": 42.64,
+    "soc_top_sc_1k": 25.95
   },
   "ecp5": {
     "m1c1_bp2": {
-      "lut4": 9039,
+      "lut4": 9715,
       "ff": 4966,
-      "fmax_mhz": 43.85
+      "fmax_mhz": 40.44,
+      "fmax_min": 38.21,
+      "fmax_max": 42.38,
+      "fmax_seeds": {
+        "3": 38.21,
+        "1": 39.35,
+        "2": 40.44,
+        "4": 41.86,
+        "5": 42.38
+      }
     },
     "m1c1_bp0": {
-      "lut4": 5780,
+      "lut4": 5493,
       "ff": 2532,
-      "fmax_mhz": 47.91
+      "fmax_mhz": 44.76,
+      "fmax_min": 41.92,
+      "fmax_max": 46.27,
+      "fmax_seeds": {
+        "4": 41.92,
+        "2": 44.27,
+        "5": 44.76,
+        "3": 45.01,
+        "1": 46.27
+      }
     },
     "m0c0_bp2": {
-      "lut4": 8078,
+      "lut4": 8446,
       "ff": 4699,
-      "fmax_mhz": 46.47
+      "fmax_mhz": 45.48,
+      "fmax_min": 43.7,
+      "fmax_max": 46.64,
+      "fmax_seeds": {
+        "3": 43.7,
+        "5": 43.83,
+        "1": 45.48,
+        "4": 46.35,
+        "2": 46.64
+      }
     },
     "sc": {
-      "lut4": 4493,
+      "lut4": 4501,
       "ff": 1509,
-      "fmax_mhz": 44.22
+      "fmax_mhz": 46.22,
+      "fmax_min": 44.09,
+      "fmax_max": 47.74,
+      "fmax_seeds": {
+        "2": 44.09,
+        "1": 46.17,
+        "5": 46.22,
+        "4": 46.67,
+        "3": 47.74
+      }
     },
     "soc_top_1k": {
-      "lut4": 11397,
+      "lut4": 11413,
       "ff": 5565,
-      "fmax_mhz": 42.27
+      "fmax_mhz": 44.07,
+      "fmax_min": 41.43,
+      "fmax_max": 45.76,
+      "fmax_seeds": {
+        "3": 41.43,
+        "5": 42.86,
+        "2": 44.07,
+        "1": 44.97,
+        "4": 45.76
+      }
     },
     "soc_top_m0c0_1k": {
-      "lut4": 10518,
+      "lut4": 10240,
       "ff": 5298,
-      "fmax_mhz": 47.16
+      "fmax_mhz": 42.64,
+      "fmax_min": 34.78,
+      "fmax_max": 44.0,
+      "fmax_seeds": {
+        "1": 34.78,
+        "5": 36.02,
+        "3": 42.64,
+        "4": 43.51,
+        "2": 44.0
+      }
     },
     "soc_top_sc_1k": {
-      "lut4": 9061,
+      "lut4": 8886,
       "ff": 2108,
-      "fmax_mhz": 25.59
+      "fmax_mhz": 25.95,
+      "fmax_min": 24.6,
+      "fmax_max": 26.42,
+      "fmax_seeds": {
+        "4": 24.6,
+        "2": 25.27,
+        "1": 25.95,
+        "3": 25.98,
+        "5": 26.42
+      }
     }
   }
 }

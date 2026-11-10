@@ -1,0 +1,3 @@
+timer_irq
+8 interrupts, period 3000, max latency 47 cycles
+RESULT timer_irq: PASS (23 checks, 0 errors)

@@ -153,12 +153,14 @@ polling (`spi_xfer_buf_irq`, test `spi_flash`).
 **48. Vì sao RAM đọc tổ hợp?** Để lấy 32 bit ở địa chỉ chẵn bất kỳ trong 1 chu kỳ (hỗ trợ C không cần prefetch buffer)
 và IF dự đoán ngay. Tương ứng LUTRAM trên FPGA. Đổi lại không dùng được SRAM/BRAM đồng bộ.
 
-**49. Đường găng nằm ở đâu?** Theo nextpnr (ECP5): từ thanh ghi `ex_mem` (chỉ số `rd`) qua so sánh forward → mux toán
-hạng → **bộ nhân tổ hợp** (DSP MULT18X18D + chuỗi cộng ghép tích riêng) → mux kết quả → thanh ghi `ex_mem`
-(`results/synth/critical_path_m1c1_bp2.txt`). Bằng chứng: cấu hình không có M (`m0c0`) có Fmax cao hơn. Cải thiện: nhân
-2 tầng hoặc nhiều chu kỳ cho MULH*.
+**49. Đường găng nằm ở đâu?** Theo nextpnr (ECP5, cả 5 seed): từ thanh ghi `ex_mem` (`rd`, `rd_we`) qua so khớp
+forwarding → mux toán hạng → chuỗi carry dài (CCU2C) của khối tính toán ở EX → tín hiệu điều khiển tới chân enable của
+thanh ghi (`results/synth/critical_path_m1c1_bp2.txt`). Tức là **forwarding nối thẳng vào EX** trong một chu kỳ. Bộ nhân
+(4 khối DSP `MULT18X18D`) nằm cùng tầng nhưng không phải đường dài nhất ở các seed đã chạy. Cải thiện: chèn thanh ghi
+sau mux forward (đổi lại thêm stall), tách bộ nhân 2 tầng, rút ngắn logic stall/redirect. Lưu ý Fmax một seed dao động
+tới vài chục % nên báo trung vị 5 seed (D24).
 
-**50. Fmax và diện tích?** Xem `results/synth/summary.md` (ECP5, ước lượng FPGA; không làm P&R ASIC). Diện tích lõi tính
+**50. Fmax và diện tích?** Xem `results/synth/summary.md` (ECP5, ước lượng FPGA) và `results/asic/summary.md` (layout sky130 của lõi, câu 66–70). Diện tích lõi tính
 bằng cell Yosys generic, không tính RAM.
 
 **51. Single-cycle so với pipeline?** Single-cycle CPI = 1 nhưng chu kỳ dài; pipeline CPI ~1,1–1,2 nhưng Fmax cao hơn →
@@ -166,7 +168,7 @@ hiệu năng ∝ Fmax/CPI (thí nghiệm 5, `results/perf/summary.md`).
 
 ## H. Xác minh
 
-**52. Đã xác minh thế nào?** 3 mức: 13 unit TB (có mô hình tham chiếu, ngẫu nhiên có seed), riscv-tests trên 6 cấu hình,
+**52. Đã xác minh thế nào?** 3 mức: 14 unit TB (có mô hình tham chiếu, ngẫu nhiên có seed), riscv-tests trên 7 cấu hình,
 11 system test C với BFM; cộng so sánh từng lệnh với Spike và coverage.
 
 **53. So sánh Spike chứng minh gì?** Mỗi lệnh retire (PC, mã lệnh, thanh ghi đích, store) giống mô hình chuẩn trong
@@ -185,7 +187,63 @@ chưa phủ được liệt kê và giải thích trong `uncovered.md`.
 ## I. Giới hạn và hướng phát triển
 
 **57. Giới hạn chính?** Chỉ M-mode, không PMP/debug/U-mode; không cache; RAM đọc tổ hợp; JALR/return dự đoán kém;
-ngắt chờ bộ chia; Fmax giới hạn bởi đường forward → bộ nhân tổ hợp 1 chu kỳ.
+ngắt chờ bộ chia; Fmax giới hạn bởi đường forward → khối tính toán ở EX trong một chu kỳ.
 
 **58. Hướng phát triển?** RAS cho `ret`; SRAM đồng bộ + prefetch buffer; I/D cache; extension A; lệnh tùy biến; I2C/CAN;
-U-mode + PMP; luồng RTL-to-GDSII (OpenLane/sky130).
+U-mode + PMP; macro SRAM để làm layout cả SoC và đóng timing ở góc SS.
+
+## J. Bus Wishbone và board FPGA
+
+**59. SoC dùng chuẩn bus nào?** Wishbone B4 classic giữa lõi, RAM và interconnect `dbus_xbar`; AMBA APB4 giữa cầu
+`apb_bridge` và ngoại vi. Bus lệnh là master chỉ đọc, bus dữ liệu là master đầy đủ (`CYC, STB, WE, SEL, ADR, DAT,
+ACK, ERR`). `ERR` từ vùng trống, slot APB trống hoặc `PSLVERR` trở thành access fault ở lõi.
+
+**60. Vì sao Wishbone mà không phải AXI hay OBI?** Pipeline lấy lệnh và load/store trong một chu kỳ. Wishbone classic
+cho slave trả `ACK` ngay trong chu kỳ yêu cầu; OBI và AXI bắt phản hồi sớm nhất ở chu kỳ sau → phải tách IF và đưa dữ
+liệu load về WB, CPI tăng. Với Wishbone, số chu kỳ 9 benchmark trùng khớp tuyệt đối trước và sau khi đổi bus (D28).
+AXI hợp với lõi có nhiều giao dịch treo và cache, không cần cho lõi in-order một giao dịch.
+
+**61. Làm sao biết bus tuân thủ giao thức?** `wb_checker` chạy trong mọi mô phỏng SoC trên 4 liên kết: CYC/STB tắt khi
+reset, STB ⇒ CYC, ACK và ERR loại trừ nhau và chỉ khi có STB, master giữ nguyên ADR/WE/SEL/DAT tới khi kết thúc. Vi
+phạm làm test FAIL; toàn bộ regression có 0 vi phạm. Thêm unit test `tb_dbus_xbar` với truy cập ngẫu nhiên.
+
+**62. Chạy trên board DE2 thế nào khi RAM của Cyclone II chỉ đọc đồng bộ?** `RAM_SYNC = 1`: hai bank 16 bit chạy ở
+cạnh xuống của clock; địa chỉ đến từ thanh ghi nên ổn định trước cạnh xuống, dữ liệu có trước cạnh lên kế tiếp – lõi
+không đổi, số chu kỳ trùng khớp (D27). Cái giá: đường địa chỉ → RAM và RAM → thanh ghi chỉ còn nửa chu kỳ. Project
+Quartus trong `fpga/` (PLL 24 MHz, RAM 32 KB trên M4K, firmware `.mif`, đầu ra UART mô phỏng để đối chiếu).
+
+**63. Co-simulation C++ khác so sánh Spike thường ở đâu?** `make spike` so hai file log sau khi chạy xong.
+`make cosim` chạy Spike song song như tiến trình con, đọc commit log qua pipe; mỗi lệnh RTL retire gọi DPI-C
+`cosim_commit` và được so ngay với lệnh Spike tương ứng – lệch là dừng tại đúng lệnh đó, chưa cần chạy hết chương
+trình. Kết quả 259/259 chương trình, khoảng 8,3 triệu lệnh khớp (D29).
+
+**64. Làm sao biết co-sim thật sự bắt được lỗi?** Cài lỗi có chủ đích (`-DCOSIM_MUTANT`: SLTU lấy bit 31 thay cho bit
+mượn). Co-sim dừng ở lệnh #68 của `rv32ui-p-sltu` (`sltu a4,a1,a2` với `0 < 0xffff8000`: RTL 0, Spike 1). Các
+benchmark không lộ lỗi này – bằng chứng cần cả test có hướng lẫn benchmark.
+
+**65. Thông lượng của SoC?** Ở 24 MHz trên board: 21,9 MIPS (geomean), Dhrystone 0,853 DMIPS/MHz (20,5 DMIPS),
+CoreMark 2,88/MHz; ở Fmax ước lượng 44 MHz khoảng 40 MIPS. RAM qua Wishbone 4 byte/chu kỳ; thanh ghi ngoại vi 3 chu kỳ
+mỗi truy cập (đo bằng `wb_checker`); UART 115200 baud ≈ 11,5 kB/s; SPI tối đa f/17 byte/s (`results/perf/throughput.md`).
+
+## K. Layout ASIC (OpenLane / sky130)
+
+**66. Đã làm layout chưa?** Rồi, cho hai lõi: OpenLane 2.3.10 với PDK sky130A, đi hết RTL → GDSII (tổng hợp, floorplan,
+lưới nguồn, đặt cell, CTS, đi dây, trích ký sinh, STA 9 góc, DRC, LVS). Lõi pipeline: die 962 × 972 µm,
+62 600 cell, diện tích cell 0,460 mm²; DRC, LVS, XOR đều 0 (D30, `make asic`).
+Không làm cả SoC vì RAM 128 KB cần macro SRAM – dựng bằng flip-flop sẽ là khoảng 1 triệu flip-flop.
+
+**67. Fmax trên ASIC?** Ràng buộc 40 MHz. Sau đi dây: 66,0 MHz ở góc TT (25 °C, 1,80 V), 87,4 MHz ở FF,
+nhưng chỉ 34,5 MHz ở SS (100 °C, 1,60 V) – không đạt 40 MHz ở góc chậm. Sign-off mặc định của OpenLane chỉ
+bắt buộc góc TT. Cao hơn ECP5 (44 MHz) vì cell chuẩn nhanh hơn LUT. Đường găng vẫn là forwarding → EX → PC như trên FPGA.
+
+**68. Làm sao biết layout đúng chức năng?** LVS chứng minh layout đúng netlist; mô phỏng gate-level chứng minh netlist
+đúng RTL: netlist sau đi dây chạy bằng Icarus Verilog với mô hình cell sky130, cùng testbench với RTL (Verilator).
+64/64 riscv-tests (lõi pipeline) và 41/41 (single-cycle) PASS với cùng số chu kỳ và cùng chữ ký ghi bộ nhớ.
+
+**69. Còn vi phạm gì?** 26 net vi phạm antenna, vài vi phạm max slew/cap ở góc TT (7/21) và nhiều hơn ở SS. Đã thử 4 cấu
+hình: chèn diode ở mọi net dài sửa gần hết antenna nhưng thêm ~29 nghìn diode làm tải tăng, slew xấu đi; cấu hình cuối
+chỉ chèn diode trên net dài hơn 250 µm. OpenLane báo cảnh báo, không chặn sign-off; phải sửa hết trước khi tape-out.
+
+**70. Công suất bao nhiêu?** Ước lượng OpenSTA ở góc TT, 40 MHz: lõi pipeline khoảng 80 mW, single-cycle khoảng
+7,5 mW. Đây là ước lượng với hoạt động chuyển mạch mặc định, không phải đo và không lấy từ mô phỏng
+benchmark – chỉ dùng so sánh tương đối (pipeline lớn hơn ~3,3 lần về diện tích cell).

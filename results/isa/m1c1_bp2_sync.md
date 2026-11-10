@@ -1,0 +1,77 @@
+# riscv-tests – cấu hình `m1c1_bp2_sync`
+
+Tham số RTL: `{'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 2, 'BHT_ENTRIES': 256, 'BTB_ENTRIES': 32, 'CORE_SC': 0, 'RAM_SYNC': 1, 'RAM_DEPTH': 8192}` – biến thể ELF: `imc`
+
+PASS 64 / FAIL 0 / EXCLUDED 3 (tổng 67)
+
+| Test | Kết quả | Chu kỳ | minstret | Ghi chú |
+|---|---|---|---|---|
+| rv32ui-p-simple | PASS | 61 | 49 |  |
+| rv32ui-p-add | PASS | 547 | 473 |  |
+| rv32ui-p-addi | PASS | 288 | 250 |  |
+| rv32ui-p-and | PASS | 567 | 493 |  |
+| rv32ui-p-andi | PASS | 244 | 206 |  |
+| rv32ui-p-auipc | PASS | 84 | 70 |  |
+| rv32ui-p-beq | PASS | 389 | 299 |  |
+| rv32ui-p-bge | PASS | 425 | 317 |  |
+| rv32ui-p-bgeu | PASS | 450 | 342 |  |
+| rv32ui-p-blt | PASS | 389 | 299 |  |
+| rv32ui-p-bltu | PASS | 414 | 324 |  |
+| rv32ui-p-bne | PASS | 393 | 299 |  |
+| rv32ui-p-fence_i | PASS | 331 | 299 |  |
+| rv32ui-p-jal | PASS | 79 | 63 |  |
+| rv32ui-p-jalr | PASS | 161 | 123 |  |
+| rv32ui-p-lb | PASS | 301 | 261 |  |
+| rv32ui-p-lbu | PASS | 301 | 261 |  |
+| rv32ui-p-lh | PASS | 317 | 277 |  |
+| rv32ui-p-lhu | PASS | 326 | 286 |  |
+| rv32ui-p-lw | PASS | 331 | 291 |  |
+| rv32ui-p-ld_st | PASS | 1129 | 971 |  |
+| rv32ui-p-lui | PASS | 87 | 73 |  |
+| rv32ui-p-ma_data | EXCLUDED |  |  | core traps on misaligned load/store (allowed by the spec); the trap behaviour is checked by rv32mi-p-ma_addr |
+| rv32ui-p-or | PASS | 570 | 496 |  |
+| rv32ui-p-ori | PASS | 251 | 213 |  |
+| rv32ui-p-sb | PASS | 532 | 462 |  |
+| rv32ui-p-sh | PASS | 585 | 515 |  |
+| rv32ui-p-sw | PASS | 588 | 522 |  |
+| rv32ui-p-st_ld | PASS | 505 | 491 |  |
+| rv32ui-p-sll | PASS | 573 | 501 |  |
+| rv32ui-p-slli | PASS | 287 | 249 |  |
+| rv32ui-p-slt | PASS | 535 | 467 |  |
+| rv32ui-p-slti | PASS | 283 | 245 |  |
+| rv32ui-p-sltiu | PASS | 283 | 245 |  |
+| rv32ui-p-sltu | PASS | 535 | 467 |  |
+| rv32ui-p-sra | PASS | 594 | 520 |  |
+| rv32ui-p-srai | PASS | 302 | 264 |  |
+| rv32ui-p-srl | PASS | 584 | 514 |  |
+| rv32ui-p-srli | PASS | 296 | 258 |  |
+| rv32ui-p-sub | PASS | 535 | 465 |  |
+| rv32ui-p-xor | PASS | 569 | 495 |  |
+| rv32ui-p-xori | PASS | 253 | 215 |  |
+| rv32um-p-div | PASS | 283 | 104 |  |
+| rv32um-p-divu | PASS | 317 | 105 |  |
+| rv32um-p-mul | PASS | 535 | 467 |  |
+| rv32um-p-mulh | PASS | 537 | 467 |  |
+| rv32um-p-mulhsu | PASS | 539 | 467 |  |
+| rv32um-p-mulhu | PASS | 539 | 467 |  |
+| rv32um-p-rem | PASS | 283 | 104 |  |
+| rv32um-p-remu | PASS | 316 | 104 |  |
+| rv32uc-p-rvc | PASS | 262 | 227 |  |
+| rv32mi-p-breakpoint | EXCLUDED |  |  | cần CSR debug trigger (Sdtrig) – isa/rv64mi/breakpoint.S dòng 33 `csrw tselect, x0` trap illegal vì lõi không hiện thực tselect/tdata1/tdata2 (chỉ M-mode, không có debug module) |
+| rv32mi-p-csr | PASS | 152 | 135 |  |
+| rv32mi-p-mcsr | PASS | 82 | 68 |  |
+| rv32mi-p-illegal | PASS | 109 | 79 |  |
+| rv32mi-p-ma_fetch | PASS | 120 | 92 |  |
+| rv32mi-p-ma_addr | PASS | 319 | 212 |  |
+| rv32mi-p-scall | PASS | 109 | 83 |  |
+| rv32mi-p-sbreak | PASS | 90 | 68 |  |
+| rv32mi-p-shamt | PASS | 86 | 68 |  |
+| rv32mi-p-lw-misaligned | PASS | 164 | 122 |  |
+| rv32mi-p-lh-misaligned | PASS | 102 | 78 |  |
+| rv32mi-p-sh-misaligned | PASS | 110 | 86 |  |
+| rv32mi-p-sw-misaligned | PASS | 166 | 126 |  |
+| rv32mi-p-zicntr | PASS | 130 | 117 |  |
+| rv32mi-p-instret_overflow | PASS | 88 | 16 |  |
+| rv32mi-p-pmpaddr | EXCLUDED |  |  | cần PMP – isa/rv64mi/pmpaddr.S dòng 27 `csrw pmpcfg0, zero` trap illegal vì lõi không hiện thực PMP (spec mục 10.2 cho phép loại trừ) |
+
+Tái tạo: `.venv/bin/python scripts/run_isa.py --config m1c1_bp2_sync`

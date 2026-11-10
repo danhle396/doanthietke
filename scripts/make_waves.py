@@ -173,15 +173,16 @@ def walkthrough():
 
 
 def apb_uart():
-    sigs_apb = ["clk", "dut.dbus_req", "dut.dbus_we", "dut.dbus_addr", "dut.dbus_ready",
-                "dut.paddr", "dut.psel", "dut.penable", "dut.pwrite", "dut.pwdata", "dut.pstrb",
+    sigs_apb = ["clk", "dut.dbus_cyc", "dut.dbus_stb", "dut.dbus_we", "dut.dbus_adr",
+                "dut.dbus_ack", "dut.dbus_err", "dut.paddr", "dut.psel", "dut.penable", "dut.pwrite", "dut.pwdata", "dut.pstrb",
                 "dut.pready", "dut.pslverr"]
     vcd_path, _ = sim_vcd("tests", "hello", "imc", "uart", name="hello")
     v = Vcd(vcd_path, sigs_apb + ["dut.uart_tx", "dut.u_uart.u_tx.state_q", "dut.u_uart.tx_level"])
     t = first_time(v, "dut.psel", lambda x: x == 1)
     a, b = window(t, 3, 6)
     plot(v, sigs_apb, a, b, OUT / "apb_transaction.png",
-         "Hình W6. Giao dịch APB ghi UART.DATA: IDLE → SETUP (PSEL) → ACCESS (PENABLE, PREADY)",
+         "Hình W6. Ghi UART.DATA: Wishbone (CYC/STB giữ đến ACK) → cầu APB4 IDLE → SETUP (PSEL) "
+         "→ ACCESS (PENABLE, PREADY)",
          labels=[s.replace("dut.", "") for s in sigs_apb])
     t = first_time(v, "dut.uart_tx", lambda x: x == 0)
     s2 = ["clk", "dut.uart_tx", "dut.u_uart.u_tx.state_q", "dut.u_uart.tx_level"]

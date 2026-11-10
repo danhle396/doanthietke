@@ -38,6 +38,9 @@ show matplotlib 1 "$ROOT/.venv/bin/python" -c "import matplotlib; print('matplot
 show pyelftools 1 "$ROOT/.venv/bin/python" -c "import elftools; print('pyelftools', elftools.__version__)"
 show pandoc    0 pandoc --version
 show genhtml   0 genhtml --version
+# make asic: OpenLane 2 image and the sky130A PDK (scripts/run_asic.py)
+show openlane2 0 bash -c "docker image inspect -f '{{index .RepoTags 0}}' ghcr.io/efabless/openlane2:2.3.10"
+show sky130A   0 bash -c "ls -d \${PDK_ROOT:-\$HOME/.volare}/volare/sky130/versions/0fe599b2afb6708d281543108caf8310912f54af/sky130A"
 
 echo "== RISC-V libgcc (rv32imc/ilp32) =="
 lg=$("${RISCV_PREFIX}gcc" -march=rv32imc_zicsr_zifencei -mabi=ilp32 -print-libgcc-file-name 2>/dev/null)

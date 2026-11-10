@@ -14,11 +14,13 @@
 
 ## Giải mã
 
-- **Cổng lệnh** (`ibus`): chỉ RAM. Địa chỉ ngoài RAM → `ibus_err` → instruction access fault (mcause 1, `mtval` = PC).
-- **Cổng dữ liệu** (`dbus_xbar`):
-  - `0x8000_0000 ≤ addr < 0x8002_0000` → RAM, `ready = 1` ngay trong chu kỳ yêu cầu;
+Mọi bus phía lõi là Wishbone B4 classic (D28).
+
+- **Bus lệnh** (`ibus`): chỉ RAM. Địa chỉ ngoài RAM → `ERR` → instruction access fault (mcause 1, `mtval` = PC).
+- **Bus dữ liệu** (interconnect `dbus_xbar`):
+  - `0x8000_0000 ≤ addr < 0x8002_0000` → RAM, `ACK` ngay trong chu kỳ yêu cầu;
   - `0x1000_0000 ≤ addr < 0x1001_0000` → `apb_bridge`, slot = `addr[15:12]`;
-  - còn lại → `ready = 1, err = 1` ngay trong chu kỳ đó → load access fault (mcause 5) / store access fault (mcause 7), `mtval` = địa chỉ.
+  - còn lại → `ERR` ngay trong chu kỳ đó → load access fault (mcause 5) / store access fault (mcause 7), `mtval` = địa chỉ.
 - Truy cập APB tốn tối thiểu 3 chu kỳ (IDLE nhận yêu cầu → SETUP → ACCESS có `PREADY`).
 
 ## Bố trí phần mềm (`sw/common/link.ld`)

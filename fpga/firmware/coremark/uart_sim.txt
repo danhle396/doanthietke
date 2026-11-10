@@ -1,0 +1,18 @@
+2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total ticks      : 695588
+Total time (secs): 0
+ERROR! Must execute for at least 10 secs for a valid result!
+Iterations       : 2
+Compiler version : GCC13.2.0
+Compiler flags   : -O2 (see scripts/build_sw.py)
+Memory location  : STATIC
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0x72be
+Errors detected
+[bench] name=coremark cycles=695588 instret=626769 cpi_x1000=1109
+[bench] branch=116606 branch_miss=11768 jump=13009 jump_miss=976 acc_x1000=901
+[bench] stall_load_use=40670 stall_muldiv=0 stall_bus=0 compressed=343571

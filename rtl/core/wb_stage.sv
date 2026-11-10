@@ -90,4 +90,20 @@ module wb_stage (
   end
 `endif
 
+`ifdef COSIM
+  // ---------------- Co-simulation hook (cosim/cosim_main.cpp) ----------------
+  // Every retired instruction is passed to the C++ harness, which compares it
+  // with the next instruction committed by Spike (lock-step while running).
+  import "DPI-C" function void cosim_commit(
+    input int pc, input int insn, input bit is_c, input bit rd_we, input int rd, input int rd_val,
+    input bit is_load, input bit is_store, input int addr, input int st_data, input int size);
+
+  always_ff @(posedge clk) begin
+    if (wb_valid)
+      cosim_commit(wb_pc, wb_is_c ? {16'b0, wb_insn[15:0]} : wb_insn, wb_is_c,
+                   wb_rd_we && (wb_rd != 5'd0), {27'b0, wb_rd}, wb_result, wb_is_load, wb_is_store,
+                   wb_mem_addr, wb_store_data, {30'b0, wb_mem_size});
+  end
+`endif
+
 endmodule

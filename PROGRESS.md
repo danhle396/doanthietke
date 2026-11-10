@@ -67,8 +67,20 @@ Hoàn thành – Phase 0–8 xong, nghiệm thu mục 17 đạt
 - [x] Nghiệm thu mục 17 (clone sạch `make fetch regress` PASS)
 - [x] Commit final
 
+### Bổ sung sau nghiệm thu (yêu cầu đề cương)
+- [x] Sơ đồ hệ thống draw.io (`docs/diagrams/he_thong.drawio`, 4 trang)
+- [x] RAM đồng bộ cho FPGA (`RAM_SYNC`, D27) – số chu kỳ trùng khớp
+- [x] Thư mục `fpga/` cho board DE2 (Quartus II 13.0sp1, PLL 24 MHz, 16 firmware `.mif`, `make fpga`)
+- [x] Bus Wishbone B4 classic (D28), `wb_checker`, `tb_dbus_xbar` – số chu kỳ trùng khớp
+- [ ] Compile Quartus, timing, nạp board, đo thực nghiệm, công suất (sinh viên chạy trên máy có Quartus + board)
+- [x] Co-simulation C++ lock-step với Spike (`make cosim`, D29), RTL có lỗi cài sẵn bị bắt, hình lock-step
+- [x] Bảng thông lượng (`scripts/throughput.py`)
+- [x] Layout ASIC hai lõi bằng OpenLane 2 / sky130A (`make asic`, D30): DRC/LVS/XOR sạch, Fmax 3 góc PVT, gate-level netlist sau đi dây ≡ RTL
+
 ## Kết quả regression gần nhất
 
+- 28/10/2026 Layout ASIC (`make asic`, cấu hình 4 trong D30): `rv_core` die 0,94 mm², 62 600 cell, Fmax 66,0 / 34,5 / 87,4 MHz (TT/SS/FF), DRC 0, LVS 0, XOR 0, 26 net antenna; `rv_core_sc` 0,28 mm², 8 net antenna; gate-level ≡ RTL 64/64 và 41/41 riscv-tests.
+- 27/10/2026 Bus Wishbone + RAM đồng bộ: `make regress` PASS (lint 9 cấu hình; unit 14/14; isa 415 PASS / 0 FAIL trên 7 cấu hình; Spike 259/259 MATCH; systest PASS; 0 vi phạm Wishbone); 9 benchmark trùng khớp số chu kỳ trước/sau; `make fpga`: 16/16 firmware + `de2_top` PASS trong mô phỏng.
 - 26/10/2026 Nghiệm thu: `git clone . /tmp/check && make fetch regress` → PASS (lint; unit 13/13; isa 351 PASS / 0 FAIL / 16 EXCLUDED có lý do; Spike 259/259 MATCH, khác biệt KNOWN: marchid, misa; systest 15 lượt PASS).
 - 22/10/2026 Phase 7: `make regress` PASS (lint, unit 13/13, isa 351 PASS/0 FAIL, Spike 259/259 MATCH, systest 15 lượt PASS); coverage line core 99.8%, periph 97.5%, functional 71/71; perf: geomean CPI 1.320/1.223/1.097 (BP0/1/2); Fmax SoC pipeline 42.3 MHz, SoC single-cycle 25.6 MHz.
 - 22/10/2026 Phase 1: `run_isa.py --config sc` rv32ui 41 PASS / 0 FAIL / 1 EXCLUDED (ma_data); `compare_spike.py --config sc` 41/41 MATCH; hello (CONSOLE=sim) PASS trên sc và m1c1_bp2; lint sạch 8 cấu hình; Yosys elaborate rv_core_sc/rv_core/soc_top OK.
@@ -84,7 +96,7 @@ Hoàn thành – Phase 0–8 xong, nghiệm thu mục 17 đạt
 
 ## Ghi chú cho lần chạy sau
 
-- Project hoàn thành. Phần tùy chọn chưa làm: Return Address Stack (RAS); không có OpenSTA nên Fmax chỉ ước lượng bằng nextpnr ECP5.
+- Project hoàn thành. Phần tùy chọn chưa làm: Return Address Stack (RAS). Fmax SoC: nextpnr ECP5; Fmax lõi trên ASIC: OpenLane/sky130 (`results/asic/`). `make asic` cần Docker và image `ghcr.io/efabless/openlane2:2.3.10`; không chạy song song việc nặng khác (đi dây cần ~4,5 GB RAM). Lần chạy dài: dùng `setsid nohup` và không để máy ảo khởi động lại/ngủ.
 
 - Thư mục gốc: `/home/danhle/Desktop/doanthietke`.
 - Công cụ: OSS CAD Suite ở `~/tools/oss-cad-suite`, Spike ở `~/tools/spike`, dtc ở `~/tools/dtc`.

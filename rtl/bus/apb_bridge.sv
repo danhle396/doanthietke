@@ -1,12 +1,15 @@
 // ============================================================================
-// apb_bridge.sv - Data bus -> AMBA APB4 bridge (single master, 16 slots).
+// apb_bridge.sv - Wishbone B4 (classic) slave -> AMBA APB4 bridge
+//   (single master, 16 slots).
 //   FSM: IDLE -> SETUP (PSEL=1, PENABLE=0) -> ACCESS (PENABLE=1, wait PREADY)
-//   PADDR/PWRITE/PWDATA/PSTRB are latched when entering SETUP (PSTRB = 0 for
-//   reads). Slot = PADDR[15:12]. A slot without a slave (SLOT_MASK bit = 0)
-//   gets no PSEL; the bridge answers PREADY = 1, PSLVERR = 1 itself.
+//   A Wishbone cycle (CYC & STB) seen in IDLE latches ADR/WE/DAT/SEL into
+//   PADDR/PWRITE/PWDATA/PSTRB (PSTRB = 0 for reads). The cycle is terminated
+//   in ACCESS when PREADY = 1: ACK, or ERR if PSLVERR = 1. Slot = PADDR[15:12].
+//   A slot without a slave (SLOT_MASK bit = 0) gets no PSEL; the bridge
+//   terminates the cycle with ERR itself. Minimum 3 cycles per access.
 //
 // Ports:
-//   s_*      : request side (from dbus_xbar), response in ACCESS when ready
+//   wb_*     : Wishbone slave (from dbus_xbar)
 //   paddr..pprot, psel[15:0], penable : APB4 master signals
 //   prdata/pready/pslverr : response of the selected slave (muxed outside)
 // Parameters:
@@ -17,15 +20,16 @@ module apb_bridge #(
 ) (
   input  logic        clk,
   input  logic        rst_n,
-  // request side
-  input  logic        s_req,
-  input  logic        s_we,
-  input  logic [3:0]  s_be,
-  input  logic [31:0] s_addr,
-  input  logic [31:0] s_wdata,
-  output logic        s_ready,
-  output logic        s_err,
-  output logic [31:0] s_rdata,
+  // Wishbone slave
+  input  logic        wb_cyc_i,
+  input  logic        wb_stb_i,
+  input  logic        wb_we_i,
+  input  logic [3:0]  wb_sel_i,
+  input  logic [31:0] wb_adr_i,
+  input  logic [31:0] wb_dat_i,
+  output logic [31:0] wb_dat_o,
+  output logic        wb_ack_o,
+  output logic        wb_err_o,
   // APB4 master
   output logic [31:0] paddr,
   output logic [15:0] psel,
@@ -43,7 +47,7 @@ module apb_bridge #(
   typedef enum logic [1:0] {S_IDLE, S_SETUP, S_ACCESS} state_e;
   state_e state_q;
 
-  logic populated;
+  logic populated, done, fail;
 
   assign slot      = paddr[15:12];
   assign populated = SLOT_MASK[slot];
@@ -59,12 +63,12 @@ module apb_bridge #(
     end else begin
       case (state_q)
         S_IDLE: begin
-          if (s_req) begin
+          if (wb_cyc_i && wb_stb_i) begin
             state_q <= S_SETUP;
-            paddr   <= s_addr;
-            pwrite  <= s_we;
-            pwdata  <= s_wdata;
-            pstrb   <= s_we ? s_be : 4'b0000;
+            paddr   <= wb_adr_i;
+            pwrite  <= wb_we_i;
+            pwdata  <= wb_dat_i;
+            pstrb   <= wb_we_i ? wb_sel_i : 4'b0000;
           end
         end
         S_SETUP: state_q <= S_ACCESS;
@@ -81,8 +85,10 @@ module apb_bridge #(
   end
   assign penable = (state_q == S_ACCESS);
 
-  assign s_ready = (state_q == S_ACCESS) && (!populated || pready);
-  assign s_err   = !populated || pslverr;
-  assign s_rdata = populated ? prdata : 32'b0;
+  assign done     = (state_q == S_ACCESS) && (!populated || pready);
+  assign fail     = !populated || pslverr;
+  assign wb_ack_o = done && !fail;
+  assign wb_err_o = done && fail;
+  assign wb_dat_o = populated ? prdata : 32'b0;
 
 endmodule

@@ -1,0 +1,100 @@
+{
+  "rv_core": {
+    "period_ns": 25.0,
+    "die_um": [
+      961.8,
+      972.5
+    ],
+    "die_mm2": 0.9354,
+    "core_area_um2": 902158,
+    "std_cells": 62600,
+    "instances": 62600,
+    "cell_area_um2": 459999,
+    "utilization": 0.509887,
+    "wirelength_um": 1761890,
+    "setup_ws_ns": {
+      "nom_tt_025C_1v80": 9.84801246203176,
+      "nom_ss_100C_1v60": -3.9892215104828925,
+      "nom_ff_n40C_1v95": 13.555752459782447
+    },
+    "hold_ws_ns": {
+      "nom_tt_025C_1v80": 0.3038036574966313,
+      "nom_ss_100C_1v60": 0.8299434707726564,
+      "nom_ff_n40C_1v95": 0.10832668402241363
+    },
+    "fmax_mhz": {
+      "nom_tt_025C_1v80": 66.0,
+      "nom_ss_100C_1v60": 34.5,
+      "nom_ff_n40C_1v95": 87.38
+    },
+    "power_w": {
+      "total": 0.08000071346759796,
+      "internal": 0.034136250615119934,
+      "switching": 0.045863959938287735,
+      "leakage": 5.047732543062011e-07
+    },
+    "drc_magic": 0,
+    "drc_klayout": 0,
+    "drc_route": 0,
+    "lvs_errors": 0,
+    "antenna_nets": 26,
+    "xor_diff": 0,
+    "max_slew_viol": 1187,
+    "max_cap_viol": 44,
+    "max_slew_viol_tt": 7,
+    "max_cap_viol_tt": 21,
+    "gl_match": [
+      64,
+      64
+    ]
+  },
+  "rv_core_sc": {
+    "period_ns": 25.0,
+    "die_um": [
+      527.7,
+      538.4
+    ],
+    "die_mm2": 0.2842,
+    "core_area_um2": 265563,
+    "std_cells": 18069,
+    "instances": 18069,
+    "cell_area_um2": 139680,
+    "utilization": 0.525977,
+    "wirelength_um": 548711,
+    "setup_ws_ns": {
+      "nom_tt_025C_1v80": 5.461157014516943,
+      "nom_ss_100C_1v60": -4.079158459805318,
+      "nom_ff_n40C_1v95": 8.795258104100952
+    },
+    "hold_ws_ns": {
+      "nom_tt_025C_1v80": 0.3222276980890508,
+      "nom_ss_100C_1v60": 0.870271213059687,
+      "nom_ff_n40C_1v95": 0.11413204038236525
+    },
+    "fmax_mhz": {
+      "nom_tt_025C_1v80": 51.18,
+      "nom_ss_100C_1v60": 34.39,
+      "nom_ff_n40C_1v95": 61.71
+    },
+    "power_w": {
+      "total": 0.007498770486563444,
+      "internal": 0.004788938909769058,
+      "switching": 0.0027096737176179886,
+      "leakage": 1.5781114370838623e-07
+    },
+    "drc_magic": 0,
+    "drc_klayout": 0,
+    "drc_route": 0,
+    "lvs_errors": 0,
+    "antenna_nets": 8,
+    "xor_diff": 0,
+    "max_slew_viol": 347,
+    "max_cap_viol": 0,
+    "max_slew_viol_tt": 15,
+    "max_cap_viol_tt": 0,
+    "gl_match": [
+      41,
+      41
+    ]
+  }
+}

@@ -10,26 +10,48 @@ make check-env        # in phiên bản mọi công cụ, kiểm tra libgcc rv32
 make fetch            # clone riscv-tests và coremark vào third_party/ (đúng commit đã ghi)
 ```
 
+Máy mới (Ubuntu 24.04 chưa có công cụ nào): `bash scripts/setup_wsl.sh` cài mọi thứ ở trên với đúng phiên bản trong
+`docs/env.md` (gói apt cần `sudo` một lần; OSS CAD Suite, dtc, Spike, pandoc vào `~/tools`; image OpenLane và PDK
+sky130 cho `make asic` – thêm `--no-asic` để bỏ qua phần này, khoảng 10 GB). Chạy lại được nếu bị ngắt giữa chừng.
+
+### Chạy trên Windows (WSL2)
+
+Các công cụ đều là bản Linux, nên trên Windows chạy trong WSL2 (Ubuntu bên trong Windows). Riêng `fpga/` (Quartus II)
+vẫn mở trực tiếp trên Windows.
+
+1. PowerShell (Administrator): `wsl --install -d Ubuntu-24.04`, đặt tên người dùng và mật khẩu.
+2. Docker Desktop → *Settings → Resources → WSL integration* → bật `Ubuntu-24.04` (chỉ cần cho `make asic`).
+3. Cho WSL đủ RAM: file `C:\Users\<tên>\.wslconfig` gồm hai dòng `[wsl2]` và `memory=8GB`, rồi `wsl --shutdown`.
+4. Chép **cả thư mục** project vào ổ Linux của WSL, ví dụ `\\wsl$\Ubuntu-24.04\home\<tên>\doanthietke` (dán vào
+   thanh địa chỉ của File Explorer). Không để project ở `C:\` (`/mnt/c/...` chậm, sai quyền file) và không clone bằng
+   git của Windows (đổi xuống dòng sang CRLF làm hỏng script bash – `setup_wsl.sh` sẽ dừng và báo lỗi này).
+5. Trong Ubuntu: `cd ~/doanthietke && bash scripts/setup_wsl.sh`, sau đó `make regress` / `make asic` như trên Linux.
+
 ## 2. Regression đầy đủ
 
 ```bash
-make regress          # lint + unit + riscv-tests (6 cấu hình) + so sánh Spike + system test
+make regress          # lint + unit + riscv-tests (7 cấu hình) + so sánh Spike + system test
 ```
 
 In bảng PASS/FAIL; exit code ≠ 0 nếu có lỗi. Từng phần:
 
 | Lệnh | Việc | Kết quả |
 |---|---|---|
-| `make lint` | Verilator `-Wall` trên 8 cấu hình | màn hình |
-| `make unit` | 13 unit testbench | `results/unit/summary.md` |
+| `make lint` | Verilator `-Wall` trên 9 cấu hình | màn hình |
+| `make unit` | 14 unit testbench | `results/unit/summary.md` |
 | `make sw` | build firmware (tests: imc/uart; benchmark: i, im, imc / sim) | `build/sw/` |
 | `make isa` | riscv-tests, ma trận cấu hình | `results/isa/*.md`, `*.csv` |
 | `make spike` | so sánh commit log với Spike | `results/spike/*.md` |
+| `make cosim` | co-simulation C++ lock-step với Spike khi đang chạy + kiểm tra bằng RTL có lỗi cài sẵn | `results/cosim/` |
 | `make systest` | 11 system test C | `results/systest/summary.md` |
-| `make perf` | 5 thí nghiệm hiệu năng + biểu đồ | `results/perf/` |
+| `make perf` | 5 thí nghiệm hiệu năng + biểu đồ + bảng thông lượng | `results/perf/` (`throughput.md`) |
 | `make synth` | Yosys (diện tích) + nextpnr ECP5 (Fmax) | `results/synth/` |
 | `make cov` | code + functional coverage | `results/coverage/` |
 | `make docs` | hình waveform, walkthrough, báo cáo `.docx` (nếu có pandoc) | `results/waves/`, `docs/report/` |
+| `make fpga` | project Quartus II cho board DE2: RTL, firmware `.mif`, mô phỏng trên cấu hình board | `fpga/` (xem `fpga/README.md`) |
+| `make asic` | layout ASIC của hai lõi bằng OpenLane 2 / sky130A (Docker) + mô phỏng gate-level so với RTL; lần đầu khoảng 1–1,5 giờ, không chạy song song việc nặng khác (đi dây cần ~4,5 GB RAM) | `results/asic/` (ảnh layout, bảng PPA, đường găng) |
+
+Riêng `make asic`: chỉ chạy lại OpenLane khi RTL lõi hoặc `asic/<top>/config.json` thay đổi; `.venv/bin/python scripts/run_asic.py --gl` chỉ chạy lại gate-level, `--report` chỉ sinh lại bảng và ảnh, `--force` ép chạy lại OpenLane. Kết quả đầy đủ của từng lần (GDS, DEF, báo cáo từng bước) nằm trong `asic/<top>/runs/base/` (không đưa vào git). Xem GDS: file `asic/rv_core/runs/base/final/gds/rv_core.gds` mở được bằng KLayout (máy này chỉ có KLayout trong Docker image, không có giao diện; có thể chép file sang Windows và mở bằng KLayout bản Windows, kèm file màu lớp `sky130A.lyp` trong `~/.volare/.../sky130A/libs.tech/klayout/tech/`).
 
 ## 3. Chạy một test riêng
 

@@ -4,7 +4,7 @@
 
 | Dòng | Mã | Giải thích |
 |---|---|---|
-| 42 | `default:  result = a + b;` | nhánh `default` của `case (op)`: decoder chỉ sinh 10 mã ALU hợp lệ nên nhánh này không thể xảy ra; giữ lại để tránh latch / X khi tổng hợp |
+| 48 | `default:  result = a + b;` | nhánh `default` của `case (op)`: decoder chỉ sinh 10 mã ALU hợp lệ nên nhánh này không thể xảy ra; giữ lại để tránh latch / X khi tổng hợp |
 
 ## `rtl/periph/sim/sim_ctrl.sv` – 3 dòng
 

@@ -13,3 +13,9 @@
 11. EEMBC, *CoreMark*, https://github.com/eembc/coremark (commit `1f483d5`).
 12. R. P. Weicker, *Dhrystone: A Synthetic Systems Programming Benchmark*, Communications of the ACM, 1984 (bản trong riscv-tests/benchmarks).
 13. lowRISC, *Ibex RISC-V Core Documentation*; C. Wolf, *PicoRV32* – dùng để so sánh kiến trúc.
+14. Efabless / The OpenROAD Project, *OpenLane 2*, https://github.com/efabless/openlane2 (phiên bản 2.3.10) – gồm
+    OpenROAD, OpenSTA, Magic, KLayout, Netgen.
+15. SkyWater Technology và Google, *SkyWater SKY130 Open Source PDK*, https://github.com/google/skywater-pdk
+    (open_pdks `0fe599b`, thư viện `sky130_fd_sc_hd`).
+16. CHIPS Alliance, *Synlig – SystemVerilog synthesis tool* (frontend Surelog cho Yosys), https://github.com/chipsalliance/synlig.
+17. OpenCores, *Wishbone B4 – WISHBONE System-on-Chip (SoC) Interconnection Architecture for Portable IP Cores*, 2010.
