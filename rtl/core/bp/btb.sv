@@ -49,7 +49,9 @@ module btb #(
   assign rd_type   = type_q[rd_idx];
 
   // one register set per entry (explicit decode: plain flip-flops)
-  for (genvar i = 0; i < ENTRIES; i++) begin : g_e
+  genvar i;
+  generate
+  for (i = 0; i < ENTRIES; i = i + 1) begin : g_e
     logic          v_q;
     logic [TW-1:0] tag_e;
     logic [30:0]   tgt_e;
@@ -74,5 +76,6 @@ module btb #(
     assign target_q[i] = tgt_e;
     assign type_q[i]   = ty_e;
   end
+  endgenerate
 
 endmodule

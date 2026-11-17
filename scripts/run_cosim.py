@@ -35,6 +35,7 @@ from common import (BUILD, JOBS, MARCH, RESULTS, ROOT, SPIKE, VERILATOR, _newest
                     cfg_name, cfg_variant, rtl_files, run)
 from compare_spike import bench_jobs, isa_jobs  # noqa: E402
 from run_isa import CONFIGS  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 OUT = RESULTS / "cosim"
 DEFAULT = ["m1c1_bp2", "m1c0_bp2", "m0c0_bp2", "sc"]
@@ -113,7 +114,7 @@ def report(cname, rows):
         det = r["detail"] + (f"; known: {r['known']}" if r["known"] else "")
         L.append(f"| {r['test']} | {r['result']} | {r['commits']} | {r['masked']} | {r['cycles']} | {det} |")
     L += ["", f"Tái tạo: `.venv/bin/python scripts/run_cosim.py --config {cname}`", ""]
-    (OUT / f"{cname}.md").write_text("\n".join(L))
+    write_md(OUT / f"{cname}.md", "\n".join(L))
     return ok, commits, wall
 
 
@@ -139,7 +140,7 @@ def mutant_check():
     miss = [r["test"] for r in rows if r["result"] != "DIFF"]
     L += ["", f"Không phát hiện ({len(miss)} chương trình, không thực thi SLTU/SLTIU với toán hạng gây sai): "
           + ", ".join(f"`{t}`" for t in miss) + ".", ""]
-    (OUT / "mutant.md").write_text("\n".join(L))
+    write_md(OUT / "mutant.md", "\n".join(L))
     return len(det), len(rows)
 
 
@@ -258,7 +259,7 @@ def main():
     if mut:
         L += ["", f"Mutant (lỗi SLTU cài sẵn): phát hiện ở {mut[0]} / {mut[1]} chương trình – xem `mutant.md`."]
     L += ["", f"Hình lock-step: `{fig.relative_to(ROOT)}`.", "", "Tái tạo: `make cosim`", ""]
-    (OUT / "summary.md").write_text("\n".join(L))
+    write_md(OUT / "summary.md", "\n".join(L))
     print(f"[cosim] mutant: {mut[0]}/{mut[1]} chương trình phát hiện lỗi" if mut else "")
     sys.exit(1 if bad else 0)
 

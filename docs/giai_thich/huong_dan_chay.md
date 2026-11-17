@@ -35,21 +35,21 @@ make regress          # lint + unit + riscv-tests (7 cấu hình) + so sánh Spi
 
 In bảng PASS/FAIL; exit code ≠ 0 nếu có lỗi. Từng phần:
 
-| Lệnh | Việc | Kết quả |
-|---|---|---|
-| `make lint` | Verilator `-Wall` trên 9 cấu hình | màn hình |
-| `make unit` | 14 unit testbench | `results/unit/summary.md` |
-| `make sw` | build firmware (tests: imc/uart; benchmark: i, im, imc / sim) | `build/sw/` |
-| `make isa` | riscv-tests, ma trận cấu hình | `results/isa/*.md`, `*.csv` |
-| `make spike` | so sánh commit log với Spike | `results/spike/*.md` |
-| `make cosim` | co-simulation C++ lock-step với Spike khi đang chạy + kiểm tra bằng RTL có lỗi cài sẵn | `results/cosim/` |
-| `make systest` | 11 system test C | `results/systest/summary.md` |
-| `make perf` | 5 thí nghiệm hiệu năng + biểu đồ + bảng thông lượng | `results/perf/` (`throughput.md`) |
-| `make synth` | Yosys (diện tích) + nextpnr ECP5 (Fmax) | `results/synth/` |
-| `make cov` | code + functional coverage | `results/coverage/` |
-| `make docs` | hình waveform, walkthrough, báo cáo `.docx` (nếu có pandoc) | `results/waves/`, `docs/report/` |
-| `make fpga` | project Quartus II cho board DE2: RTL, firmware `.mif`, mô phỏng trên cấu hình board | `fpga/` (xem `fpga/README.md`) |
-| `make asic` | layout ASIC của hai lõi bằng OpenLane 2 / sky130A (Docker) + mô phỏng gate-level so với RTL; lần đầu khoảng 1–1,5 giờ, không chạy song song việc nặng khác (đi dây cần ~4,5 GB RAM) | `results/asic/` (ảnh layout, bảng PPA, đường găng) |
+| Lệnh           | Việc                                                                                                                                                                                | Kết quả                                            |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `make lint`    | Verilator `-Wall` trên 9 cấu hình                                                                                                                                                   | màn hình                                           |
+| `make unit`    | 14 unit testbench                                                                                                                                                                   | `results/unit/summary.md`                          |
+| `make sw`      | build firmware (tests: imc/uart; benchmark: i, im, imc / sim)                                                                                                                       | `build/sw/`                                        |
+| `make isa`     | riscv-tests, ma trận cấu hình                                                                                                                                                       | `results/isa/*.md`, `*.csv`                        |
+| `make spike`   | so sánh commit log với Spike                                                                                                                                                        | `results/spike/*.md`                               |
+| `make cosim`   | co-simulation C++ lock-step với Spike khi đang chạy + kiểm tra bằng RTL có lỗi cài sẵn                                                                                              | `results/cosim/`                                   |
+| `make systest` | 11 system test C                                                                                                                                                                    | `results/systest/summary.md`                       |
+| `make perf`    | 5 thí nghiệm hiệu năng + biểu đồ + bảng thông lượng                                                                                                                                 | `results/perf/` (`throughput.md`)                  |
+| `make synth`   | Yosys (diện tích) + nextpnr ECP5 (Fmax)                                                                                                                                             | `results/synth/`                                   |
+| `make cov`     | code + functional coverage                                                                                                                                                          | `results/coverage/`                                |
+| `make docs`    | hình waveform, walkthrough, báo cáo `.docx` (nếu có pandoc)                                                                                                                         | `results/waves/`, `docs/report/`                   |
+| `make fpga`    | project Quartus II cho board DE2: RTL, firmware `.mif`, mô phỏng trên cấu hình board                                                                                                | `fpga/` (xem `fpga/README.md`)                     |
+| `make asic`    | layout ASIC của hai lõi bằng OpenLane 2 / sky130A (Docker) + mô phỏng gate-level so với RTL; lần đầu khoảng 1–1,5 giờ, không chạy song song việc nặng khác (đi dây cần ~4,5 GB RAM) | `results/asic/` (ảnh layout, bảng PPA, đường găng) |
 
 Riêng `make asic`: chỉ chạy lại OpenLane khi RTL lõi hoặc `asic/<top>/config.json` thay đổi; `.venv/bin/python scripts/run_asic.py --gl` chỉ chạy lại gate-level, `--report` chỉ sinh lại bảng và ảnh, `--force` ép chạy lại OpenLane. Kết quả đầy đủ của từng lần (GDS, DEF, báo cáo từng bước) nằm trong `asic/<top>/runs/base/` (không đưa vào git). Xem GDS: file `asic/rv_core/runs/base/final/gds/rv_core.gds` mở được bằng KLayout (máy này chỉ có KLayout trong Docker image, không có giao diện; có thể chép file sang Windows và mở bằng KLayout bản Windows, kèm file màu lớp `sky130A.lyp` trong `~/.volare/.../sky130A/libs.tech/klayout/tech/`).
 

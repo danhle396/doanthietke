@@ -35,7 +35,9 @@ module bht #(
   assign rd_taken = cnt_q[rd_idx][1];
 
   // one register per entry (explicit decode: synthesizes to plain flip-flops)
-  for (genvar i = 0; i < ENTRIES; i++) begin : g_e
+  genvar i;
+  generate
+  for (i = 0; i < ENTRIES; i = i + 1) begin : g_e
     logic [1:0] c_q;
     always_ff @(posedge clk or negedge rst_n) begin
       if (!rst_n) c_q <= 2'b01;
@@ -46,5 +48,6 @@ module bht #(
     end
     assign cnt_q[i] = c_q;
   end
+  endgenerate
 
 endmodule

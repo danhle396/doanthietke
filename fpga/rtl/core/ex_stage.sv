@@ -164,6 +164,7 @@ module ex_stage
 
   // Instantiated only with the M extension (ENABLE_M = 0 removes it entirely;
   // M encodings are then illegal and ex_is_md is never set).
+  generate
   if (ENABLE_M) begin : g_md
     muldiv u_md (
       .clk,
@@ -183,6 +184,7 @@ module ex_stage
     assign md_res   = 32'b0;
     assign md_busy  = 1'b0;
   end
+  endgenerate
 
   assign md_stall = ex_valid && ex_is_md && !md_ready;
 

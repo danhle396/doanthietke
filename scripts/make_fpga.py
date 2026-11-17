@@ -26,6 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, JOBS, ROOT, VERILATOR, build_soc, rtl_files, run, run_sim  # noqa: E402
 from build_sw import KIND_DIR, build_program  # noqa: E402
 from run_isa import CONFIGS  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 FPGA = ROOT / "fpga"
 SIM_CFG = CONFIGS["m1c1_bp2_sync"]
@@ -193,7 +194,6 @@ def write_qsf(files):
          "set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files",
          "set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0",
          "set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85",
-         "set_global_assignment -name USE_TIMEQUEST_TIMING_ANALYZER ON",
          "set_global_assignment -name VERILOG_INPUT_VERSION SYSTEMVERILOG_2005",
          'set_global_assignment -name VERILOG_MACRO "SYNTHESIS=1"',
          'set_global_assignment -name RESERVE_ALL_UNUSED_PINS "AS INPUT TRI-STATED"',
@@ -208,7 +208,16 @@ def write_qsf(files):
     for port, pin in PINS.items():
         q.append(f"set_location_assignment PIN_{pin} -to {port}")
     q += ["", "set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to GPIO_0[2]",
-          "set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to UART_RXD"]
+          "set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to UART_RXD", "",
+          # what Quartus 13.0sp1 itself appends on the first compile (kept so that
+          # regenerating the file does not show up as a change after a compile)
+          'set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"',
+          'set_global_assignment -name RESERVE_ALL_UNUSED_PINS_NO_OUTPUT_GND "AS INPUT TRI-STATED"',
+          "set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top",
+          "set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top",
+          "set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING "
+          "-section_id Top",
+          "set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top"]
     (FPGA / "de2_soc.qsf").write_text("\n".join(q) + "\n")
     (FPGA / "de2_soc.qpf").write_text('QUARTUS_VERSION = "13.0"\nPROJECT_REVISION = "de2_soc"\n')
 
@@ -295,7 +304,7 @@ def main():
         rows.append(f"| `{name}` | {desc} | {hw} | {st} | {summ} |")
     rows += ["", f"Mặc định trong `mem/`: `{args.default}`.", "",
              "Không đưa lên board: " + "; ".join(f"`{n}` ({why})" for n, why in EXCLUDED) + "."]
-    (FPGA / "firmware" / "DANH_SACH.md").write_text("\n".join(rows) + "\n")
+    write_md(FPGA / "firmware" / "DANH_SACH.md", "\n".join(rows) + "\n")
 
     # 5. board top level with the megafunction stand-ins (default firmware)
     if not args.no_sim and args.default == "board_demo":

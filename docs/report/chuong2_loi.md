@@ -7,14 +7,14 @@ liệt kê ở Bảng 2.1; chúng cho phép cùng một mã RTL tạo ra các bi
 
 Bảng 2.1. Tham số của `rv_core` (nguồn: `rtl/core/rv_core.sv`).
 
-| Tham số | Mặc định | Ý nghĩa |
-|---|---|---|
-| `RESET_PC` | `0x8000_0000` | địa chỉ lệnh đầu tiên |
-| `ENABLE_M` | 1 | 0: lệnh M là illegal |
-| `ENABLE_C` | 1 | 0: lệnh 16 bit illegal; nhảy tới địa chỉ có bit 1 = 1 gây instruction-address-misaligned |
-| `BP_MODE` | 2 | 0 tĩnh not-taken; 1 BHT tra ở ID; 2 BHT + BTB tra ở IF |
-| `BHT_ENTRIES` | 256 | số counter 2 bit |
-| `BTB_ENTRIES` | 32 | số entry BTB direct-mapped |
+| Tham số       | Mặc định      | Ý nghĩa                                                                                  |
+| ------------- | ------------- | ---------------------------------------------------------------------------------------- |
+| `RESET_PC`    | `0x8000_0000` | địa chỉ lệnh đầu tiên                                                                    |
+| `ENABLE_M`    | 1             | 0: lệnh M là illegal                                                                     |
+| `ENABLE_C`    | 1             | 0: lệnh 16 bit illegal; nhảy tới địa chỉ có bit 1 = 1 gây instruction-address-misaligned |
+| `BP_MODE`     | 2             | 0 tĩnh not-taken; 1 BHT tra ở ID; 2 BHT + BTB tra ở IF                                   |
+| `BHT_ENTRIES` | 256           | số counter 2 bit                                                                         |
+| `BTB_ENTRIES` | 32            | số entry BTB direct-mapped                                                               |
 
 Giao tiếp của lõi gồm hai master **Wishbone B4 classic** (Chương 3, mục 3.2): bus lệnh chỉ đọc (`ibus_adr_o` là PC
 căn 2 byte, `ibus_dat_i` 32 bit, kết thúc bằng `ibus_ack_i` hoặc `ibus_err_i`) và bus dữ liệu
@@ -69,14 +69,14 @@ Toàn bộ logic stall/flush nằm trong `hazard_unit`, forwarding trong `forwar
 
 Bảng 2.2. Quy tắc stall và flush (nguồn: `rtl/core/hazard_unit.sv`).
 
-| Sự kiện | Stall | Bubble / flush |
-|---|---|---|
-| Load-use / CSR-use (lệnh ở EX là load/CSR, `rd` trùng `rs` của lệnh ở ID) | IF, ID | `id_ex` |
-| MulDiv chưa xong | IF, ID, EX | `ex_mem` |
-| Chờ bus (`dbus_req && !dbus_ready`) | IF, ID, EX, MEM | `mem_wb` |
-| Redirect ở ID | – | `if_id` |
-| Sai dự đoán ở EX | – | `if_id`, `id_ex` |
-| Trap / MRET / FENCE.I ở MEM | – | `if_id`, `id_ex`, `ex_mem` (và `mem_wb` khi trap) |
+| Sự kiện                                                                   | Stall           | Bubble / flush                                    |
+| ------------------------------------------------------------------------- | --------------- | ------------------------------------------------- |
+| Load-use / CSR-use (lệnh ở EX là load/CSR, `rd` trùng `rs` của lệnh ở ID) | IF, ID          | `id_ex`                                           |
+| MulDiv chưa xong                                                          | IF, ID, EX      | `ex_mem`                                          |
+| Chờ bus (`dbus_req && !dbus_ready`)                                       | IF, ID, EX, MEM | `mem_wb`                                          |
+| Redirect ở ID                                                             | –               | `if_id`                                           |
+| Sai dự đoán ở EX                                                          | –               | `if_id`, `id_ex`                                  |
+| Trap / MRET / FENCE.I ở MEM                                               | –               | `if_id`, `id_ex`, `ex_mem` (và `mem_wb` khi trap) |
 
 Hai nguyên tắc: (1) sự kiện của tầng già hơn luôn thắng và flush thắng stall; (2) mọi side effect của một lệnh (redirect,
 cập nhật predictor, khởi động bộ chia, đếm counter) xảy ra đúng một lần, ở chu kỳ lệnh rời tầng.
@@ -107,12 +107,12 @@ Bảng 2.4 là diễn biến thực tế của một chuỗi load-use lấy từ
 
 Bảng 2.4. Load-use trong mô phỏng (nguồn: `results/waves/walkthrough_table.md`, chu kỳ 3–6).
 
-| Chu kỳ | IF | ID | EX | MEM | WB | Sự kiện |
-|---|---|---|---|---|---|---|
-| 3 | `add t1,t0,t0` | `lw t0,0(a0)` | `c.addi a1,20` | `lui a1` | `addi a0` | |
-| 4 | `addi t2,t1,1` | `add t1,t0,t0` | `lw t0,0(a0)` | `c.addi` | `lui` | load-use: giữ IF, ID; bubble vào EX |
-| 5 | `addi t2,t1,1` | `add t1,t0,t0` | bubble | `lw` | `c.addi` | |
-| 6 | `add t3,t2,t1` | `addi t2,t1,1` | `add t1,t0,t0` | bubble | `lw` | rs1, rs2 forward từ `mem_wb` |
+| Chu kỳ | IF             | ID             | EX             | MEM      | WB        | Sự kiện                             |
+| ------ | -------------- | -------------- | -------------- | -------- | --------- | ----------------------------------- |
+|      3 | `add t1,t0,t0` | `lw t0,0(a0)`  | `c.addi a1,20` | `lui a1` | `addi a0` |                                     |
+|      4 | `addi t2,t1,1` | `add t1,t0,t0` | `lw t0,0(a0)`  | `c.addi` | `lui`     | load-use: giữ IF, ID; bubble vào EX |
+|      5 | `addi t2,t1,1` | `add t1,t0,t0` | bubble         | `lw`     | `c.addi`  |                                     |
+|      6 | `add t3,t2,t1` | `addi t2,t1,1` | `add t1,t0,t0` | bubble   | `lw`      | rs1, rs2 forward từ `mem_wb`        |
 
 **Forwarding** vào EX có hai nguồn: `ex_mem` (kết quả ALU/MulDiv/link – không gồm load/CSR vì dữ liệu chỉ có ở cuối
 MEM) và `mem_wb` (mọi kết quả). `ex_mem` được ưu tiên vì giữ lệnh trẻ hơn. Một chi tiết hiện thực: khi EX bị stall,
@@ -131,14 +131,14 @@ IDLE. Chia cho 0 và tràn trả kết quả ngay theo đặc tả.
 
 Bảng 2.5. Hành vi của bộ chia theo trạng thái (nguồn: `rtl/core/muldiv.sv`).
 
-| Trạng thái | Điều kiện | Hành động | `ready` |
-|---|---|---|---|
-| IDLE | lệnh MUL* | tính tổ hợp | 1 |
-| IDLE | DIV/REM, số chia 0 hoặc tràn | trả kết quả đặc biệt | 1 |
-| IDLE | DIV/REM thường | chốt toán hạng, sang BUSY (32 vòng) | 0 |
-| BUSY | mỗi chu kỳ | dịch phần dư, trừ thử, ghi bit thương | 0 |
-| DONE | lệnh còn ở EX | giữ kết quả (đã đổi dấu) | 1 |
-| bất kỳ | `kill` (trap ở MEM) | về IDLE | – |
+| Trạng thái | Điều kiện                    | Hành động                             | `ready` |
+| ---------- | ---------------------------- | ------------------------------------- | ------- |
+| IDLE       | lệnh MUL*                    | tính tổ hợp                           | 1       |
+| IDLE       | DIV/REM, số chia 0 hoặc tràn | trả kết quả đặc biệt                  | 1       |
+| IDLE       | DIV/REM thường               | chốt toán hạng, sang BUSY (32 vòng)   | 0       |
+| BUSY       | mỗi chu kỳ                   | dịch phần dư, trừ thử, ghi bit thương | 0       |
+| DONE       | lệnh còn ở EX                | giữ kết quả (đã đổi dấu)              | 1       |
+| bất kỳ     | `kill` (trap ở MEM)          | về IDLE                               | –       |
 
 ## 2.5. Lấy lệnh và giải nén C
 
@@ -161,12 +161,12 @@ không phải nhánh bị đoán nhảy – entry bị xóa), và cả JAL ở `
 
 Bảng 2.6. Quy tắc cập nhật bộ dự đoán tại EX (nguồn: `rtl/core/ex_stage.sv`).
 
-| Lệnh ở EX (hợp lệ, không ngoại lệ, rời EX) | BHT | BTB |
-|---|---|---|
-| Branch có điều kiện, taken | counter + 1 (bão hòa) | ghi `{tag, đích, BRANCH}` |
-| Branch có điều kiện, not taken | counter − 1 (bão hòa) | giữ |
-| JAL / JALR | – | ghi `{tag, đích, JAL/JALR}` |
-| Lệnh khác, `pred_npc ≠ pc + len` (alias) | – | xóa entry |
+| Lệnh ở EX (hợp lệ, không ngoại lệ, rời EX) | BHT                   | BTB                         |
+| ------------------------------------------ | --------------------- | --------------------------- |
+| Branch có điều kiện, taken                 | counter + 1 (bão hòa) | ghi `{tag, đích, BRANCH}`   |
+| Branch có điều kiện, not taken             | counter − 1 (bão hòa) | giữ                         |
+| JAL / JALR                                 | –                     | ghi `{tag, đích, JAL/JALR}` |
+| Lệnh khác, `pred_npc ≠ pc + len` (alias)   | –                     | xóa entry                   |
 
 ## 2.7. CSR, ngoại lệ và ngắt
 
@@ -175,17 +175,17 @@ instruction; CSRRS/CSRRC với `rs1 = x0` không tính là ghi.
 
 Bảng 2.3. CSR được hiện thực (nguồn: `rtl/core/csr_file.sv`).
 
-| CSR | Ghi chú |
-|---|---|
-| `mstatus` | MIE, MPIE; MPP cố định `11` |
-| `misa` | `0x4000_1104` ở cấu hình đầy đủ; ghi bị bỏ qua |
-| `mie`, `mip` | MEI/MTI/MSI |
-| `mtvec` | direct (0) hoặc vectored (1) |
-| `mepc`, `mcause`, `mtval`, `mscratch` | |
-| `mcycle(h)`, `minstret(h)`, `mcountinhibit` | 64 bit |
-| `mhpmcounter3..10(h)` | branch, branch sai, jump, jump sai, stall load-use, stall MulDiv, chờ bus, lệnh nén |
-| `cycle/time/instret(h)` | chỉ đọc (Zicntr) |
-| `mvendorid/marchid/mimpid/mhartid/mconfigptr` | bằng 0 |
+| CSR                                           | Ghi chú                                                                             |
+| --------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `mstatus`                                     | MIE, MPIE; MPP cố định `11`                                                         |
+| `misa`                                        | `0x4000_1104` ở cấu hình đầy đủ; ghi bị bỏ qua                                      |
+| `mie`, `mip`                                  | MEI/MTI/MSI                                                                         |
+| `mtvec`                                       | direct (0) hoặc vectored (1)                                                        |
+| `mepc`, `mcause`, `mtval`, `mscratch`         |                                                                                     |
+| `mcycle(h)`, `minstret(h)`, `mcountinhibit`   | 64 bit                                                                              |
+| `mhpmcounter3..10(h)`                         | branch, branch sai, jump, jump sai, stall load-use, stall MulDiv, chờ bus, lệnh nén |
+| `cycle/time/instret(h)`                       | chỉ đọc (Zicntr)                                                                    |
+| `mvendorid/marchid/mimpid/mhartid/mconfigptr` | bằng 0                                                                              |
 
 **Trap ở MEM.** Ngoại lệ đồng bộ được phát hiện ở IF/ID/EX được mang theo lệnh; ngoại lệ load/store được phát hiện ở
 MEM. Ngắt được nhận khi `MIE && |(mip & mie)` và có lệnh hợp lệ không mang ngoại lệ ở MEM chưa bắt đầu giao dịch bus;
@@ -196,14 +196,14 @@ lệ là chính xác. Thứ tự ưu tiên ngoại lệ trên một lệnh và �
 
 Bảng 2.7. Thứ tự ưu tiên ngoại lệ trên một lệnh và nơi phát hiện.
 
-| Ưu tiên | Ngoại lệ | mcause | Phát hiện ở | mtval |
-|---|---|---|---|---|
-| 1 | Instruction access fault | 1 | IF (`ibus_err`) | PC |
-| 2 | Illegal instruction | 2 | ID (decoder), MEM (CSR không tồn tại / ghi read-only) | mã lệnh |
-| 3 | ECALL / EBREAK | 11 / 3 | ID | 0 / PC |
-| 4 | Instruction address misaligned | 0 | EX (chỉ khi không có C) | đích nhảy |
-| 5 | Load / store misaligned | 4 / 6 | MEM (LSU) | địa chỉ |
-| 6 | Load / store access fault | 5 / 7 | MEM (`dbus_err`) | địa chỉ |
+| Ưu tiên | Ngoại lệ                       | mcause | Phát hiện ở                                           | mtval     |
+| ------- | ------------------------------ | ------ | ----------------------------------------------------- | --------- |
+|       1 | Instruction access fault       | 1      | IF (`ibus_err`)                                       | PC        |
+|       2 | Illegal instruction            | 2      | ID (decoder), MEM (CSR không tồn tại / ghi read-only) | mã lệnh   |
+|       3 | ECALL / EBREAK                 | 11 / 3 | ID                                                    | 0 / PC    |
+|       4 | Instruction address misaligned | 0      | EX (chỉ khi không có C)                               | đích nhảy |
+|       5 | Load / store misaligned        | 4 / 6  | MEM (LSU)                                             | địa chỉ   |
+|       6 | Load / store access fault      | 5 / 7  | MEM (`dbus_err`)                                      | địa chỉ   |
 
 Hai chi tiết đáng chú ý: (1) `minstret` đếm ở WB nên khi CSR ở MEM đọc nó, lệnh đang retire ở WB được cộng vào; lệnh
 ghi `minstret` không tự tăng (đúng yêu cầu của test `rv32mi-p-instret_overflow`); (2) khi bộ chia đang chạy, tầng MEM

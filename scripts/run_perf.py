@@ -27,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (BUILD, JOBS, RESULTS, RISCV_PREFIX, build_soc, cfg_name, make_cfg,  # noqa: E402
                     parse_perf, run, run_sim)
 from build_sw import build_program, program_dirs  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 OUT = RESULTS / "perf"
 BENCH_RE = re.compile(r"^\[bench\] (.*)$", re.M)
@@ -388,7 +389,7 @@ def report(e1, e2, e3, e4, e5):
         lines += ["## Kiểm tra hợp lý (spec 12.1)", "", "| Kiểm tra | Kết quả | Giá trị |", "|---|---|---|"]
         lines += [f"| {n} | {'ĐẠT' if ok else 'KHÔNG ĐẠT'} | {v} |" for n, ok, v in checks]
         lines.append("")
-    (OUT / "summary.md").write_text("\n".join(lines))
+    write_md(OUT / "summary.md", "\n".join(lines))
     return checks
 
 

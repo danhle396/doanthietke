@@ -29,6 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, JOBS, RESULTS, ROOT, YOSYS, rtl_files, run  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 OUT = RESULTS / "synth"
 WORK = BUILD / "synth"
@@ -230,7 +231,7 @@ def main():
                   "và tính cả đường đọc RAM tổ hợp; Fmax của lõi đứng riêng (`m1c1_bp2`, `sc`…) **không** "
                   "gồm đường qua RAM (cổng vào/ra lõi không được ràng buộc), nên so sánh single-cycle với "
                   "pipeline phải dùng các dòng `soc_top_*`.", ""]
-    (OUT / "summary.md").write_text("\n".join(lines))
+    write_md(OUT / "summary.md", "\n".join(lines))
     print("\n".join(lines))
 
 

@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, RESULTS, ROOT, build_soc, make_cfg, run_sim, symbol_addr  # noqa: E402
 from build_sw import build_program  # noqa: E402
 from vcd2png import Vcd, plot  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 OUT = RESULTS / "waves"
 GTKW = ROOT / "docs/gtkw"
@@ -132,7 +133,7 @@ def walkthrough():
                     f"{stage(C + 'wb_valid', C + 'wb_pc', t)} | {'; '.join(ev)} |")
         k += 1
         t += PERIOD
-    (OUT / "walkthrough_table.md").write_text(
+    write_md(OUT / "walkthrough_table.md",
         "# Bảng pipeline theo chu kỳ – walkthrough\n\nSinh tự động bởi `scripts/make_waves.py` từ VCD của "
         "`sw/examples/walkthrough/walk.S` trên `m1c1_bp2`. Giá trị lấy ngay sau cạnh lên của mỗi chu kỳ. "
         "\"rs ← ex_mem/mem_wb\" là lựa chọn của bộ forward cho lệnh ở EX (hiển thị cả khi lệnh không dùng "

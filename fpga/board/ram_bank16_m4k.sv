@@ -27,6 +27,7 @@ module ram_bank16 #(
   logic clk_n;
   assign clk_n = ~clk;
 
+  generate
   if (HALF == 0) begin : g_bank0
     altsyncram #(
       .operation_mode                    ("BIDIR_DUAL_PORT"),
@@ -112,5 +113,6 @@ module ram_bank16 #(
       .q_b      (b_rdata)
     );
   end
+  endgenerate
 
 endmodule

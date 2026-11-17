@@ -3,13 +3,13 @@
 Thư mục này **tự chứa đủ** để compile và nạp lên board: chỉ cần chép riêng thư mục `fpga/` sang máy Windows
 có Quartus II. Không cần Linux, không cần trình biên dịch RISC-V (firmware đã được build sẵn thành file `.mif`).
 
-| Thành phần | Giá trị |
-|---|---|
-| Lõi | `rv_core` RV32IMC, pipeline 5 tầng, BHT + BTB (BP_MODE 2) |
-| Clock CPU | 24 MHz (PLL từ CLOCK_50: × 12 / 25) |
-| RAM | 32 KB trên khối M4K (2 bank 16 bit, chạy cạnh xuống của clock) |
-| UART | 115200 baud, 8N1, qua cổng RS-232 (DB9) của board |
-| Ngoại vi | UART, SPI master, TIMER64, GPIO 16 bit, INTC |
+| Thành phần | Giá trị                                                        |
+| ---------- | -------------------------------------------------------------- |
+| Lõi        | `rv_core` RV32IMC, pipeline 5 tầng, BHT + BTB (BP_MODE 2)      |
+| Clock CPU  | 24 MHz (PLL từ CLOCK_50: × 12 / 25)                            |
+| RAM        | 32 KB trên khối M4K (2 bank 16 bit, chạy cạnh xuống của clock) |
+| UART       | 115200 baud, 8N1, qua cổng RS-232 (DB9) của board              |
+| Ngoại vi   | UART, SPI master, TIMER64, GPIO 16 bit, INTC                   |
 
 ## 1. Đã kiểm chứng gì trước khi giao (trên Linux)
 
@@ -21,15 +21,28 @@ có Quartus II. Không cần Linux, không cần trình biên dịch RISC-V (fir
   file `mem/*.mif`: reset bằng KEY[0], công tắc → LED, UART, lệnh `b` đều đúng (PASS).
 - Danh sách file trong `de2_soc.qsf` elaborate sạch bằng Yosys (top `de2_top`).
 
-**Chưa được kiểm chứng:** compile bằng chính Quartus II và chạy trên board thật – đó là phần bạn thực hiện theo
-hướng dẫn dưới đây. Nếu Quartus báo lỗi, gửi lại nguyên văn thông báo lỗi (mục 9).
+**Đã compile bằng Quartus II 13.0sp1 (12/11/2026, firmware `board_demo`):** thành công, 0 Critical Warning.
+
+| Số liệu (Flow Summary / TimeQuest)    | Giá trị                                     |
+| ------------------------------------- | ------------------------------------------- |
+| Total logic elements                  | 10 767 / 33 216 (32 %)                      |
+| Dedicated logic registers             | 5 671 (17 %)                                |
+| Memory bits                           | 262 656 / 483 840 (54 %), 68 / 105 khối M4K |
+| Embedded Multiplier 9-bit             | 6 / 70                                      |
+| PLL                                   | 1 / 4                                       |
+| Fmax clock CPU (Slow Model)           | 36,02 MHz (yêu cầu 24 MHz)                  |
+| Setup slack / Hold slack (Slow Model) | +7,218 ns / +0,391 ns                       |
+| Đường găng                            | `uart_apb/u_txf/level` → cổng RAM M4K       |
+
+**Chưa được kiểm chứng:** chạy trên board thật – đó là phần bạn thực hiện theo hướng dẫn dưới đây. Nếu có lỗi,
+gửi lại nguyên văn thông báo lỗi (mục 9).
 
 ## 2. Chuẩn bị
 
 1. **Quartus II 13.0sp1 Web Edition** (bản cuối cùng hỗ trợ Cyclone II) và gói thiết bị **Cyclone II**.
    Các bản Quartus Prime 14 trở lên **không** mở được Cyclone II.
 2. **Driver USB-Blaster** trên Windows 11: Device Manager → *USB-Blaster* → Update driver → Browse →
-   `C:\altera\13.0sp1\quartus\drivers\usb-blaster`.
+   `<thư mục cài Quartus>\quartus\drivers\usb-blaster` (ví dụ `C:\altera\13.0sp1\quartus\drivers\usb-blaster`).
 3. **Cáp USB–RS232** nối PC với cổng DB9 (RS-232) của DE2, và phần mềm terminal (PuTTY / Tera Term).
 4. (Tùy chọn) **Module flash SPI W25Qxx 3.3 V** để chạy `spi_flash`, `demo` và lệnh `f` của `board_demo`.
 
@@ -40,15 +53,15 @@ hướng dẫn dưới đây. Nếu Quartus báo lỗi, gửi lại nguyên văn
 - Cáp RS-232 vào cổng DB9 của board.
 - Module flash (nếu có) cắm vào header **JP1 (GPIO_0)**:
 
-| Tín hiệu | Cổng FPGA | Chân JP1 |
-|---|---|---|
-| SCLK | GPIO_0[0] | 1 |
-| MOSI (DI) | GPIO_0[1] | 2 |
-| MISO (DO) | GPIO_0[2] | 3 |
-| CS# (flash) | GPIO_0[3] | 4 |
-| CS1#..CS3# (dự phòng) | GPIO_0[4..6] | 5..7 |
-| 3.3 V | VCC33 | 29 |
-| GND | GND | 30 |
+| Tín hiệu              | Cổng FPGA    | Chân JP1 |
+| --------------------- | ------------ | -------- |
+| SCLK                  | GPIO_0[0]    |        1 |
+| MOSI (DI)             | GPIO_0[1]    |        2 |
+| MISO (DO)             | GPIO_0[2]    |        3 |
+| CS# (flash)           | GPIO_0[3]    |        4 |
+| CS1#..CS3# (dự phòng) | GPIO_0[4..6] |     5..7 |
+| 3.3 V                 | VCC33        |       29 |
+| GND                   | GND          |       30 |
 
 > Đối chiếu sơ đồ chân JP1 với hình "I/O distribution of the expansion headers" trong *DE2 User Manual* trước khi
 > cắm. Chỉ dùng module 3.3 V.
@@ -85,14 +98,14 @@ commands: h help | i info | s switches | b benchmark | f flash ID | q quit
 >
 ```
 
-| Lệnh | Kết quả trên board |
-|---|---|
-| `h` | danh sách lệnh |
-| `i` | tần số CPU, `misa = 0x40001104`, thời gian chạy, mcycle / minstret / CPI |
-| `s` | giá trị SW[15:0] |
-| `b` | chạy workload 2 lần, in performance counter. **Lần 2: `cycles=391205 instret=323166`** – phải trùng với mô phỏng (`firmware/board_demo/uart_sim.txt`) |
-| `f` | JEDEC ID của flash (W25Q32: `ef 40 16`), hoặc `(no flash on GPIO_0)` |
-| `q` | thoát (nhấn KEY0 để chạy lại) |
+| Lệnh | Kết quả trên board                                                                                                                                    |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `h`  | danh sách lệnh                                                                                                                                        |
+| `i`  | tần số CPU, `misa = 0x40001104`, thời gian chạy, mcycle / minstret / CPI                                                                              |
+| `s`  | giá trị SW[15:0]                                                                                                                                      |
+| `b`  | chạy workload 2 lần, in performance counter. **Lần 2: `cycles=391205 instret=323166`** – phải trùng với mô phỏng (`firmware/board_demo/uart_sim.txt`) |
+| `f`  | JEDEC ID của flash (W25Q32: `ef 40 16`), hoặc `(no flash on GPIO_0)`                                                                                  |
+| `q`  | thoát (nhấn KEY0 để chạy lại)                                                                                                                         |
 
 Gạt **SW0..SW7**: LEDR0..LEDR7 đổi theo ngay (ngắt GPIO). **LEDR8..LEDR15** đếm giây (ngắt timer).
 
@@ -111,25 +124,25 @@ cấu hình RTL).
 
 ## 8. Số liệu cho báo cáo (Giai đoạn 3 – 4)
 
-| Số liệu | Lấy ở đâu |
-|---|---|
-| Diện tích (LE, register, memory bit, multiplier) | Compilation Report → Flow Summary |
-| Fmax, slack, đường găng | TimeQuest → Fmax Summary, *Report Top Failing Paths* / *Report Timing* (worst path) |
-| Công suất (mW) | **Processing → PowerPlay Power Analyzer Tool** → Start: *Total Thermal Power Dissipation*, *Core Dynamic*, *Core Static*, *I/O*. Không có file hoạt động (VCD) thì Quartus dùng tỉ lệ toggle mặc định – ghi rõ "ước lượng, độ tin cậy thấp" trong báo cáo |
-| Throughput | Chu kỳ đo trên board ÷ 24 MHz = thời gian chạy; MIPS = 24 ÷ CPI |
-| Kiểm chứng thực nghiệm | Ảnh board (LED), ảnh terminal: `board_demo` (lệnh `i`, `s`, `b`), các test `RESULT ... PASS`, benchmark |
+| Số liệu                                          | Lấy ở đâu                                                                                                                                                                                                                                                 |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Diện tích (LE, register, memory bit, multiplier) | Compilation Report → Flow Summary                                                                                                                                                                                                                         |
+| Fmax, slack, đường găng                          | TimeQuest → Fmax Summary, *Report Top Failing Paths* / *Report Timing* (worst path)                                                                                                                                                                       |
+| Công suất (mW)                                   | **Processing → PowerPlay Power Analyzer Tool** → Start: *Total Thermal Power Dissipation*, *Core Dynamic*, *Core Static*, *I/O*. Không có file hoạt động (VCD) thì Quartus dùng tỉ lệ toggle mặc định – ghi rõ "ước lượng, độ tin cậy thấp" trong báo cáo |
+| Throughput                                       | Chu kỳ đo trên board ÷ 24 MHz = thời gian chạy; MIPS = 24 ÷ CPI                                                                                                                                                                                           |
+| Kiểm chứng thực nghiệm                           | Ảnh board (LED), ảnh terminal: `board_demo` (lệnh `i`, `s`, `b`), các test `RESULT ... PASS`, benchmark                                                                                                                                                   |
 
 ## 9. Xử lý sự cố
 
-| Hiện tượng | Cách xử lý |
-|---|---|
-| Lỗi ở `pll_cpu` / `altpll` | Tạo lại PLL bằng **Tools → MegaWizard Plug-In Manager → ALTPLL**, tên `pll_cpu`, Verilog, inclk0 = 50 MHz, c0 = 24 MHz, bật cổng `locked`; ghi đè `board/pll_cpu.v` |
-| Không tìm thấy `mem/bank0.mif` | Mở project từ đúng thư mục `fpga` (đường dẫn trong project là tương đối) |
-| Lỗi cú pháp SystemVerilog | Gửi nguyên văn thông báo (file, dòng) để sửa |
-| Setup slack âm | Gửi báo cáo TimeQuest; có thể giảm clock CPU (cần build lại firmware với tần số mới) |
-| Terminal ra ký tự rác | Kiểm tra 115200 8N1; thử cáp null-modem (đảo TX/RX) |
-| Terminal không hiện gì, LEDG8 nhấp nháy | Kiểm tra cổng COM; nhấn KEY0 sau khi mở terminal |
-| LEDG0 tắt | PLL chưa khóa: kiểm tra pin CLOCK_50 (`PIN_N2`) |
+| Hiện tượng                              | Cách xử lý                                                                                                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lỗi ở `pll_cpu` / `altpll`              | Tạo lại PLL bằng **Tools → MegaWizard Plug-In Manager → ALTPLL**, tên `pll_cpu`, Verilog, inclk0 = 50 MHz, c0 = 24 MHz, bật cổng `locked`; ghi đè `board/pll_cpu.v` |
+| Không tìm thấy `mem/bank0.mif`          | Mở project từ đúng thư mục `fpga` (đường dẫn trong project là tương đối)                                                                                            |
+| Lỗi cú pháp SystemVerilog               | Gửi nguyên văn thông báo (file, dòng) để sửa                                                                                                                        |
+| Setup slack âm                          | Gửi báo cáo TimeQuest; có thể giảm clock CPU (cần build lại firmware với tần số mới)                                                                                |
+| Terminal ra ký tự rác                   | Kiểm tra 115200 8N1; thử cáp null-modem (đảo TX/RX)                                                                                                                 |
+| Terminal không hiện gì, LEDG8 nhấp nháy | Kiểm tra cổng COM; nhấn KEY0 sau khi mở terminal                                                                                                                    |
+| LEDG0 tắt                               | PLL chưa khóa: kiểm tra pin CLOCK_50 (`PIN_N2`)                                                                                                                     |
 
 Gán chân trong `de2_soc.qsf` lấy theo *DE2 User Manual*; có thể đối chiếu với file `DE2_pin_assignments.csv`
 trên đĩa DE2 System CD (cùng tên cổng: `CLOCK_50`, `KEY`, `SW`, `LEDR`, `LEDG`, `UART_TXD`, `UART_RXD`, `GPIO_0`).

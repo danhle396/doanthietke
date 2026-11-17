@@ -45,7 +45,7 @@ step "apt packages (sudo)"
 sudo apt-get update -q
 sudo apt-get install -y -q build-essential git make wget curl ca-certificates xz-utils \
   python3 python3-venv gcc-riscv64-unknown-elf binutils-riscv64-unknown-elf \
-  bison flex gtkwave
+  bison flex gtkwave zlib1g-dev
 
 # ---------------- OSS CAD Suite (Verilator, Yosys, nextpnr, Icarus, Volare) ----------------
 step "OSS CAD Suite $OSS_CAD_DATE"

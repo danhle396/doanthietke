@@ -20,14 +20,14 @@ Các quyết định bổ sung khi đặc tả thiếu chi tiết ghi ở `docs/
 
 ## 2. Tham số lõi
 
-| Parameter | Mặc định | Ý nghĩa |
-|---|---|---|
-| `RESET_PC` | `32'h8000_0000` | |
-| `ENABLE_M` | 1 | 0 → lệnh M là illegal |
-| `ENABLE_C` | 1 | 0 → lệnh 16 bit illegal; nhảy taken tới địa chỉ có `bit[1]=1` → instruction-address-misaligned |
-| `BP_MODE` | 2 | 0 / 1 / 2 như trên |
-| `BHT_ENTRIES` | 256 | lũy thừa của 2, ≥ 16 |
-| `BTB_ENTRIES` | 32 | lũy thừa của 2, ≥ 4, direct-mapped |
+| Parameter     | Mặc định        | Ý nghĩa                                                                                        |
+| ------------- | --------------- | ---------------------------------------------------------------------------------------------- |
+| `RESET_PC`    | `32'h8000_0000` |                                                                                                |
+| `ENABLE_M`    | 1               | 0 → lệnh M là illegal                                                                          |
+| `ENABLE_C`    | 1               | 0 → lệnh 16 bit illegal; nhảy taken tới địa chỉ có `bit[1]=1` → instruction-address-misaligned |
+| `BP_MODE`     | 2               | 0 / 1 / 2 như trên                                                                             |
+| `BHT_ENTRIES` | 256             | lũy thừa của 2, ≥ 16                                                                           |
+| `BTB_ENTRIES` | 32              | lũy thừa của 2, ≥ 4, direct-mapped                                                             |
 
 `misa = 0x4000_1104` ở cấu hình đầy đủ (MXL=1, I, M, C).
 
@@ -58,13 +58,13 @@ Lõi giữ nguyên CYC/STB, ADR, WE, SEL, DAT tới khi có ACK hoặc ERR (khô
 
 ## 4. Pipeline (tóm tắt)
 
-| Tầng | Công việc |
-|---|---|
-| IF | `pc_q → ibus_adr_o`, chỉ nhận lệnh khi có ACK/ERR, phát hiện lệnh 16 bit, tra BTB+BHT (mode 2), chọn PC kế: MEM > EX > ID > dự đoán IF > tuần tự |
-| ID | giải nén RV32C, decode, imm, đọc regfile (write-through), ngoại lệ ID, redirect JAL (mode ≥ 1) và branch theo BHT (mode 1), load-use/CSR-use |
-| EX | forwarding, ALU, so sánh nhánh, `actual_npc`, phát hiện sai dự đoán `actual_npc != pred_npc`, cập nhật predictor, MulDiv |
-| MEM | LSU, CSR read-modify-write, **điểm commit**: trap (ngoại lệ hoặc ngắt), MRET, FENCE.I |
-| WB | ghi regfile, `minstret`, performance counter, commit log |
+| Tầng | Công việc                                                                                                                                        |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| IF   | `pc_q → ibus_adr_o`, chỉ nhận lệnh khi có ACK/ERR, phát hiện lệnh 16 bit, tra BTB+BHT (mode 2), chọn PC kế: MEM > EX > ID > dự đoán IF > tuần tự |
+| ID   | giải nén RV32C, decode, imm, đọc regfile (write-through), ngoại lệ ID, redirect JAL (mode ≥ 1) và branch theo BHT (mode 1), load-use/CSR-use     |
+| EX   | forwarding, ALU, so sánh nhánh, `actual_npc`, phát hiện sai dự đoán `actual_npc != pred_npc`, cập nhật predictor, MulDiv                         |
+| MEM  | LSU, CSR read-modify-write, **điểm commit**: trap (ngoại lệ hoặc ngắt), MRET, FENCE.I                                                            |
+| WB   | ghi regfile, `minstret`, performance counter, commit log                                                                                         |
 
 Chi tiết vi kiến trúc: `docs/microarch.md`. Bản đồ bộ nhớ: `docs/memory_map.md`. Thanh ghi: `docs/register_map.md`.
 

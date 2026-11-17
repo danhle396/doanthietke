@@ -13,14 +13,14 @@ mọi định dạng, giúp bộ giải mã đọc thanh ghi song song với vi�
 
 Bảng 1.1. Các định dạng lệnh RV32I (nguồn: RISC-V Unprivileged ISA, chương 2).
 
-| Định dạng | Dùng cho | Trường |
-|---|---|---|
-| R | phép toán thanh ghi–thanh ghi (`add`, `sub`, `sll`…) | funct7, rs2, rs1, funct3, rd, opcode |
-| I | phép toán với hằng, load, `jalr`, CSR | imm[11:0], rs1, funct3, rd, opcode |
-| S | store | imm[11:5], rs2, rs1, funct3, imm[4:0], opcode |
-| B | nhánh có điều kiện | imm[12\|10:5], rs2, rs1, funct3, imm[4:1\|11], opcode |
-| U | `lui`, `auipc` | imm[31:12], rd, opcode |
-| J | `jal` | imm[20\|10:1\|11\|19:12], rd, opcode |
+| Định dạng | Dùng cho                                             | Trường                                                |
+| --------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| R         | phép toán thanh ghi–thanh ghi (`add`, `sub`, `sll`…) | funct7, rs2, rs1, funct3, rd, opcode                  |
+| I         | phép toán với hằng, load, `jalr`, CSR                | imm[11:0], rs1, funct3, rd, opcode                    |
+| S         | store                                                | imm[11:5], rs2, rs1, funct3, imm[4:0], opcode         |
+| B         | nhánh có điều kiện                                   | imm[12\|10:5], rs2, rs1, funct3, imm[4:1\|11], opcode |
+| U         | `lui`, `auipc`                                       | imm[31:12], rd, opcode                                |
+| J         | `jal`                                                | imm[20\|10:1\|11\|19:12], rd, opcode                  |
 
 Nhóm lệnh: số học/logic (ADD, SUB, AND, OR, XOR, SLT/SLTU, dịch SLL/SRL/SRA và các bản có hằng), LUI/AUIPC tạo hằng
 và địa chỉ PC tương đối, nhánh có điều kiện (BEQ, BNE, BLT, BGE, BLTU, BGEU), nhảy JAL/JALR, load/store theo byte,
@@ -113,12 +113,12 @@ ra và nhận một bit vào. Bốn mode được xác định bởi:
 
 Bảng 1.2. Bốn mode SPI.
 
-| Mode | CPOL | CPHA | Lấy mẫu | Đổi dữ liệu |
-|---|---|---|---|---|
-| 0 | 0 | 0 | cạnh lên | cạnh xuống |
-| 1 | 0 | 1 | cạnh xuống | cạnh lên |
-| 2 | 1 | 0 | cạnh xuống | cạnh lên |
-| 3 | 1 | 1 | cạnh lên | cạnh xuống |
+| Mode | CPOL | CPHA | Lấy mẫu    | Đổi dữ liệu |
+| ---- | ---- | ---- | ---------- | ----------- |
+|    0 |    0 |    0 | cạnh lên   | cạnh xuống  |
+|    1 |    0 |    1 | cạnh xuống | cạnh lên    |
+|    2 |    1 |    0 | cạnh xuống | cạnh lên    |
+|    3 |    1 |    1 | cạnh lên   | cạnh xuống  |
 
 Bộ nhớ flash NOR nối tiếp (họ W25Q) dùng mode 0 hoặc 3 với các lệnh: `0x9F` đọc JEDEC ID, `0x03` đọc, `0x06` cho phép
 ghi, `0x02` ghi một trang (256 byte), `0x20` xóa sector 4 KB, `0x05` đọc thanh ghi trạng thái (bit WIP báo đang ghi/xóa).

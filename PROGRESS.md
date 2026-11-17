@@ -72,7 +72,8 @@ Hoàn thành – Phase 0–8 xong, nghiệm thu mục 17 đạt
 - [x] RAM đồng bộ cho FPGA (`RAM_SYNC`, D27) – số chu kỳ trùng khớp
 - [x] Thư mục `fpga/` cho board DE2 (Quartus II 13.0sp1, PLL 24 MHz, 16 firmware `.mif`, `make fpga`)
 - [x] Bus Wishbone B4 classic (D28), `wb_checker`, `tb_dbus_xbar` – số chu kỳ trùng khớp
-- [ ] Compile Quartus, timing, nạp board, đo thực nghiệm, công suất (sinh viên chạy trên máy có Quartus + board)
+- [x] Compile Quartus II 13.0sp1 (12/11/2026): 10 767 LE (32 %), 262 656 bit nhớ, Fmax 36,02 MHz > 24 MHz, setup slack +7,218 ns (sửa RTL: bọc `generate`/`endgenerate`, `genvar` khai báo riêng cho Quartus 13)
+- [ ] Nạp board, đo thực nghiệm, công suất (sinh viên chạy trên board, xem `fpga/README.md` mục 5–8)
 - [x] Co-simulation C++ lock-step với Spike (`make cosim`, D29), RTL có lỗi cài sẵn bị bắt, hình lock-step
 - [x] Bảng thông lượng (`scripts/throughput.py`)
 - [x] Layout ASIC hai lõi bằng OpenLane 2 / sky130A (`make asic`, D30): DRC/LVS/XOR sạch, Fmax 3 góc PVT, gate-level netlist sau đi dây ≡ RTL

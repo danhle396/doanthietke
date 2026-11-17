@@ -8,6 +8,7 @@ Usage: cov_report.py [build/cov/merged.dat]
 import re
 import sys
 from pathlib import Path
+from md_table import write_md  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -49,7 +50,7 @@ def main():
                      f"{'ĐẠT' if p['count'] else 'CHƯA ĐẠT'} |")
     out = ROOT / "results/coverage/functional.md"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("\n".join(lines) + "\n")
+    write_md(out, "\n".join(lines) + "\n")
     print(f"[cov] functional: {hit}/{len(pts)} cover points hit")
     for name in sorted(pts):
         if not pts[name]["count"]:

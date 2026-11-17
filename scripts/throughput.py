@@ -24,6 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, RESULTS  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 CFG = "m1c1_bp2_bht256_btb32"
 F_BOARD = 24.0                     # MHz, DE2 PLL
@@ -112,7 +113,7 @@ def main():
     row("SPI flash trong firmware (CLK_DIV 1, SCLK = f/4)", 34, 1, "17 × 2 chu kỳ/byte")
     L += ["", "Ghi chú: tốc độ UART ở dòng 115200 baud đúng cho clock 24 MHz của board; ở tần số khác BAUD_DIV phải "
           "tính lại. CoreMark chạy 2 vòng để vừa thời gian mô phỏng nên chỉ dùng để so sánh tương đối.", ""]
-    (RESULTS / "perf/throughput.md").write_text("\n".join(L))
+    write_md(RESULTS / "perf/throughput.md", "\n".join(L))
     with open(RESULTS / "perf/throughput.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=list(out_csv[0].keys()))
         w.writeheader()

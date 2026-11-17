@@ -39,20 +39,20 @@ Các bước khác: `make unit`, `make isa`, `make spike`, `make cosim`, `make s
 
 ## Kết quả
 
-| Nội dung | File |
-|---|---|
-| Unit test | `results/unit/summary.md` |
-| riscv-tests (ma trận cấu hình) | `results/isa/summary.md` |
-| So sánh Spike | `results/spike/summary.md` |
-| Co-simulation C++ lock-step | `results/cosim/summary.md` |
-| Thông lượng (MIPS, DMIPS, bus/ngoại vi) | `results/perf/throughput.md` |
-| System test | `results/systest/summary.md` |
-| Hiệu năng (bảng + biểu đồ) | `results/perf/summary.md` |
-| Diện tích, Fmax, đường găng | `results/synth/summary.md` |
-| Layout ASIC sky130 (PPA, DRC/LVS, ảnh layout, gate-level) | `results/asic/summary.md` |
-| Coverage | `results/coverage/` |
-| Tổng hợp kết quả | `docs/results.md` |
-| Truy vết yêu cầu | `docs/compliance.md` |
+| Nội dung                                                  | File                         |
+| --------------------------------------------------------- | ---------------------------- |
+| Unit test                                                 | `results/unit/summary.md`    |
+| riscv-tests (ma trận cấu hình)                            | `results/isa/summary.md`     |
+| So sánh Spike                                             | `results/spike/summary.md`   |
+| Co-simulation C++ lock-step                               | `results/cosim/summary.md`   |
+| Thông lượng (MIPS, DMIPS, bus/ngoại vi)                   | `results/perf/throughput.md` |
+| System test                                               | `results/systest/summary.md` |
+| Hiệu năng (bảng + biểu đồ)                                | `results/perf/summary.md`    |
+| Diện tích, Fmax, đường găng                               | `results/synth/summary.md`   |
+| Layout ASIC sky130 (PPA, DRC/LVS, ảnh layout, gate-level) | `results/asic/summary.md`    |
+| Coverage                                                  | `results/coverage/`          |
+| Tổng hợp kết quả                                          | `docs/results.md`            |
+| Truy vết yêu cầu                                          | `docs/compliance.md`         |
 
 ## Tài liệu
 

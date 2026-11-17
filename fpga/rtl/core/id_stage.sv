@@ -92,6 +92,7 @@ module id_stage
   logic [31:0] insn32;
 
   // Instantiated only with the C extension (id_is_c is always 0 otherwise).
+  generate
   if (ENABLE_C) begin : g_cdec
     compressed_decoder u_cdec (
       .cinsn  (id_insn[15:0]),
@@ -102,6 +103,7 @@ module id_stage
     assign c_insn    = 32'b0;
     assign c_illegal = 1'b1;
   end
+  endgenerate
 
   assign insn32 = id_is_c ? c_insn : id_insn;
 

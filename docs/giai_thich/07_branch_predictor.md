@@ -2,11 +2,11 @@
 
 ## Ba chế độ (`BP_MODE`)
 
-| Mode | Cơ chế | Penalty khi đúng / sai |
-|---|---|---|
-| 0 | luôn đoán not-taken | taken = sai: 2 chu kỳ |
-| 1 | BHT tra ở ID cho branch; JAL nhảy ở ID | đoán taken đúng: 1 bubble; sai: 2 |
-| 2 | BTB + BHT tra ở IF | đúng: 0; sai: 2; JAL lần đầu (BTB miss): 1 (redirect ID) |
+| Mode | Cơ chế                                 | Penalty khi đúng / sai                                   |
+| ---- | -------------------------------------- | -------------------------------------------------------- |
+|    0 | luôn đoán not-taken                    | taken = sai: 2 chu kỳ                                    |
+|    1 | BHT tra ở ID cho branch; JAL nhảy ở ID | đoán taken đúng: 1 bubble; sai: 2                        |
+|    2 | BTB + BHT tra ở IF                     | đúng: 0; sai: 2; JAL lần đầu (BTB miss): 1 (redirect ID) |
 
 ## BHT – counter 2 bit bão hòa
 

@@ -1,13 +1,13 @@
 # PROJECT SPEC – Thiết kế SoC dựa trên lõi RISC-V RV32IMC pipeline 5 tầng có dự đoán rẽ nhánh, tích hợp ngoại vi truyền thông UART và SPI
 
-| | |
-|---|---|
-| **Đồ án** | Đồ án Thiết kế 1 – Khoa Kỹ thuật Máy tính & Điện tử, VKU |
-| **Sinh viên** | Lê Thành Danh – 23CE010 – lớp 23IC |
-| **GVHD** | TS. Dương Ngọc Pháp |
-| **Tên đề tài** | **Thiết kế SoC dựa trên lõi RISC-V RV32IMC pipeline 5 tầng có dự đoán rẽ nhánh, tích hợp ngoại vi truyền thông UART và SPI** |
-| **Ngoại vi truyền thông** | UART và SPI Master (đúng như tên đề tài) |
-| **Người thực hiện** | Claude Code (VS Code, máy ảo Linux) – tự động từ đầu đến cuối |
+|                           |                                                                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **Đồ án**                 | Đồ án Thiết kế 1 – Khoa Kỹ thuật Máy tính & Điện tử, VKU                                                                     |
+| **Sinh viên**             | Lê Thành Danh – 23CE010 – lớp 23IC                                                                                           |
+| **GVHD**                  | TS. Dương Ngọc Pháp                                                                                                          |
+| **Tên đề tài**            | **Thiết kế SoC dựa trên lõi RISC-V RV32IMC pipeline 5 tầng có dự đoán rẽ nhánh, tích hợp ngoại vi truyền thông UART và SPI** |
+| **Ngoại vi truyền thông** | UART và SPI Master (đúng như tên đề tài)                                                                                     |
+| **Người thực hiện**       | Claude Code (VS Code, máy ảo Linux) – tự động từ đầu đến cuối                                                                |
 
 ---
 
@@ -70,17 +70,17 @@ Mọi phần bên dưới là chỉ thị cho Claude.
 
 Phase 0 phải dò và ghi phiên bản vào `docs/env.md`:
 
-| Công cụ | Yêu cầu | Dùng cho | Nếu thiếu |
-|---|---|---|---|
-| Verilator | ≥ 5.006 (`--binary --timing`) | Lint, mô phỏng chính, coverage | Chặn cứng → BLOCKED |
-| RISC-V GCC + binutils | hỗ trợ `rv32i/rv32im/rv32imc`, `ilp32` | firmware, riscv-tests, benchmark | Chặn cứng |
-| Spike | có `--log-commits` | Mô hình tham chiếu | Bỏ mục 10.3, ghi vào BLOCKED, phần còn lại vẫn làm |
-| Yosys | ≥ 0.30 | Tổng hợp | Bỏ mục 12.2, ghi BLOCKED |
-| nextpnr-ecp5/ice40, hoặc OpenSTA + liberty sky130 | tùy chọn | Ước lượng Fmax | Chỉ báo cáo số cell, ghi rõ |
-| Icarus Verilog ≥ 12 | tùy chọn | Mô phỏng dự phòng | Bỏ qua |
-| Python 3 + `matplotlib`, `pyelftools` | | script, biểu đồ, hình waveform | cài vào `.venv` (xem dưới) |
-| pandoc | tùy chọn | xuất báo cáo `.docx` | Chỉ để markdown |
-| make, git, g++ (C++17), python3 | g++ dùng để biên dịch mô hình C++ Verilator sinh ra | | Chặn cứng |
+| Công cụ                                           | Yêu cầu                                             | Dùng cho                         | Nếu thiếu                                          |
+| ------------------------------------------------- | --------------------------------------------------- | -------------------------------- | -------------------------------------------------- |
+| Verilator                                         | ≥ 5.006 (`--binary --timing`)                       | Lint, mô phỏng chính, coverage   | Chặn cứng → BLOCKED                                |
+| RISC-V GCC + binutils                             | hỗ trợ `rv32i/rv32im/rv32imc`, `ilp32`              | firmware, riscv-tests, benchmark | Chặn cứng                                          |
+| Spike                                             | có `--log-commits`                                  | Mô hình tham chiếu               | Bỏ mục 10.3, ghi vào BLOCKED, phần còn lại vẫn làm |
+| Yosys                                             | ≥ 0.30                                              | Tổng hợp                         | Bỏ mục 12.2, ghi BLOCKED                           |
+| nextpnr-ecp5/ice40, hoặc OpenSTA + liberty sky130 | tùy chọn                                            | Ước lượng Fmax                   | Chỉ báo cáo số cell, ghi rõ                        |
+| Icarus Verilog ≥ 12                               | tùy chọn                                            | Mô phỏng dự phòng                | Bỏ qua                                             |
+| Python 3 + `matplotlib`, `pyelftools`             |                                                     | script, biểu đồ, hình waveform   | cài vào `.venv` (xem dưới)                         |
+| pandoc                                            | tùy chọn                                            | xuất báo cáo `.docx`             | Chỉ để markdown                                    |
+| make, git, g++ (C++17), python3                   | g++ dùng để biên dịch mô hình C++ Verilator sinh ra |                                  | Chặn cứng                                          |
 
 - GCC ≥ 12 yêu cầu ghi rõ `_zicsr_zifencei` trong `-march`.
 - **GAS tự nén lệnh khi `-march` có `c`**, nên mọi phần mềm phải build đúng biến thể cho từng cấu hình RTL (mục 10.2, 11).
@@ -123,14 +123,14 @@ Phase 0 phải dò và ghi phiên bản vào `docs/env.md`:
                             miso/cs_n[3:0]
 ```
 
-| Khối | Mô tả |
-|---|---|
-| `rv_core` | RV32I + M + C + Zicsr + Zifencei + Zicntr, chỉ Machine mode, pipeline 5 tầng, predictor cấu hình được |
-| `ram_dp` | RAM hợp nhất 128 KB, 2 cổng, **đọc tổ hợp, ghi đồng bộ** (lý do ở mục 5) |
-| `dbus_xbar` | giải mã địa chỉ cổng dữ liệu → RAM / APB / lỗi |
-| `apb_bridge` | dbus → APB4 (PSTRB, PSLVERR; PPROT = 0) |
-| Ngoại vi truyền thông | **UART** và **SPI Master** – trọng tâm của đề tài, có FIFO và ngắt |
-| Ngoại vi hỗ trợ | TIMER64 (nguồn ngắt định thời, tái sử dụng từ ĐACS4), GPIO 16 chân, INTC (gom ngắt), SIM_CTRL (chỉ mô phỏng) |
+| Khối                  | Mô tả                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `rv_core`             | RV32I + M + C + Zicsr + Zifencei + Zicntr, chỉ Machine mode, pipeline 5 tầng, predictor cấu hình được        |
+| `ram_dp`              | RAM hợp nhất 128 KB, 2 cổng, **đọc tổ hợp, ghi đồng bộ** (lý do ở mục 5)                                     |
+| `dbus_xbar`           | giải mã địa chỉ cổng dữ liệu → RAM / APB / lỗi                                                               |
+| `apb_bridge`          | dbus → APB4 (PSTRB, PSLVERR; PPROT = 0)                                                                      |
+| Ngoại vi truyền thông | **UART** và **SPI Master** – trọng tâm của đề tài, có FIFO và ngắt                                           |
+| Ngoại vi hỗ trợ       | TIMER64 (nguồn ngắt định thời, tái sử dụng từ ĐACS4), GPIO 16 chân, INTC (gom ngắt), SIM_CTRL (chỉ mô phỏng) |
 
 Phạm vi ngoại vi truyền thông của đề tài **chỉ gồm UART và SPI**. Không thiết kế thêm giao thức nào khác (I2C, CAN…); chỉ nhắc tới chúng trong mục "Hướng phát triển" của báo cáo.
 
@@ -138,16 +138,16 @@ Phạm vi ngoại vi truyền thông của đề tài **chỉ gồm UART và SPI
 
 ## 3. Bản đồ bộ nhớ
 
-| Vùng | Base | Kích thước | Ghi chú |
-|---|---|---|---|
-| RAM | `0x8000_0000` | 128 KB (`0x8000_0000`–`0x8001_FFFF`) | lệnh + dữ liệu; **reset PC = `0x8000_0000`** |
-| UART | `0x1000_0000` | 4 KB | APB slot 0 |
-| SPI | `0x1000_1000` | 4 KB | APB slot 1 |
-| TIMER64 | `0x1000_2000` | 4 KB | APB slot 2 |
-| GPIO | `0x1000_3000` | 4 KB | APB slot 3 |
-| INTC | `0x1000_4000` | 4 KB | APB slot 4 |
-| SIM_CTRL | `0x1000_F000` | 4 KB | APB slot 15 |
-| Còn lại | – | – | access fault: fetch → mcause 1, load → 5, store → 7 |
+| Vùng     | Base          | Kích thước                           | Ghi chú                                             |
+| -------- | ------------- | ------------------------------------ | --------------------------------------------------- |
+| RAM      | `0x8000_0000` | 128 KB (`0x8000_0000`–`0x8001_FFFF`) | lệnh + dữ liệu; **reset PC = `0x8000_0000`**        |
+| UART     | `0x1000_0000` | 4 KB                                 | APB slot 0                                          |
+| SPI      | `0x1000_1000` | 4 KB                                 | APB slot 1                                          |
+| TIMER64  | `0x1000_2000` | 4 KB                                 | APB slot 2                                          |
+| GPIO     | `0x1000_3000` | 4 KB                                 | APB slot 3                                          |
+| INTC     | `0x1000_4000` | 4 KB                                 | APB slot 4                                          |
+| SIM_CTRL | `0x1000_F000` | 4 KB                                 | APB slot 15                                         |
+| Còn lại  | –             | –                                    | access fault: fetch → mcause 1, load → 5, store → 7 |
 
 - Vùng APB: `0x1000_0000`–`0x1000_FFFF`, slot = `addr[15:12]`. Slot không có slave → `PSLVERR = 1`.
 - RAM đặt ở `0x8000_0000` để khớp mặc định của Spike và riscv-tests (tránh debug module/bootrom của Spike ở địa chỉ thấp).
@@ -158,14 +158,14 @@ Phạm vi ngoại vi truyền thông của đề tài **chỉ gồm UART và SPI
 
 ### 4.1 Tham số
 
-| Parameter | Mặc định | Ý nghĩa |
-|---|---|---|
-| `RESET_PC` | `32'h8000_0000` | |
-| `ENABLE_M` | 1 | 0 → lệnh M là illegal |
-| `ENABLE_C` | 1 | 0 → lệnh 16 bit là illegal; nhảy taken tới địa chỉ có `bit[1]=1` → instruction-address-misaligned |
-| `BP_MODE` | 2 | 0 = static not-taken; 1 = BHT tra ở ID; 2 = BHT + BTB tra ở IF |
-| `BHT_ENTRIES` | 256 | lũy thừa của 2, ≥ 16 |
-| `BTB_ENTRIES` | 32 | lũy thừa của 2, ≥ 4, direct-mapped |
+| Parameter     | Mặc định        | Ý nghĩa                                                                                           |
+| ------------- | --------------- | ------------------------------------------------------------------------------------------------- |
+| `RESET_PC`    | `32'h8000_0000` |                                                                                                   |
+| `ENABLE_M`    | 1               | 0 → lệnh M là illegal                                                                             |
+| `ENABLE_C`    | 1               | 0 → lệnh 16 bit là illegal; nhảy taken tới địa chỉ có `bit[1]=1` → instruction-address-misaligned |
+| `BP_MODE`     | 2               | 0 = static not-taken; 1 = BHT tra ở ID; 2 = BHT + BTB tra ở IF                                    |
+| `BHT_ENTRIES` | 256             | lũy thừa của 2, ≥ 16                                                                              |
+| `BTB_ENTRIES` | 32              | lũy thừa của 2, ≥ 4, direct-mapped                                                                |
 
 `misa`: `MXL=1`, bit I, bit M nếu `ENABLE_M`, bit C nếu `ENABLE_C`. Cấu hình đầy đủ: `misa = 32'h4000_1104`.
 
@@ -284,20 +284,20 @@ Lệnh 32 bit nằm vắt qua ranh giới word được RAM ghép sẵn (mục 5
 
 **CSR**
 
-| CSR | Ghi chú |
-|---|---|
-| `mstatus` | MIE (bit 3), MPIE (bit 7); MPP (12:11) cố định `2'b11`; các bit khác bằng 0 |
-| `misa` | ghi bị bỏ qua |
-| `mie`, `mip` | MEIx (11), MTIx (7), MSIx (3). `mip` phản ánh tín hiệu ngắt; ghi bị bỏ qua |
-| `mtvec` | MODE 0 (direct) và 1 (vectored: ngắt nhảy tới `BASE + 4×cause`) |
-| `mepc` | bit 0 luôn bằng 0; bit 1 cũng bằng 0 khi `ENABLE_C = 0` |
-| `mcause`, `mtval`, `mscratch` | |
-| `mvendorid`, `marchid`, `mimpid`, `mhartid` | read-only, bằng 0 |
-| `mcycle(h)`, `minstret(h)` | 64 bit, ghi được |
-| `cycle(h)`, `instret(h)`, `time(h)` | read-only (Zicntr); `time` đọc từ port `mtime` |
-| `mcountinhibit` | bit 0 (CY) và bit 2 (IR) |
-| `mhpmcounter3..10(h)` | mục 4.9; ghi bị bỏ qua là chấp nhận được |
-| `mhpmevent3..10` | read-only bằng 0 (sự kiện cố định) |
+| CSR                                         | Ghi chú                                                                     |
+| ------------------------------------------- | --------------------------------------------------------------------------- |
+| `mstatus`                                   | MIE (bit 3), MPIE (bit 7); MPP (12:11) cố định `2'b11`; các bit khác bằng 0 |
+| `misa`                                      | ghi bị bỏ qua                                                               |
+| `mie`, `mip`                                | MEIx (11), MTIx (7), MSIx (3). `mip` phản ánh tín hiệu ngắt; ghi bị bỏ qua  |
+| `mtvec`                                     | MODE 0 (direct) và 1 (vectored: ngắt nhảy tới `BASE + 4×cause`)             |
+| `mepc`                                      | bit 0 luôn bằng 0; bit 1 cũng bằng 0 khi `ENABLE_C = 0`                     |
+| `mcause`, `mtval`, `mscratch`               |                                                                             |
+| `mvendorid`, `marchid`, `mimpid`, `mhartid` | read-only, bằng 0                                                           |
+| `mcycle(h)`, `minstret(h)`                  | 64 bit, ghi được                                                            |
+| `cycle(h)`, `instret(h)`, `time(h)`         | read-only (Zicntr); `time` đọc từ port `mtime`                              |
+| `mcountinhibit`                             | bit 0 (CY) và bit 2 (IR)                                                    |
+| `mhpmcounter3..10(h)`                       | mục 4.9; ghi bị bỏ qua là chấp nhận được                                    |
+| `mhpmevent3..10`                            | read-only bằng 0 (sự kiện cố định)                                          |
 
 - CSR không tồn tại, hoặc ghi vào CSR read-only (`csr[11:10] = 2'b11`) → illegal instruction. `CSRRS`/`CSRRC` với `rs1 = x0` và `CSRRSI`/`CSRRCI` với `uimm = 0` không tính là ghi.
 - **Ưu tiên ngoại lệ đồng bộ trên một lệnh:** instruction access fault > illegal instruction > ecall/ebreak > instruction-address-misaligned > load/store misaligned > load/store access fault.
@@ -313,16 +313,16 @@ Lệnh 32 bit nằm vắt qua ranh giới word được RAM ghép sẵn (mục 5
 
 ### 4.9 Performance counter (64 bit, đếm tại WB, chỉ lệnh retire thật)
 
-| CSR | Sự kiện |
-|---|---|
-| `mhpmcounter3` | branch có điều kiện |
-| `mhpmcounter4` | branch có điều kiện bị dự đoán sai |
-| `mhpmcounter5` | JAL/JALR |
-| `mhpmcounter6` | JAL/JALR bị dự đoán sai |
-| `mhpmcounter7` | chu kỳ stall load-use/CSR-use |
-| `mhpmcounter8` | chu kỳ stall MulDiv |
-| `mhpmcounter9` | chu kỳ chờ bus |
-| `mhpmcounter10` | lệnh nén đã retire |
+| CSR             | Sự kiện                            |
+| --------------- | ---------------------------------- |
+| `mhpmcounter3`  | branch có điều kiện                |
+| `mhpmcounter4`  | branch có điều kiện bị dự đoán sai |
+| `mhpmcounter5`  | JAL/JALR                           |
+| `mhpmcounter6`  | JAL/JALR bị dự đoán sai            |
+| `mhpmcounter7`  | chu kỳ stall load-use/CSR-use      |
+| `mhpmcounter8`  | chu kỳ stall MulDiv                |
+| `mhpmcounter9`  | chu kỳ chờ bus                     |
+| `mhpmcounter10` | lệnh nén đã retire                 |
 
 Các bộ đếm chu kỳ stall đếm theo chu kỳ trong `hazard_unit`. Testbench in toàn bộ counter (qua tham chiếu phân cấp) khi kết thúc mô phỏng.
 
@@ -384,15 +384,15 @@ Parameter `WIDTH`, `DEPTH` (mặc định 16, lũy thừa của 2). Tín hiệu 
 
 8 bit dữ liệu, LSB trước, parity tùy chọn, 1 hoặc 2 stop bit. RX: đồng bộ 2 flip-flop, lấy mẫu ×16, kiểm tra lại start bit ở giữa bit (start giả thì bỏ), lấy mẫu dữ liệu ở giữa bit.
 
-| Off | Tên | Truy cập | Mô tả |
-|---|---|---|---|
-| 0x00 | DATA | W / R | W: đẩy `[7:0]` vào TX FIFO. R: `[7:0]` dữ liệu RX, `[31]` = RX_EMPTY; pop nếu không rỗng |
-| 0x04 | STATUS | RO | [0] TX_FULL, [1] TX_EMPTY, [2] TX_IDLE (FIFO rỗng và shifter rảnh), [3] RX_EMPTY, [4] RX_FULL, [5] RX_OVERRUN, [6] FRAME_ERR, [7] PARITY_ERR, [12:8] TX_LEVEL, [20:16] RX_LEVEL |
-| 0x08 | CTRL | RW | [0] TX_EN, [1] RX_EN, [2] PARITY_EN, [3] PARITY_ODD, [4] STOP2. Reset `0x3` |
-| 0x0C | BAUD_DIV | RW | [15:0]: 1 bit = 16×(DIV+1) chu kỳ clock. Reset 26 (≈ 115200 baud @ 50 MHz) |
-| 0x10 | IRQ_EN | RW | [0] TX_WM, [1] RX_WM, [2] ERR |
-| 0x14 | IRQ_STATUS | R / W1C | [0] TX_WM = (TX_LEVEL ≤ TX_WM_LVL), mức, RO; [1] RX_WM = (RX_LEVEL ≥ RX_WM_LVL), mức, RO; [2] ERR sticky, W1C (xóa luôn STATUS[7:5]) |
-| 0x18 | WATERMARK | RW | [4:0] TX_WM_LVL (reset 0), [20:16] RX_WM_LVL (reset 1) |
+| Off  | Tên        | Truy cập | Mô tả                                                                                                                                                                           |
+| ---- | ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0x00 | DATA       | W / R    | W: đẩy `[7:0]` vào TX FIFO. R: `[7:0]` dữ liệu RX, `[31]` = RX_EMPTY; pop nếu không rỗng                                                                                        |
+| 0x04 | STATUS     | RO       | [0] TX_FULL, [1] TX_EMPTY, [2] TX_IDLE (FIFO rỗng và shifter rảnh), [3] RX_EMPTY, [4] RX_FULL, [5] RX_OVERRUN, [6] FRAME_ERR, [7] PARITY_ERR, [12:8] TX_LEVEL, [20:16] RX_LEVEL |
+| 0x08 | CTRL       | RW       | [0] TX_EN, [1] RX_EN, [2] PARITY_EN, [3] PARITY_ODD, [4] STOP2. Reset `0x3`                                                                                                     |
+| 0x0C | BAUD_DIV   | RW       | [15:0]: 1 bit = 16×(DIV+1) chu kỳ clock. Reset 26 (≈ 115200 baud @ 50 MHz)                                                                                                      |
+| 0x10 | IRQ_EN     | RW       | [0] TX_WM, [1] RX_WM, [2] ERR                                                                                                                                                   |
+| 0x14 | IRQ_STATUS | R / W1C  | [0] TX_WM = (TX_LEVEL ≤ TX_WM_LVL), mức, RO; [1] RX_WM = (RX_LEVEL ≥ RX_WM_LVL), mức, RO; [2] ERR sticky, W1C (xóa luôn STATUS[7:5])                                            |
+| 0x18 | WATERMARK  | RW       | [4:0] TX_WM_LVL (reset 0), [20:16] RX_WM_LVL (reset 1)                                                                                                                          |
 
 `irq = |(IRQ_STATUS[2:0] & IRQ_EN[2:0])`. Port: `uart_tx` (idle = 1), `uart_rx`.
 
@@ -404,15 +404,15 @@ Full-duplex, 8 bit/khung, đủ 4 mode, MSB-first hoặc LSB-first, CS điều k
 - **CPHA = 1:** đổi MOSI ở cạnh leading, lấy mẫu ở cạnh trailing.
 - **CPOL:** mức nghỉ của SCLK.
 
-| Off | Tên | Truy cập | Mô tả |
-|---|---|---|---|
-| 0x00 | DATA | W / R | W: đẩy vào TX FIFO. R: `[7:0]` dữ liệu RX, `[31]` RX_EMPTY; pop |
-| 0x04 | STATUS | RO | [0] TX_FULL, [1] TX_EMPTY, [2] RX_EMPTY, [3] RX_FULL, [4] BUSY, [5] RX_OVERRUN, [12:8] TX_LEVEL, [20:16] RX_LEVEL |
-| 0x08 | CTRL | RW | [0] EN, [1] CPOL, [2] CPHA, [3] LSB_FIRST. Reset 0 |
-| 0x0C | CLK_DIV | RW | [15:0]: f_SCLK = f_clk / (2×(DIV+1)). Reset 3 |
-| 0x10 | CS | RW | [3:0] CS_N, tích cực mức thấp. Reset `0xF` |
-| 0x14 | IRQ_EN | RW | [0] TX_EMPTY, [1] RX_NOT_EMPTY, [2] DONE, [3] OVERRUN |
-| 0x18 | IRQ_STATUS | R / W1C | [0], [1]: mức (RO); [2] DONE sticky (set khi byte cuối truyền xong và TX FIFO rỗng), W1C; [3] OVERRUN sticky, W1C (xóa luôn STATUS[5]) |
+| Off  | Tên        | Truy cập | Mô tả                                                                                                                                  |
+| ---- | ---------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| 0x00 | DATA       | W / R    | W: đẩy vào TX FIFO. R: `[7:0]` dữ liệu RX, `[31]` RX_EMPTY; pop                                                                        |
+| 0x04 | STATUS     | RO       | [0] TX_FULL, [1] TX_EMPTY, [2] RX_EMPTY, [3] RX_FULL, [4] BUSY, [5] RX_OVERRUN, [12:8] TX_LEVEL, [20:16] RX_LEVEL                      |
+| 0x08 | CTRL       | RW       | [0] EN, [1] CPOL, [2] CPHA, [3] LSB_FIRST. Reset 0                                                                                     |
+| 0x0C | CLK_DIV    | RW       | [15:0]: f_SCLK = f_clk / (2×(DIV+1)). Reset 3                                                                                          |
+| 0x10 | CS         | RW       | [3:0] CS_N, tích cực mức thấp. Reset `0xF`                                                                                             |
+| 0x14 | IRQ_EN     | RW       | [0] TX_EMPTY, [1] RX_NOT_EMPTY, [2] DONE, [3] OVERRUN                                                                                  |
+| 0x18 | IRQ_STATUS | R / W1C  | [0], [1]: mức (RO); [2] DONE sticky (set khi byte cuối truyền xong và TX FIFO rỗng), W1C; [3] OVERRUN sticky, W1C (xóa luôn STATUS[5]) |
 
 Port: `spi_sclk`, `spi_mosi`, `spi_miso`, `spi_cs_n[3:0]`.
 
@@ -420,44 +420,44 @@ Port: `spi_sclk`, `spi_mosi`, `spi_miso`, `spi_cs_n[3:0]`.
 
 > **Tái sử dụng IP từ ĐACS4:** nếu `ip/timer64_dacs4/` tồn tại và có mã nguồn, đọc toàn bộ, viết wrapper `rtl/periph/timer/timer64_apb.sv` sao cho IP tạo được `mtip`, `msip`, `mtime[63:0]` đúng ngữ nghĩa dưới đây; cập nhật bảng này theo register map thật của IP và ghi vào `docs/decisions.md`. Nếu không có, tự hiện thực theo bảng.
 
-| Off | Tên | Truy cập | Mô tả |
-|---|---|---|---|
-| 0x00 | MTIME_LO | RW | |
-| 0x04 | MTIME_HI | RW | |
-| 0x08 | MTIMECMP_LO | RW | reset `0xFFFF_FFFF` |
-| 0x0C | MTIMECMP_HI | RW | reset `0xFFFF_FFFF` |
-| 0x10 | CTRL | RW | [0] EN (reset 1), [15:8] PRESCALE (reset 0): mtime tăng 1 sau mỗi PRESCALE+1 chu kỳ |
-| 0x14 | MSIP | RW | [0] → `msip` |
+| Off  | Tên         | Truy cập | Mô tả                                                                               |
+| ---- | ----------- | -------- | ----------------------------------------------------------------------------------- |
+| 0x00 | MTIME_LO    | RW       |                                                                                     |
+| 0x04 | MTIME_HI    | RW       |                                                                                     |
+| 0x08 | MTIMECMP_LO | RW       | reset `0xFFFF_FFFF`                                                                 |
+| 0x0C | MTIMECMP_HI | RW       | reset `0xFFFF_FFFF`                                                                 |
+| 0x10 | CTRL        | RW       | [0] EN (reset 1), [15:8] PRESCALE (reset 0): mtime tăng 1 sau mỗi PRESCALE+1 chu kỳ |
+| 0x14 | MSIP        | RW       | [0] → `msip`                                                                        |
 
 `mtip = (mtime >= mtimecmp)`, theo mức. Driver đọc 64 bit bằng vòng hi–lo–hi; ghi mtimecmp theo trình tự trong Privileged spec để tránh ngắt giả.
 
 ### 8.5 GPIO – `0x1000_3000`, 16 chân
 
-| Off | Tên | Truy cập | Mô tả |
-|---|---|---|---|
-| 0x00 | OUT | RW | |
-| 0x04 | IN | RO | đã đồng bộ 2 flip-flop |
-| 0x08 | DIR | RW | 1 = output, reset 0 |
-| 0x0C | IRQ_EN | RW | theo từng chân |
-| 0x10 | IRQ_STATUS | R / W1C | cờ cạnh sticky |
-| 0x14 | IRQ_TYPE | RW | 0 = cạnh lên, 1 = cạnh xuống |
+| Off  | Tên        | Truy cập | Mô tả                        |
+| ---- | ---------- | -------- | ---------------------------- |
+| 0x00 | OUT        | RW       |                              |
+| 0x04 | IN         | RO       | đã đồng bộ 2 flip-flop       |
+| 0x08 | DIR        | RW       | 1 = output, reset 0          |
+| 0x0C | IRQ_EN     | RW       | theo từng chân               |
+| 0x10 | IRQ_STATUS | R / W1C  | cờ cạnh sticky               |
+| 0x14 | IRQ_TYPE   | RW       | 0 = cạnh lên, 1 = cạnh xuống |
 
 Port: `gpio_i[15:0]`, `gpio_o[15:0]`, `gpio_oe[15:0]` (tri-state nằm ngoài `soc_top`).
 
 ### 8.6 INTC – `0x1000_4000`
 
-| Off | Tên | Truy cập | Mô tả |
-|---|---|---|---|
-| 0x00 | PENDING | RO | mức ngắt thô |
-| 0x04 | ENABLE | RW | reset 0 |
-| 0x08 | ACTIVE | RO | PENDING & ENABLE |
+| Off  | Tên     | Truy cập | Mô tả            |
+| ---- | ------- | -------- | ---------------- |
+| 0x00 | PENDING | RO       | mức ngắt thô     |
+| 0x04 | ENABLE  | RW       | reset 0          |
+| 0x08 | ACTIVE  | RO       | PENDING & ENABLE |
 
 ### 8.7 SIM_CTRL – `0x1000_F000` (chỉ mô phỏng)
 
-| Off | Tên | Mô tả |
-|---|---|---|
-| 0x00 | PUTCHAR | W: in `[7:0]` ra stdout và file `+console=<file>` |
-| 0x04 | EXIT | W: kết thúc mô phỏng; 0 → in `PASS` rồi `$finish`; khác 0 → in `FAIL: exit code N` rồi `$fatal(1)` |
+| Off  | Tên     | Mô tả                                                                                              |
+| ---- | ------- | -------------------------------------------------------------------------------------------------- |
+| 0x00 | PUTCHAR | W: in `[7:0]` ra stdout và file `+console=<file>`                                                  |
+| 0x04 | EXIT    | W: kết thúc mô phỏng; 0 → in `PASS` rồi `$finish`; khác 0 → in `FAIL: exit code N` rồi `$fatal(1)` |
 
 Trong `` `ifndef SYNTHESIS `` module dùng `$write`/`$finish`/`$fatal`; khi tổng hợp là thanh ghi giả. Testbench xử lý `tohost` theo cùng quy tắc: `code = value >> 1`; 0 là PASS, khác 0 là FAIL.
 
@@ -491,19 +491,19 @@ module soc_top #(parameter ENABLE_M=1, ENABLE_C=1, BP_MODE=2, BHT_ENTRIES=256, B
 - Mỗi testbench có cả test có hướng lẫn ngẫu nhiên có seed (`+seed=`, seed được in ra log).
 - `make unit` chạy tất cả và in bảng tổng kết.
 
-| Testbench | Nội dung tối thiểu |
-|---|---|
-| `tb_alu` | so với mô hình trong TB, ≥ 10.000 vector ngẫu nhiên + giá trị biên |
-| `tb_muldiv` | 8 phép; biên 0, −1, INT_MIN, chia 0, tràn; ngẫu nhiên; abort giữa chừng |
-| `tb_compressed_decoder` | mọi lệnh RV32C so với bảng kỳ vọng, sinh tự động bằng cách assemble cùng lệnh với `.option rvc`/`.option norvc` rồi so `objdump`; mọi encoding illegal |
-| `tb_regfile` | write-through, x0 |
-| `tb_bp` | BHT bão hòa; BTB hit/miss/alias/thay thế |
-| `tb_csr` | read/write/set/clear, read-only → illegal, trap entry/mret |
-| `tb_fifo` | full/empty/level, push+pop đồng thời |
-| `tb_apb_bridge` | slave có wait state, PSLVERR, slot trống |
-| `tb_uart` | loopback; mọi tổ hợp parity/stop; frame error; overrun; ngắt watermark |
-| `tb_spi` | 4 mode × MSB/LSB × ít nhất 3 CLK_DIV, so với `spi_slave_bfm`; DONE/overrun |
-| `tb_timer`, `tb_gpio`, `tb_intc` | đầy đủ thanh ghi và ngắt |
+| Testbench                        | Nội dung tối thiểu                                                                                                                                     |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tb_alu`                         | so với mô hình trong TB, ≥ 10.000 vector ngẫu nhiên + giá trị biên                                                                                     |
+| `tb_muldiv`                      | 8 phép; biên 0, −1, INT_MIN, chia 0, tràn; ngẫu nhiên; abort giữa chừng                                                                                |
+| `tb_compressed_decoder`          | mọi lệnh RV32C so với bảng kỳ vọng, sinh tự động bằng cách assemble cùng lệnh với `.option rvc`/`.option norvc` rồi so `objdump`; mọi encoding illegal |
+| `tb_regfile`                     | write-through, x0                                                                                                                                      |
+| `tb_bp`                          | BHT bão hòa; BTB hit/miss/alias/thay thế                                                                                                               |
+| `tb_csr`                         | read/write/set/clear, read-only → illegal, trap entry/mret                                                                                             |
+| `tb_fifo`                        | full/empty/level, push+pop đồng thời                                                                                                                   |
+| `tb_apb_bridge`                  | slave có wait state, PSLVERR, slot trống                                                                                                               |
+| `tb_uart`                        | loopback; mọi tổ hợp parity/stop; frame error; overrun; ngắt watermark                                                                                 |
+| `tb_spi`                         | 4 mode × MSB/LSB × ít nhất 3 CLK_DIV, so với `spi_slave_bfm`; DONE/overrun                                                                             |
+| `tb_timer`, `tb_gpio`, `tb_intc` | đầy đủ thanh ghi và ngắt                                                                                                                               |
 
 BFM trong `tb/bfm/`:
 - `apb_master_bfm.sv`: task `apb_write`, `apb_read`.
@@ -524,20 +524,20 @@ BFM trong `tb/bfm/`:
   - Include path theo thứ tự: `sw/riscv-tests-env/p`, `third_party/riscv-tests/env`, `third_party/riscv-tests/isa/macros/scalar`.
 - **Biến thể build** (do GAS tự nén lệnh):
 
-  | Biến thể ELF | `-march` | Bộ test |
-  |---|---|---|
-  | `i` | `rv32i_zicsr_zifencei` | rv32ui, rv32mi |
-  | `im` | `rv32im_zicsr_zifencei` | rv32ui, rv32um, rv32mi |
-  | `imc` | `rv32imc_zicsr_zifencei` | rv32ui, rv32um, rv32uc, rv32mi |
+  | Biến thể ELF | `-march`                 | Bộ test                        |
+  | ------------ | ------------------------ | ------------------------------ |
+  | `i`          | `rv32i_zicsr_zifencei`   | rv32ui, rv32mi                 |
+  | `im`         | `rv32im_zicsr_zifencei`  | rv32ui, rv32um, rv32mi         |
+  | `imc`        | `rv32imc_zicsr_zifencei` | rv32ui, rv32um, rv32uc, rv32mi |
 
 - **Ma trận cấu hình phải pass:**
 
-  | RTL | ELF |
-  |---|---|
-  | `ENABLE_M=1, ENABLE_C=1`, `BP_MODE ∈ {0,1,2}` | `imc` |
-  | `ENABLE_M=1, ENABLE_C=0`, `BP_MODE=2` | `im` |
-  | `ENABLE_M=0, ENABLE_C=0`, `BP_MODE=2` | `i` |
-  | core single-cycle | `i` (chỉ rv32ui) |
+  | RTL                                           | ELF              |
+  | --------------------------------------------- | ---------------- |
+  | `ENABLE_M=1, ENABLE_C=1`, `BP_MODE ∈ {0,1,2}` | `imc`            |
+  | `ENABLE_M=1, ENABLE_C=0`, `BP_MODE=2`         | `im`             |
+  | `ENABLE_M=0, ENABLE_C=0`, `BP_MODE=2`         | `i`              |
+  | core single-cycle                             | `i` (chỉ rv32ui) |
 
 - **Được phép loại trừ, phải ghi lý do trong `docs/results.md`:**
   - `rv32ui-p-ma_data`: core trap khi truy cập không căn lề. Điều này hợp lệ theo spec, và hành vi trap đã được kiểm qua `rv32mi-p-ma_addr`.
@@ -564,18 +564,18 @@ Testbench top `tb/soc/tb_soc.sv`:
 
 Trong system test, UART dùng `BAUD_DIV = 0` để mô phỏng nhanh (16 chu kỳ/bit); `demo` dùng giá trị thật.
 
-| Test | Tiêu chí PASS |
-|---|---|
-| `hello` | UART BFM nhận đúng chuỗi trong file kỳ vọng |
-| `uart_irq_echo` | BFM gửi chuỗi; ISR RX echo lại bằng ngắt; khớp hoàn toàn; kiểm tra cờ overrun |
-| `spi_flash` | đọc JEDEC ID đúng; erase → program page → đọc lại khớp; chờ WIP; dùng ngắt DONE |
-| `spi_modes` | 4 mode × MSB/LSB với `spi_slave_bfm`, dữ liệu hai chiều khớp |
-| `timer_irq` | N ngắt định kỳ, khoảng cách đúng theo mtime |
-| `gpio_irq` | xuất pattern ra output; ngắt cạnh lên/xuống từ TB |
-| `irq_priority` | MEI, MSI, MTI cùng pending → phục vụ đúng thứ tự ưu tiên; chạy cả mtvec direct và vectored |
-| `exceptions` | illegal, ecall, ebreak, load/store misaligned, access fault → trap handler C ghi nhận đúng `mcause`/`mepc`/`mtval`, nhảy qua lệnh lỗi, quay lại |
-| `irq_during_div` | ngắt đến khi DIV đang chạy → kết quả DIV vẫn đúng sau khi quay lại |
-| `demo` | kịch bản trình diễn: Timer ngắt mỗi chu kỳ T → đọc 16 byte từ SPI flash → in ra UART dạng hex; ngắt RX nhận lệnh `r`/`w`/`s` (đọc / ghi flash / in performance counter); TB gửi chuỗi lệnh và kiểm tra output |
+| Test             | Tiêu chí PASS                                                                                                                                                                                                 |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `hello`          | UART BFM nhận đúng chuỗi trong file kỳ vọng                                                                                                                                                                   |
+| `uart_irq_echo`  | BFM gửi chuỗi; ISR RX echo lại bằng ngắt; khớp hoàn toàn; kiểm tra cờ overrun                                                                                                                                 |
+| `spi_flash`      | đọc JEDEC ID đúng; erase → program page → đọc lại khớp; chờ WIP; dùng ngắt DONE                                                                                                                               |
+| `spi_modes`      | 4 mode × MSB/LSB với `spi_slave_bfm`, dữ liệu hai chiều khớp                                                                                                                                                  |
+| `timer_irq`      | N ngắt định kỳ, khoảng cách đúng theo mtime                                                                                                                                                                   |
+| `gpio_irq`       | xuất pattern ra output; ngắt cạnh lên/xuống từ TB                                                                                                                                                             |
+| `irq_priority`   | MEI, MSI, MTI cùng pending → phục vụ đúng thứ tự ưu tiên; chạy cả mtvec direct và vectored                                                                                                                    |
+| `exceptions`     | illegal, ecall, ebreak, load/store misaligned, access fault → trap handler C ghi nhận đúng `mcause`/`mepc`/`mtval`, nhảy qua lệnh lỗi, quay lại                                                               |
+| `irq_during_div` | ngắt đến khi DIV đang chạy → kết quả DIV vẫn đúng sau khi quay lại                                                                                                                                            |
+| `demo`           | kịch bản trình diễn: Timer ngắt mỗi chu kỳ T → đọc 16 byte từ SPI flash → in ra UART dạng hex; ngắt RX nhận lệnh `r`/`w`/`s` (đọc / ghi flash / in performance counter); TB gửi chuỗi lệnh và kiểm tra output |
 
 `scripts/run_systest.py` chạy tất cả và xuất `results/systest/summary.md`.
 
@@ -649,18 +649,18 @@ Kiểm tra hợp lý: CPI của pipeline với Dhrystone phải nằm trong kho�
 
 Cột "Mốc đề cương" chỉ để đối chiếu với tiến độ đã nộp; agent làm liên tục, không chờ theo ngày.
 
-| Phase | Mốc đề cương | Nội dung | Definition of Done |
-|---|---|---|---|
-| **0** | 12–18/10 | Dò môi trường; `git init`; `PROGRESS.md`, `CLAUDE.md`, `.gitignore`; khung thư mục (mục 14); Makefile; `fetch_third_party.sh`; `elf2hex.py`; `docs/spec.md`, `memory_map.md`, `register_map.md` | `make check-env` in đủ phiên bản; `docs/env.md` có hash third_party; commit |
-| **1** | 19–25/10 | Core RV32I single-cycle `rv_core_sc` (dùng chung `decoder`/`alu`/`regfile`, `csr_file` tối thiểu); `ram_dp`; `dbus_xbar` + `apb_bridge` bản cơ bản; SIM_CTRL; `soc_top` tối thiểu (`CORE_SC=1`); `tb_soc`; env riscv-tests; `run_isa.py`; `compare_spike.py`; thử Yosys | rv32ui pass trên single-cycle; khớp Spike; chương trình C nhỏ in chữ qua SIM_CTRL PUTCHAR; Yosys đọc được RTL |
-| **2** | 26/10–01/11 | Pipeline 5 tầng RV32I, forwarding, hazard, `BP_MODE=0`, Zicsr cơ bản, FENCE.I, commit log | rv32ui pass; khớp Spike; `tb_regfile`, `tb_alu` pass; lint sạch |
-| **3** | 02–08/11 | Extension M và C | rv32um, rv32uc pass; ma trận ENABLE_M/ENABLE_C pass; `tb_muldiv`, `tb_compressed_decoder` pass |
-| **4** | 09–15/11 | BHT, BTB, `BP_MODE` 1/2, performance counter; port Dhrystone | mọi riscv-tests pass ở BP_MODE 0/1/2; `tb_bp` pass; Dhrystone chạy, khớp Spike, in CPI |
-| **5** | 16–22/11 | CSR đầy đủ, trap/ngắt, mtvec vectored; hoàn thiện `dbus_xbar`, `apb_bridge` (wait state, PSLVERR, access fault); INTC | rv32mi pass (trừ loại trừ có lý do); `tb_csr`, `tb_apb_bridge`, `tb_intc` pass |
-| **6** | 23/11–06/12 | `sync_fifo`, UART, SPI, TIMER64, GPIO, mọi BFM | mọi unit TB ngoại vi pass |
-| **7** | 07–20/12 | `soc_top`, driver, mọi system test, `demo`, benchmark, `run_perf.py`, coverage, tổng hợp | mọi test ở 10.4 pass; `results/perf`, `results/coverage`, `results/synth` đầy đủ; `docs/results.md` hoàn chỉnh |
-| **8** | 21–27/12 | `docs/giai_thich/` (mục 15), báo cáo (mục 16), hình, `docs/compliance.md`, dọn repo | mục 17 đạt toàn bộ |
-| (opt) | – | RAS, CoreMark nhiều iteration | không làm ảnh hưởng DoD của các Phase khác |
+| Phase | Mốc đề cương | Nội dung                                                                                                                                                                                                                                                                | Definition of Done                                                                                             |
+| ----- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **0** | 12–18/10     | Dò môi trường; `git init`; `PROGRESS.md`, `CLAUDE.md`, `.gitignore`; khung thư mục (mục 14); Makefile; `fetch_third_party.sh`; `elf2hex.py`; `docs/spec.md`, `memory_map.md`, `register_map.md`                                                                         | `make check-env` in đủ phiên bản; `docs/env.md` có hash third_party; commit                                    |
+| **1** | 19–25/10     | Core RV32I single-cycle `rv_core_sc` (dùng chung `decoder`/`alu`/`regfile`, `csr_file` tối thiểu); `ram_dp`; `dbus_xbar` + `apb_bridge` bản cơ bản; SIM_CTRL; `soc_top` tối thiểu (`CORE_SC=1`); `tb_soc`; env riscv-tests; `run_isa.py`; `compare_spike.py`; thử Yosys | rv32ui pass trên single-cycle; khớp Spike; chương trình C nhỏ in chữ qua SIM_CTRL PUTCHAR; Yosys đọc được RTL  |
+| **2** | 26/10–01/11  | Pipeline 5 tầng RV32I, forwarding, hazard, `BP_MODE=0`, Zicsr cơ bản, FENCE.I, commit log                                                                                                                                                                               | rv32ui pass; khớp Spike; `tb_regfile`, `tb_alu` pass; lint sạch                                                |
+| **3** | 02–08/11     | Extension M và C                                                                                                                                                                                                                                                        | rv32um, rv32uc pass; ma trận ENABLE_M/ENABLE_C pass; `tb_muldiv`, `tb_compressed_decoder` pass                 |
+| **4** | 09–15/11     | BHT, BTB, `BP_MODE` 1/2, performance counter; port Dhrystone                                                                                                                                                                                                            | mọi riscv-tests pass ở BP_MODE 0/1/2; `tb_bp` pass; Dhrystone chạy, khớp Spike, in CPI                         |
+| **5** | 16–22/11     | CSR đầy đủ, trap/ngắt, mtvec vectored; hoàn thiện `dbus_xbar`, `apb_bridge` (wait state, PSLVERR, access fault); INTC                                                                                                                                                   | rv32mi pass (trừ loại trừ có lý do); `tb_csr`, `tb_apb_bridge`, `tb_intc` pass                                 |
+| **6** | 23/11–06/12  | `sync_fifo`, UART, SPI, TIMER64, GPIO, mọi BFM                                                                                                                                                                                                                          | mọi unit TB ngoại vi pass                                                                                      |
+| **7** | 07–20/12     | `soc_top`, driver, mọi system test, `demo`, benchmark, `run_perf.py`, coverage, tổng hợp                                                                                                                                                                                | mọi test ở 10.4 pass; `results/perf`, `results/coverage`, `results/synth` đầy đủ; `docs/results.md` hoàn chỉnh |
+| **8** | 21–27/12     | `docs/giai_thich/` (mục 15), báo cáo (mục 16), hình, `docs/compliance.md`, dọn repo                                                                                                                                                                                     | mục 17 đạt toàn bộ                                                                                             |
+| (opt) | –            | RAS, CoreMark nhiều iteration                                                                                                                                                                                                                                           | không làm ảnh hưởng DoD của các Phase khác                                                                     |
 
 **Makefile tối thiểu:** `check-env`, `fetch`, `lint`, `unit`, `sw`, `isa`, `spike`, `systest`, `perf`, `cov`, `synth`, `docs`, `regress`, `clean`.
 `make regress` = lint + unit + isa (cả ma trận) + spike + systest; chạy bằng 1 lệnh, in bảng PASS/FAIL, trả exit code ≠ 0 nếu có lỗi.

@@ -18,6 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (BUILD, JOBS, RESULTS, ISA_SUITES, build_isa_test, build_soc,  # noqa: E402
                     cfg_name, cfg_variant, isa_tests, make_cfg, parse_perf, run_sim)
+from md_table import write_md  # noqa: E402
 
 # Tests that are allowed to be excluded (spec 10.2), with the justification.
 EXCLUDED = {
@@ -107,7 +108,7 @@ def write_results(cname, cfg, rows):
     for r in rows:
         lines.append(f"| {r['test']} | {r['result']} | {r['cycles']} | {r['instret']} | {r['note']} |")
     lines += ["", f"Tái tạo: `.venv/bin/python scripts/run_isa.py --config {cname}`", ""]
-    (out / f"{cname}.md").write_text("\n".join(lines))
+    write_md(out / f"{cname}.md", "\n".join(lines))
     return npass, nfail, nexc
 
 
@@ -144,7 +145,7 @@ def main():
         for k, v in sorted(EXCLUDED.items()):
             lines.append(f"- `{k}`: {v}")
         lines += ["", "Tái tạo: `make isa` (= `.venv/bin/python scripts/run_isa.py --matrix`)", ""]
-        (RESULTS / "isa/summary.md").write_text("\n".join(lines))
+        write_md(RESULTS / "isa/summary.md", "\n".join(lines))
     sys.exit(1 if total_fail else 0)
 
 

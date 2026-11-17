@@ -2,30 +2,30 @@
 
 ## CSR được hiện thực
 
-| Nhóm | CSR |
-|---|---|
-| Trạng thái | `mstatus` (MIE, MPIE; MPP cố định 11), `mstatush` (0), `misa` (read-only) |
-| Ngắt | `mie` (MEIE/MTIE/MSIE), `mip` (phản ánh tín hiệu), `mtvec` (direct/vectored) |
-| Trap | `mepc` (bit 0 = 0, bit 1 = 0 khi không có C), `mcause`, `mtval`, `mscratch` |
-| ID | `mvendorid`, `marchid`, `mimpid`, `mhartid`, `mconfigptr` = 0 |
-| Counter | `mcycle(h)`, `minstret(h)`, `mhpmcounter3..10(h)`, `mcountinhibit` (CY, IR), `mhpmevent3..10` = 0 |
-| Zicntr | `cycle(h)`, `time(h)` (từ `mtime` của TIMER64), `instret(h)` – read-only |
+| Nhóm       | CSR                                                                                               |
+| ---------- | ------------------------------------------------------------------------------------------------- |
+| Trạng thái | `mstatus` (MIE, MPIE; MPP cố định 11), `mstatush` (0), `misa` (read-only)                         |
+| Ngắt       | `mie` (MEIE/MTIE/MSIE), `mip` (phản ánh tín hiệu), `mtvec` (direct/vectored)                      |
+| Trap       | `mepc` (bit 0 = 0, bit 1 = 0 khi không có C), `mcause`, `mtval`, `mscratch`                       |
+| ID         | `mvendorid`, `marchid`, `mimpid`, `mhartid`, `mconfigptr` = 0                                     |
+| Counter    | `mcycle(h)`, `minstret(h)`, `mhpmcounter3..10(h)`, `mcountinhibit` (CY, IR), `mhpmevent3..10` = 0 |
+| Zicntr     | `cycle(h)`, `time(h)` (từ `mtime` của TIMER64), `instret(h)` – read-only                          |
 
 CSR không tồn tại, hoặc **ghi** vào CSR read-only (`addr[11:10] = 11`) → illegal instruction. "Ghi" nghĩa là CSRRW,
 hoặc CSRRS/CSRRC với `rs1 ≠ x0`, CSRRSI/CSRRCI với `uimm ≠ 0` (nên `csrr a0, cycle` hợp lệ).
 
 ## mcause / mtval
 
-| mcause | Nguyên nhân | mtval |
-|---|---|---|
-| 0 | nhảy tới địa chỉ không căn 4 (không có C) | đích |
-| 1 | lấy lệnh ngoài RAM | PC |
-| 2 | lệnh không hợp lệ | mã lệnh (16 bit với lệnh nén) |
-| 3 | EBREAK / C.EBREAK | PC |
-| 4 / 6 | load / store không căn lề | địa chỉ |
-| 5 / 7 | load / store access fault (vùng không có thiết bị, slot APB trống) | địa chỉ |
-| 11 | ECALL từ M-mode | 0 |
-| 0x8000_0003 / 7 / B | ngắt phần mềm / timer / ngoài | 0 |
+| mcause              | Nguyên nhân                                                        | mtval                         |
+| ------------------- | ------------------------------------------------------------------ | ----------------------------- |
+| 0                   | nhảy tới địa chỉ không căn 4 (không có C)                          | đích                          |
+| 1                   | lấy lệnh ngoài RAM                                                 | PC                            |
+| 2                   | lệnh không hợp lệ                                                  | mã lệnh (16 bit với lệnh nén) |
+| 3                   | EBREAK / C.EBREAK                                                  | PC                            |
+| 4 / 6               | load / store không căn lề                                          | địa chỉ                       |
+| 5 / 7               | load / store access fault (vùng không có thiết bị, slot APB trống) | địa chỉ                       |
+| 11                  | ECALL từ M-mode                                                    | 0                             |
+| 0x8000_0003 / 7 / B | ngắt phần mềm / timer / ngoài                                      | 0                             |
 
 Ưu tiên trên cùng một lệnh: access fault lấy lệnh > illegal > ecall/ebreak > misaligned lệnh > misaligned
 load/store > access fault load/store. Ưu tiên ngắt: MEI > MSI > MTI.

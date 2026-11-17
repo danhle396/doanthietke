@@ -4,25 +4,25 @@ Dò bằng `make check-env` (script `scripts/check_env.sh`). Máy: Ubuntu 24.04.
 
 ## Phiên bản công cụ
 
-| Công cụ | Phiên bản | Đường dẫn / nguồn | Dùng cho |
-|---|---|---|---|
-| Verilator | 5.047 devel (rev v5.046-78-g5bf1d060c) | `~/tools/oss-cad-suite/bin` (có sẵn) | lint, mô phỏng, coverage |
-| Yosys | 0.63+89 (git de99d67bb) | `~/tools/oss-cad-suite/bin` | tổng hợp |
-| nextpnr-ecp5 | nextpnr-0.9-102-ge9b7da5a | `~/tools/oss-cad-suite/bin` | ước lượng Fmax trên FPGA ECP5 |
-| Icarus Verilog | 14.0 (devel) | `~/tools/oss-cad-suite/bin` | mô phỏng gate-level netlist sky130 (`make asic`) |
-| OpenSTA | 3.0.0 | `~/.local/bin/sta` | (tùy chọn) phân tích timing sky130 |
-| Liberty sky130 | `sky130_fd_sc_hd__tt_025C_1v80.lib` | `~/.volare/volare/sky130/...` | (tùy chọn) |
-| OpenLane 2 | 2.3.10, image Docker `ghcr.io/efabless/openlane2:2.3.10` (Yosys 0.46 + Synlig, OpenROAD, Magic, KLayout, Netgen) | Docker | layout ASIC (`make asic`, D30) |
-| PDK sky130A | open_pdks `0fe599b2afb6708d281543108caf8310912f54af` (Volare) | `~/.volare/volare/sky130/versions/0fe599b…/sky130A` | layout ASIC, mô hình cell cho gate-level |
-| RISC-V GCC | riscv64-unknown-elf-gcc 13.2.0 (Ubuntu 13.2.0-11ubuntu1+12) | `/usr/bin` | firmware, riscv-tests, benchmark |
-| binutils | GNU objdump 2.42 | `/usr/bin` | |
-| libgcc rv32 | `rv32im/ilp32/libgcc.a`, `rv32i/ilp32/libgcc.a` | `/usr/lib/gcc/riscv64-unknown-elf/13.2.0/` | `-lgcc` (không cần `libgcc_min.c`) |
-| Spike | 1.1.1-dev, commit `436fc163a831218508378d7e7f8fd480994b64fe` | **tự build** vào `~/tools/spike` | mô hình tham chiếu |
-| dtc | 1.8.1, commit `f99e3af0ecb67a9085478a9b8ddbcc25aa64931d` | **tự build** vào `~/tools/dtc` | Spike cần lúc chạy |
-| make / git / g++ | GNU Make 4.3 / git 2.43.0 / g++ 13.3.0 | `/usr/bin` | |
-| Python | 3.12.3, `.venv` với matplotlib 3.11.2, pyelftools 0.33 | `.venv/` trong project | script, biểu đồ |
-| pandoc | 3.6.4 (bản nhị phân GitHub) | `~/tools/pandoc/bin` | xuất `.docx` |
-| genhtml (lcov) | không có | | HTML coverage |
+| Công cụ          | Phiên bản                                                                                                        | Đường dẫn / nguồn                                   | Dùng cho                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------------------ |
+| Verilator        | 5.047 devel (rev v5.046-78-g5bf1d060c)                                                                           | `~/tools/oss-cad-suite/bin` (có sẵn)                | lint, mô phỏng, coverage                         |
+| Yosys            | 0.63+89 (git de99d67bb)                                                                                          | `~/tools/oss-cad-suite/bin`                         | tổng hợp                                         |
+| nextpnr-ecp5     | nextpnr-0.9-102-ge9b7da5a                                                                                        | `~/tools/oss-cad-suite/bin`                         | ước lượng Fmax trên FPGA ECP5                    |
+| Icarus Verilog   | 14.0 (devel)                                                                                                     | `~/tools/oss-cad-suite/bin`                         | mô phỏng gate-level netlist sky130 (`make asic`) |
+| OpenSTA          | 3.0.0                                                                                                            | `~/.local/bin/sta`                                  | (tùy chọn) phân tích timing sky130               |
+| Liberty sky130   | `sky130_fd_sc_hd__tt_025C_1v80.lib`                                                                              | `~/.volare/volare/sky130/...`                       | (tùy chọn)                                       |
+| OpenLane 2       | 2.3.10, image Docker `ghcr.io/efabless/openlane2:2.3.10` (Yosys 0.46 + Synlig, OpenROAD, Magic, KLayout, Netgen) | Docker                                              | layout ASIC (`make asic`, D30)                   |
+| PDK sky130A      | open_pdks `0fe599b2afb6708d281543108caf8310912f54af` (Volare)                                                    | `~/.volare/volare/sky130/versions/0fe599b…/sky130A` | layout ASIC, mô hình cell cho gate-level         |
+| RISC-V GCC       | riscv64-unknown-elf-gcc 13.2.0 (Ubuntu 13.2.0-11ubuntu1+12)                                                      | `/usr/bin`                                          | firmware, riscv-tests, benchmark                 |
+| binutils         | GNU objdump 2.42                                                                                                 | `/usr/bin`                                          |                                                  |
+| libgcc rv32      | `rv32im/ilp32/libgcc.a`, `rv32i/ilp32/libgcc.a`                                                                  | `/usr/lib/gcc/riscv64-unknown-elf/13.2.0/`          | `-lgcc` (không cần `libgcc_min.c`)               |
+| Spike            | 1.1.1-dev, commit `436fc163a831218508378d7e7f8fd480994b64fe`                                                     | **tự build** vào `~/tools/spike`                    | mô hình tham chiếu                               |
+| dtc              | 1.8.1, commit `f99e3af0ecb67a9085478a9b8ddbcc25aa64931d`                                                         | **tự build** vào `~/tools/dtc`                      | Spike cần lúc chạy                               |
+| make / git / g++ | GNU Make 4.3 / git 2.43.0 / g++ 13.3.0                                                                           | `/usr/bin`                                          |                                                  |
+| Python           | 3.12.3, `.venv` với matplotlib 3.11.2, pyelftools 0.33                                                           | `.venv/` trong project                              | script, biểu đồ                                  |
+| pandoc           | 3.6.4 (bản nhị phân GitHub)                                                                                      | `~/tools/pandoc/bin`                                | xuất `.docx`                                     |
+| genhtml (lcov)   | không có                                                                                                         |                                                     | HTML coverage                                    |
 
 ## Những gì đã cài thêm (không cần sudo)
 
@@ -47,10 +47,10 @@ vào `PATH` (không sửa `~/.bashrc`). Toolchain RISC-V dò tự động theo t
 
 ## Mã nguồn bên thứ ba (`scripts/fetch_third_party.sh`)
 
-| Repo | Commit | Ngày |
-|---|---|---|
+| Repo                                                                               | Commit                                     | Ngày       |
+| ---------------------------------------------------------------------------------- | ------------------------------------------ | ---------- |
 | https://github.com/riscv-software-src/riscv-tests (có submodule `env` @ `6de71ed`) | `3df703cd52d5f0d8224e3c50bf03c6cb70efff98` | 19/10/2026 |
-| https://github.com/eembc/coremark | `1f483d5b8316753a742cbf5590caf5bd0a4e4777` | |
+| https://github.com/eembc/coremark                                                  | `1f483d5b8316753a742cbf5590caf5bd0a4e4777` |            |
 
 Script checkout đúng commit trên; `FETCH_LATEST=1` để lấy bản mới nhất.
 

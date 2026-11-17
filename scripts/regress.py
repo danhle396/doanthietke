@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from md_table import write_md  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 PY = str(ROOT / ".venv/bin/python")
@@ -40,7 +41,7 @@ def main():
     md = ["# Regression", "", "| Bước | Kết quả | Thời gian (s) |", "|---|---|---|"]
     md += [f"| {n} | {r} | {t} |" for n, r, t in rows]
     md += ["", f"Tổng: {'PASS' if ok else 'FAIL'}. Tái tạo: `make regress`.", ""]
-    (ROOT / "results/regress.md").write_text("\n".join(md))
+    write_md(ROOT / "results/regress.md", "\n".join(md))
     print(f"[regress] {'PASS' if ok else 'FAIL'}")
     sys.exit(0 if ok else 1)
 

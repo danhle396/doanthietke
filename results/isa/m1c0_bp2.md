@@ -4,73 +4,73 @@ Tham số RTL: `{'ENABLE_M': 1, 'ENABLE_C': 0, 'BP_MODE': 2, 'BHT_ENTRIES': 256,
 
 PASS 63 / FAIL 0 / EXCLUDED 3 (tổng 66)
 
-| Test | Kết quả | Chu kỳ | minstret | Ghi chú |
-|---|---|---|---|---|
-| rv32ui-p-simple | PASS | 60 | 49 |  |
-| rv32ui-p-add | PASS | 540 | 473 |  |
-| rv32ui-p-addi | PASS | 287 | 250 |  |
-| rv32ui-p-and | PASS | 562 | 493 |  |
-| rv32ui-p-andi | PASS | 243 | 206 |  |
-| rv32ui-p-auipc | PASS | 80 | 67 |  |
-| rv32ui-p-beq | PASS | 388 | 299 |  |
-| rv32ui-p-bge | PASS | 424 | 317 |  |
-| rv32ui-p-bgeu | PASS | 447 | 342 |  |
-| rv32ui-p-blt | PASS | 388 | 299 |  |
-| rv32ui-p-bltu | PASS | 411 | 324 |  |
-| rv32ui-p-bne | PASS | 392 | 299 |  |
-| rv32ui-p-fence_i | PASS | 340 | 309 |  |
-| rv32ui-p-jal | PASS | 78 | 63 |  |
-| rv32ui-p-jalr | PASS | 160 | 123 |  |
-| rv32ui-p-lb | PASS | 300 | 261 |  |
-| rv32ui-p-lbu | PASS | 300 | 261 |  |
-| rv32ui-p-lh | PASS | 314 | 277 |  |
-| rv32ui-p-lhu | PASS | 325 | 286 |  |
-| rv32ui-p-lw | PASS | 330 | 291 |  |
-| rv32ui-p-ld_st | PASS | 1128 | 971 |  |
-| rv32ui-p-lui | PASS | 86 | 73 |  |
-| rv32ui-p-ma_data | EXCLUDED |  |  | core traps on misaligned load/store (allowed by the spec); the trap behaviour is checked by rv32mi-p-ma_addr |
-| rv32ui-p-or | PASS | 567 | 496 |  |
-| rv32ui-p-ori | PASS | 250 | 213 |  |
-| rv32ui-p-sb | PASS | 529 | 462 |  |
-| rv32ui-p-sh | PASS | 578 | 515 |  |
-| rv32ui-p-sw | PASS | 589 | 522 |  |
-| rv32ui-p-st_ld | PASS | 504 | 491 |  |
-| rv32ui-p-sll | PASS | 566 | 501 |  |
-| rv32ui-p-slli | PASS | 284 | 249 |  |
-| rv32ui-p-slt | PASS | 536 | 467 |  |
-| rv32ui-p-slti | PASS | 280 | 245 |  |
-| rv32ui-p-sltiu | PASS | 280 | 245 |  |
-| rv32ui-p-sltu | PASS | 536 | 467 |  |
-| rv32ui-p-sra | PASS | 589 | 520 |  |
-| rv32ui-p-srai | PASS | 301 | 264 |  |
-| rv32ui-p-srl | PASS | 585 | 514 |  |
-| rv32ui-p-srli | PASS | 295 | 258 |  |
-| rv32ui-p-sub | PASS | 536 | 465 |  |
-| rv32ui-p-xor | PASS | 562 | 495 |  |
-| rv32ui-p-xori | PASS | 252 | 215 |  |
-| rv32um-p-div | PASS | 282 | 104 |  |
-| rv32um-p-divu | PASS | 316 | 105 |  |
-| rv32um-p-mul | PASS | 536 | 467 |  |
-| rv32um-p-mulh | PASS | 536 | 467 |  |
-| rv32um-p-mulhsu | PASS | 536 | 467 |  |
-| rv32um-p-mulhu | PASS | 536 | 467 |  |
-| rv32um-p-rem | PASS | 282 | 104 |  |
-| rv32um-p-remu | PASS | 315 | 104 |  |
-| rv32mi-p-breakpoint | EXCLUDED |  |  | cần CSR debug trigger (Sdtrig) – isa/rv64mi/breakpoint.S dòng 33 `csrw tselect, x0` trap illegal vì lõi không hiện thực tselect/tdata1/tdata2 (chỉ M-mode, không có debug module) |
-| rv32mi-p-csr | PASS | 152 | 135 |  |
-| rv32mi-p-mcsr | PASS | 82 | 68 |  |
-| rv32mi-p-illegal | PASS | 109 | 79 |  |
-| rv32mi-p-ma_fetch | PASS | 244 | 172 |  |
-| rv32mi-p-ma_addr | PASS | 319 | 212 |  |
-| rv32mi-p-scall | PASS | 109 | 83 |  |
-| rv32mi-p-sbreak | PASS | 90 | 68 |  |
-| rv32mi-p-shamt | PASS | 86 | 68 |  |
-| rv32mi-p-lw-misaligned | PASS | 164 | 122 |  |
-| rv32mi-p-lh-misaligned | PASS | 102 | 78 |  |
-| rv32mi-p-sh-misaligned | PASS | 110 | 86 |  |
-| rv32mi-p-sw-misaligned | PASS | 166 | 126 |  |
-| rv32mi-p-zicntr | PASS | 130 | 117 |  |
-| rv32mi-p-instret_overflow | PASS | 88 | 16 |  |
-| rv32mi-p-pmpaddr | EXCLUDED |  |  | cần PMP – isa/rv64mi/pmpaddr.S dòng 27 `csrw pmpcfg0, zero` trap illegal vì lõi không hiện thực PMP (spec mục 10.2 cho phép loại trừ) |
+| Test                      | Kết quả  | Chu kỳ | minstret | Ghi chú                                                                                                                                                                           |
+| ------------------------- | -------- | ------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| rv32ui-p-simple           | PASS     |     60 |       49 |                                                                                                                                                                                   |
+| rv32ui-p-add              | PASS     |    540 |      473 |                                                                                                                                                                                   |
+| rv32ui-p-addi             | PASS     |    287 |      250 |                                                                                                                                                                                   |
+| rv32ui-p-and              | PASS     |    562 |      493 |                                                                                                                                                                                   |
+| rv32ui-p-andi             | PASS     |    243 |      206 |                                                                                                                                                                                   |
+| rv32ui-p-auipc            | PASS     |     80 |       67 |                                                                                                                                                                                   |
+| rv32ui-p-beq              | PASS     |    388 |      299 |                                                                                                                                                                                   |
+| rv32ui-p-bge              | PASS     |    424 |      317 |                                                                                                                                                                                   |
+| rv32ui-p-bgeu             | PASS     |    447 |      342 |                                                                                                                                                                                   |
+| rv32ui-p-blt              | PASS     |    388 |      299 |                                                                                                                                                                                   |
+| rv32ui-p-bltu             | PASS     |    411 |      324 |                                                                                                                                                                                   |
+| rv32ui-p-bne              | PASS     |    392 |      299 |                                                                                                                                                                                   |
+| rv32ui-p-fence_i          | PASS     |    340 |      309 |                                                                                                                                                                                   |
+| rv32ui-p-jal              | PASS     |     78 |       63 |                                                                                                                                                                                   |
+| rv32ui-p-jalr             | PASS     |    160 |      123 |                                                                                                                                                                                   |
+| rv32ui-p-lb               | PASS     |    300 |      261 |                                                                                                                                                                                   |
+| rv32ui-p-lbu              | PASS     |    300 |      261 |                                                                                                                                                                                   |
+| rv32ui-p-lh               | PASS     |    314 |      277 |                                                                                                                                                                                   |
+| rv32ui-p-lhu              | PASS     |    325 |      286 |                                                                                                                                                                                   |
+| rv32ui-p-lw               | PASS     |    330 |      291 |                                                                                                                                                                                   |
+| rv32ui-p-ld_st            | PASS     |   1128 |      971 |                                                                                                                                                                                   |
+| rv32ui-p-lui              | PASS     |     86 |       73 |                                                                                                                                                                                   |
+| rv32ui-p-ma_data          | EXCLUDED |        |          | core traps on misaligned load/store (allowed by the spec); the trap behaviour is checked by rv32mi-p-ma_addr                                                                      |
+| rv32ui-p-or               | PASS     |    567 |      496 |                                                                                                                                                                                   |
+| rv32ui-p-ori              | PASS     |    250 |      213 |                                                                                                                                                                                   |
+| rv32ui-p-sb               | PASS     |    529 |      462 |                                                                                                                                                                                   |
+| rv32ui-p-sh               | PASS     |    578 |      515 |                                                                                                                                                                                   |
+| rv32ui-p-sw               | PASS     |    589 |      522 |                                                                                                                                                                                   |
+| rv32ui-p-st_ld            | PASS     |    504 |      491 |                                                                                                                                                                                   |
+| rv32ui-p-sll              | PASS     |    566 |      501 |                                                                                                                                                                                   |
+| rv32ui-p-slli             | PASS     |    284 |      249 |                                                                                                                                                                                   |
+| rv32ui-p-slt              | PASS     |    536 |      467 |                                                                                                                                                                                   |
+| rv32ui-p-slti             | PASS     |    280 |      245 |                                                                                                                                                                                   |
+| rv32ui-p-sltiu            | PASS     |    280 |      245 |                                                                                                                                                                                   |
+| rv32ui-p-sltu             | PASS     |    536 |      467 |                                                                                                                                                                                   |
+| rv32ui-p-sra              | PASS     |    589 |      520 |                                                                                                                                                                                   |
+| rv32ui-p-srai             | PASS     |    301 |      264 |                                                                                                                                                                                   |
+| rv32ui-p-srl              | PASS     |    585 |      514 |                                                                                                                                                                                   |
+| rv32ui-p-srli             | PASS     |    295 |      258 |                                                                                                                                                                                   |
+| rv32ui-p-sub              | PASS     |    536 |      465 |                                                                                                                                                                                   |
+| rv32ui-p-xor              | PASS     |    562 |      495 |                                                                                                                                                                                   |
+| rv32ui-p-xori             | PASS     |    252 |      215 |                                                                                                                                                                                   |
+| rv32um-p-div              | PASS     |    282 |      104 |                                                                                                                                                                                   |
+| rv32um-p-divu             | PASS     |    316 |      105 |                                                                                                                                                                                   |
+| rv32um-p-mul              | PASS     |    536 |      467 |                                                                                                                                                                                   |
+| rv32um-p-mulh             | PASS     |    536 |      467 |                                                                                                                                                                                   |
+| rv32um-p-mulhsu           | PASS     |    536 |      467 |                                                                                                                                                                                   |
+| rv32um-p-mulhu            | PASS     |    536 |      467 |                                                                                                                                                                                   |
+| rv32um-p-rem              | PASS     |    282 |      104 |                                                                                                                                                                                   |
+| rv32um-p-remu             | PASS     |    315 |      104 |                                                                                                                                                                                   |
+| rv32mi-p-breakpoint       | EXCLUDED |        |          | cần CSR debug trigger (Sdtrig) – isa/rv64mi/breakpoint.S dòng 33 `csrw tselect, x0` trap illegal vì lõi không hiện thực tselect/tdata1/tdata2 (chỉ M-mode, không có debug module) |
+| rv32mi-p-csr              | PASS     |    152 |      135 |                                                                                                                                                                                   |
+| rv32mi-p-mcsr             | PASS     |     82 |       68 |                                                                                                                                                                                   |
+| rv32mi-p-illegal          | PASS     |    109 |       79 |                                                                                                                                                                                   |
+| rv32mi-p-ma_fetch         | PASS     |    244 |      172 |                                                                                                                                                                                   |
+| rv32mi-p-ma_addr          | PASS     |    319 |      212 |                                                                                                                                                                                   |
+| rv32mi-p-scall            | PASS     |    109 |       83 |                                                                                                                                                                                   |
+| rv32mi-p-sbreak           | PASS     |     90 |       68 |                                                                                                                                                                                   |
+| rv32mi-p-shamt            | PASS     |     86 |       68 |                                                                                                                                                                                   |
+| rv32mi-p-lw-misaligned    | PASS     |    164 |      122 |                                                                                                                                                                                   |
+| rv32mi-p-lh-misaligned    | PASS     |    102 |       78 |                                                                                                                                                                                   |
+| rv32mi-p-sh-misaligned    | PASS     |    110 |       86 |                                                                                                                                                                                   |
+| rv32mi-p-sw-misaligned    | PASS     |    166 |      126 |                                                                                                                                                                                   |
+| rv32mi-p-zicntr           | PASS     |    130 |      117 |                                                                                                                                                                                   |
+| rv32mi-p-instret_overflow | PASS     |     88 |       16 |                                                                                                                                                                                   |
+| rv32mi-p-pmpaddr          | EXCLUDED |        |          | cần PMP – isa/rv64mi/pmpaddr.S dòng 27 `csrw pmpcfg0, zero` trap illegal vì lõi không hiện thực PMP (spec mục 10.2 cho phép loại trừ)                                             |
 
 Tái tạo: `.venv/bin/python scripts/run_isa.py --config m1c0_bp2`

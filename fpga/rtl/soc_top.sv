@@ -50,6 +50,7 @@ module soc_top #(
   logic        irq_mtip, irq_msip, irq_meip;
   logic [63:0] mtime;
 
+  generate
   if (CORE_SC) begin : g_sc
     rv_core_sc u_core (
       .clk, .rst_n(rst_sn),
@@ -74,6 +75,7 @@ module soc_top #(
       .irq_mtip, .irq_msip, .irq_meip, .mtime
     );
   end
+  endgenerate
 
   // ---------------- Memory & bus ----------------
   logic        ram_cyc, ram_stb, ram_we, ram_ack;

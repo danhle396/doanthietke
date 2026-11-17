@@ -28,7 +28,9 @@ module regfile #(
   logic [31:0][31:0] regs;
 
   assign regs[0] = 32'b0;
-  for (genvar i = 1; i < 32; i++) begin : g_r
+  genvar i;
+  generate
+  for (i = 1; i < 32; i = i + 1) begin : g_r
     logic [31:0] r_q;
     always_ff @(posedge clk or negedge rst_n) begin
       if (!rst_n)                       r_q <= 32'b0;
@@ -36,6 +38,7 @@ module regfile #(
     end
     assign regs[i] = r_q;
   end
+  endgenerate
 
   always_comb begin
     if (raddr1 == 5'd0)                  rdata1 = 32'b0;

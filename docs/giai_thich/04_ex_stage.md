@@ -2,12 +2,12 @@
 
 ## Các khối
 
-| Khối | Việc |
-|---|---|
-| Forward mux | chọn `rs1/rs2` từ `id_ex`, `ex_mem` hoặc `mem_wb` (xem `06_hazard_forward.md`) |
-| `alu` | ADD/SUB/SLL/SLT/SLTU/XOR/SRL/SRA/OR/AND; dùng chung một bộ trừ 33 bit cho SUB/SLT/SLTU |
+| Khối          | Việc                                                                                    |
+| ------------- | --------------------------------------------------------------------------------------- |
+| Forward mux   | chọn `rs1/rs2` từ `id_ex`, `ex_mem` hoặc `mem_wb` (xem `06_hazard_forward.md`)          |
+| `alu`         | ADD/SUB/SLL/SLT/SLTU/XOR/SRL/SRA/OR/AND; dùng chung một bộ trừ 33 bit cho SUB/SLT/SLTU  |
 | `branch_unit` | so sánh nhánh, `target` (`pc+imm` hoặc `(rs1+imm)&~1`), `link = pc + len`, `actual_npc` |
-| `muldiv` | nhân 1 chu kỳ, chia lặp 32 vòng (`09_muldiv.md`) |
+| `muldiv`      | nhân 1 chu kỳ, chia lặp 32 vòng (`09_muldiv.md`)                                        |
 
 `len = is_c ? 2 : 4`. Link của JAL/JALR là `pc + len` – đúng cho cả `c.jal`/`c.jalr`.
 

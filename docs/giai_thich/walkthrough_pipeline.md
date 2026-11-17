@@ -31,12 +31,12 @@ hình tổng thể `results/waves/walkthrough_pipeline.png`. Mở waveform bằn
 
 ### 1. Load-use (chu kỳ 3–6)
 
-| Chu kỳ | IF | ID | EX | MEM | WB |
-|---|---|---|---|---|---|
-| 3 | add t1 | **lw t0** | c.addi a1 | lui a1 | addi a0 |
-| 4 | addi t2 | **add t1** | **lw t0** | c.addi | lui |
-| 5 | addi t2 (giữ) | add t1 (giữ) | *bubble* | lw t0 | c.addi |
-| 6 | add t3 | addi t2 | add t1 (rs1, rs2 ← mem_wb) | *bubble* | lw t0 |
+| Chu kỳ | IF            | ID           | EX                         | MEM      | WB      |
+| ------ | ------------- | ------------ | -------------------------- | -------- | ------- |
+|      3 | add t1        | **lw t0**    | c.addi a1                  | lui a1   | addi a0 |
+|      4 | addi t2       | **add t1**   | **lw t0**                  | c.addi   | lui     |
+|      5 | addi t2 (giữ) | add t1 (giữ) | *bubble*                   | lw t0    | c.addi  |
+|      6 | add t3        | addi t2      | add t1 (rs1, rs2 ← mem_wb) | *bubble* | lw t0   |
 
 Ở chu kỳ 4, `lw` ở EX có `rd = t0` trùng nguồn của `add` ở ID → `load_use = 1`: IF và ID giữ nguyên, EX nhận bubble
 (`flush_id_ex`). Ở chu kỳ 6 dữ liệu load đã nằm trong `mem_wb` và được forward vào cả hai toán hạng của `add`.

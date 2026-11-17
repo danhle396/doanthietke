@@ -40,6 +40,7 @@ module branch_predictor
   input  logic        upd_btb_inv
 );
 
+  generate
   if (BP_MODE == 0) begin : g_static
     assign if_pred_taken  = 1'b0;
     assign if_pred_target = 32'b0;
@@ -47,8 +48,8 @@ module branch_predictor
     assign id_bht_taken   = 1'b0;
     /* verilator lint_off UNUSEDSIGNAL */
     // Static not-taken: update interface intentionally unused.
-    logic unused;
-    assign unused = ^{clk, rst_n, if_pc, id_pc, upd_pc, upd_bht, upd_taken, upd_btb_wr,
+    logic unused_s;
+    assign unused_s = ^{clk, rst_n, if_pc, id_pc, upd_pc, upd_bht, upd_taken, upd_btb_wr,
                       upd_target, upd_type, upd_btb_inv};
     /* verilator lint_on UNUSEDSIGNAL */
   end else if (BP_MODE == 1) begin : g_bht_id
@@ -65,8 +66,8 @@ module branch_predictor
     assign if_btb_hit     = 1'b0;
     /* verilator lint_off UNUSEDSIGNAL */
     // No BTB in mode 1.
-    logic unused;
-    assign unused = ^{if_pc, upd_btb_wr, upd_target, upd_type, upd_btb_inv};
+    logic unused_b;
+    assign unused_b = ^{if_pc, upd_btb_wr, upd_target, upd_type, upd_btb_inv};
     /* verilator lint_on UNUSEDSIGNAL */
   end else begin : g_btb_if
     logic       bht_taken;
@@ -98,9 +99,10 @@ module branch_predictor
     assign id_bht_taken  = 1'b0;
     /* verilator lint_off UNUSEDSIGNAL */
     // ID lookup only used in mode 1.
-    logic unused;
-    assign unused = ^id_pc;
+    logic unused_i;
+    assign unused_i = ^id_pc;
     /* verilator lint_on UNUSEDSIGNAL */
   end
+  endgenerate
 
 endmodule

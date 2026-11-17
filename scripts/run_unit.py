@@ -19,6 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, JOBS, RESULTS, ROOT, VERILATOR, _newest_mtime, run, run_sim  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 PKG = "rtl/pkg/rv_pkg.sv"
 FIFO = "rtl/periph/sync_fifo.sv"
@@ -137,7 +138,7 @@ def main():
             lines += ["", "Chưa có (chưa tới Phase tương ứng): " + ", ".join(missing)]
         lines += ["", "Tái tạo: `make unit` (= `.venv/bin/python scripts/run_unit.py`)", ""]
         (RESULTS / "unit").mkdir(parents=True, exist_ok=True)
-        (RESULTS / "unit/summary.md").write_text("\n".join(lines))
+        write_md(RESULTS / "unit/summary.md", "\n".join(lines))
     sys.exit(0 if all(r["result"] == "PASS" for r in rows) else 1)
 
 

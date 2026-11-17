@@ -26,6 +26,7 @@ from common import (BUILD, JOBS, RESULTS, ROOT, build_isa_test, build_soc, cfg_v
 from build_sw import build_program, program_dirs  # noqa: E402
 from run_isa import CONFIGS, EXCLUDED, suites_for  # noqa: E402
 from run_systest import TESTS_DIR, ORDER, read_cfg  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 COV = BUILD / "cov"
 OUT = RESULTS / "coverage"
@@ -177,7 +178,7 @@ def main():
         md.append(f"| `{rel}` | {pct(h, n):.1f}% ({h}/{n}) | {pct(th, tn):.1f}% ({th}/{tn}) |")
     md += ["", "Các dòng chưa phủ và giải thích: `results/coverage/uncovered.md`. "
            "Functional coverage: `results/coverage/functional.md`.", ""]
-    (OUT / "summary.md").write_text("\n".join(md))
+    write_md(OUT / "summary.md", "\n".join(md))
     un = ["# Dòng RTL chưa được phủ (line coverage)", ""]
     for rel, h, n, th, tn, lines in rows:
         miss = sorted(l for l, c in lines.items() if c == 0)
@@ -192,7 +193,7 @@ def main():
             code = src[l - 1].strip() if l <= len(src) else ""
             un.append(f"| {l} | `{code.replace('|', '¦')}` | {explain(rel, code)} |")
         un.append("")
-    (OUT / "uncovered.md").write_text("\n".join(un))
+    write_md(OUT / "uncovered.md", "\n".join(un))
     run([sys.executable, str(ROOT / "scripts/cov_report.py"), str(merged)])
     print("\n".join(md[:12 + len(groups)]))
 

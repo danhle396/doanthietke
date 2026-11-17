@@ -24,6 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, JOBS, RESULTS, ROOT, build_soc, cfg_variant, parse_perf, run_sim  # noqa: E402
 from build_sw import build_program  # noqa: E402
 from run_isa import CONFIGS  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 TESTS_DIR = ROOT / "sw/tests"
 ORDER = ["hello", "uart_irq_echo", "spi_flash", "spi_modes", "timer_irq", "gpio_irq",
@@ -118,7 +119,7 @@ def main():
                   "(nếu có), không có lỗi frame/parity ở BFM UART, không có lỗi giao thức ở BFM flash.",
                   "", "Tái tạo: `make systest` (= `.venv/bin/python scripts/run_systest.py`)", ""]
         (RESULTS / "systest").mkdir(parents=True, exist_ok=True)
-        (RESULTS / "systest/summary.md").write_text("\n".join(lines))
+        write_md(RESULTS / "systest/summary.md", "\n".join(lines))
     sys.exit(0 if all(r["result"] == "PASS" for r in rows) else 1)
 
 

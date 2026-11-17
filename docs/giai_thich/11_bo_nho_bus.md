@@ -34,11 +34,11 @@ tương ứng LUTRAM (distributed RAM). Nhược điểm: không dùng được 
 
 ## `dbus_xbar`
 
-| Địa chỉ | Đích |
-|---|---|
-| `0x8000_0000–0x8001_FFFF` | RAM |
-| `0x1000_0000–0x1000_FFFF` | APB bridge |
-| còn lại | `ERR` ngay trong chu kỳ yêu cầu → access fault |
+| Địa chỉ                   | Đích                                           |
+| ------------------------- | ---------------------------------------------- |
+| `0x8000_0000–0x8001_FFFF` | RAM                                            |
+| `0x1000_0000–0x1000_FFFF` | APB bridge                                     |
+| còn lại                   | `ERR` ngay trong chu kỳ yêu cầu → access fault |
 
 Địa chỉ, dữ liệu, `WE`, `SEL` phát chung; chỉ slave được chọn nhận `CYC/STB`; `ACK/ERR/DAT` của nó được đưa về lõi.
 

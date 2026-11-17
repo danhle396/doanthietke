@@ -2,19 +2,19 @@
 
 ## Ba loại hazard
 
-| Loại | Ví dụ | Xử lý |
-|---|---|---|
+| Loại          | Ví dụ                          | Xử lý                                   |
+| ------------- | ------------------------------ | --------------------------------------- |
 | Dữ liệu (RAW) | `add x5,..` rồi `sub x6,x5,..` | forward, hoặc stall khi dữ liệu chưa có |
-| Điều khiển | nhánh, JAL/JALR, trap | dự đoán + flush khi sai |
-| Cấu trúc | MulDiv đang chia, MEM chờ bus | stall các tầng phía trước |
+| Điều khiển    | nhánh, JAL/JALR, trap          | dự đoán + flush khi sai                 |
+| Cấu trúc      | MulDiv đang chia, MEM chờ bus  | stall các tầng phía trước               |
 
 ## Forwarding
 
-| Nguồn | Khi nào dùng | Ghi chú |
-|---|---|---|
-| `ex_mem` | lệnh ở MEM ghi `rd = rs` và **không phải load/CSR** | kết quả ALU/MulDiv/link đã có từ EX |
-| `mem_wb` | lệnh ở WB ghi `rd = rs` | mọi loại kết quả |
-| regfile | còn lại | write-through lo trường hợp WB ghi cùng chu kỳ ID đọc |
+| Nguồn    | Khi nào dùng                                        | Ghi chú                                               |
+| -------- | --------------------------------------------------- | ----------------------------------------------------- |
+| `ex_mem` | lệnh ở MEM ghi `rd = rs` và **không phải load/CSR** | kết quả ALU/MulDiv/link đã có từ EX                   |
+| `mem_wb` | lệnh ở WB ghi `rd = rs`                             | mọi loại kết quả                                      |
+| regfile  | còn lại                                             | write-through lo trường hợp WB ghi cùng chu kỳ ID đọc |
 
 **Vì sao `ex_mem` ưu tiên hơn `mem_wb`?** Nếu cả hai lệnh ở MEM và WB cùng ghi một thanh ghi, lệnh ở MEM là lệnh
 **trẻ hơn** – theo thứ tự chương trình, giá trị của nó ghi đè giá trị của lệnh ở WB. Ví dụ:
@@ -43,11 +43,11 @@ chờ bus → bubble vào WB. Flush (do redirect) luôn thắng stall.
 
 ## Ví dụ load-use
 
-| Chu kỳ | IF | ID | EX | MEM | WB |
-|---|---|---|---|---|---|
-| t | I3 | `add x6,x5,x1` | `lw x5,0(a0)` | | |
-| t+1 | I3 | `add` (giữ) | bubble | `lw` | |
-| t+2 | I4 | I3 | `add` (forward từ `mem_wb`) | bubble | `lw` |
+| Chu kỳ | IF  | ID             | EX                          | MEM    | WB   |
+| ------ | --- | -------------- | --------------------------- | ------ | ---- |
+| t      | I3  | `add x6,x5,x1` | `lw x5,0(a0)`               |        |      |
+| t+1    | I3  | `add` (giữ)    | bubble                      | `lw`   |      |
+| t+2    | I4  | I3             | `add` (forward từ `mem_wb`) | bubble | `lw` |
 
 Mất đúng 1 chu kỳ; counter `mhpmcounter7` đếm chu kỳ này.
 

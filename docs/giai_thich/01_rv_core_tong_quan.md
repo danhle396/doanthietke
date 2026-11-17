@@ -14,13 +14,13 @@ File: `rtl/core/rv_core.sv` (nối dây), các tầng trong `rtl/core/*_stage.sv
           +--------- trap / mret / fence.i -----------------------------+
 ```
 
-| Tầng | Việc chính | Kết quả ghi vào |
-|---|---|---|
-| IF | đưa `pc_q` ra `ibus_addr`, nhận 32 bit, biết lệnh 16/32 bit, dự đoán (BP_MODE 2) | `if_id` |
-| ID | giải nén C, decode, sinh imm, đọc regfile, phát hiện ngoại lệ ID, redirect JAL / branch (mode 1) | `id_ex` |
-| EX | forward, ALU, so sánh nhánh, `actual_npc`, MulDiv, phát hiện sai dự đoán | `ex_mem` |
-| MEM | load/store, CSR, **điểm commit**: trap, MRET, FENCE.I | `mem_wb` |
-| WB | ghi regfile, `minstret`, performance counter, commit log | – |
+| Tầng | Việc chính                                                                                       | Kết quả ghi vào |
+| ---- | ------------------------------------------------------------------------------------------------ | --------------- |
+| IF   | đưa `pc_q` ra `ibus_addr`, nhận 32 bit, biết lệnh 16/32 bit, dự đoán (BP_MODE 2)                 | `if_id`         |
+| ID   | giải nén C, decode, sinh imm, đọc regfile, phát hiện ngoại lệ ID, redirect JAL / branch (mode 1) | `id_ex`         |
+| EX   | forward, ALU, so sánh nhánh, `actual_npc`, MulDiv, phát hiện sai dự đoán                         | `ex_mem`        |
+| MEM  | load/store, CSR, **điểm commit**: trap, MRET, FENCE.I                                            | `mem_wb`        |
+| WB   | ghi regfile, `minstret`, performance counter, commit log                                         | –               |
 
 ## 2. Một lệnh mang theo gì
 
@@ -30,13 +30,13 @@ tầng EX chỉ cần một phép so sánh `actual_npc != pred_npc` để biết
 
 ## 3. Ví dụ dòng chảy (không hazard)
 
-| Chu kỳ | IF | ID | EX | MEM | WB |
-|---|---|---|---|---|---|
-| 1 | I1 | | | | |
-| 2 | I2 | I1 | | | |
-| 3 | I3 | I2 | I1 | | |
-| 4 | I4 | I3 | I2 | I1 | |
-| 5 | I5 | I4 | I3 | I2 | I1 |
+| Chu kỳ | IF  | ID  | EX  | MEM | WB  |
+| ------ | --- | --- | --- | --- | --- |
+|      1 | I1  |     |     |     |     |
+|      2 | I2  | I1  |     |     |     |
+|      3 | I3  | I2  | I1  |     |     |
+|      4 | I4  | I3  | I2  | I1  |     |
+|      5 | I5  | I4  | I3  | I2  | I1  |
 
 Mỗi chu kỳ một lệnh hoàn tất → CPI lý tưởng = 1. CPI thật > 1 do stall load-use, MulDiv, chờ bus APB và
 penalty dự đoán sai (xem `results/perf/summary.md`, phân rã CPI).
@@ -51,11 +51,11 @@ penalty dự đoán sai (xem `results/perf/summary.md`, phân rã CPI).
 
 ## 5. Tín hiệu quan trọng trong `rv_core.sv`
 
-| Tín hiệu | Ý nghĩa |
-|---|---|
-| `stall_if/id/ex/mem` | tầng giữ nguyên thanh ghi đầu vào |
-| `flush_if_id/id_ex/ex_mem/mem_wb` | thanh ghi nhận bubble |
-| `id_redirect`, `ex_redirect`, `mem_redirect` | ba nguồn đổi hướng PC |
-| `fwd_a`, `fwd_b` | 0 = giá trị đọc ở ID, 1 = từ `ex_mem`, 2 = từ `mem_wb` |
-| `md_stall`, `bus_wait` | MulDiv chưa xong, dbus chưa ready |
-| `mem_trap`, `trap_irq`, `trap_cause` | trap đang xảy ra ở MEM |
+| Tín hiệu                                     | Ý nghĩa                                                |
+| -------------------------------------------- | ------------------------------------------------------ |
+| `stall_if/id/ex/mem`                         | tầng giữ nguyên thanh ghi đầu vào                      |
+| `flush_if_id/id_ex/ex_mem/mem_wb`            | thanh ghi nhận bubble                                  |
+| `id_redirect`, `ex_redirect`, `mem_redirect` | ba nguồn đổi hướng PC                                  |
+| `fwd_a`, `fwd_b`                             | 0 = giá trị đọc ở ID, 1 = từ `ex_mem`, 2 = từ `mem_wb` |
+| `md_stall`, `bus_wait`                       | MulDiv chưa xong, dbus chưa ready                      |
+| `mem_trap`, `trap_irq`, `trap_cause`         | trap đang xảy ra ở MEM                                 |

@@ -4,12 +4,12 @@
 
 Mở rộng mỗi toán hạng thêm 1 bit: bit dấu nếu phép coi toán hạng là có dấu, 0 nếu không dấu.
 
-| Lệnh | a | b | Lấy |
-|---|---|---|---|
-| MUL | – | – | `prod[31:0]` |
-| MULH | có dấu | có dấu | `prod[63:32]` |
-| MULHSU | có dấu | không dấu | `prod[63:32]` |
-| MULHU | không dấu | không dấu | `prod[63:32]` |
+| Lệnh   | a         | b         | Lấy           |
+| ------ | --------- | --------- | ------------- |
+| MUL    | –         | –         | `prod[31:0]`  |
+| MULH   | có dấu    | có dấu    | `prod[63:32]` |
+| MULHSU | có dấu    | không dấu | `prod[63:32]` |
+| MULHU  | không dấu | không dấu | `prod[63:32]` |
 
 Một bộ nhân 33×33 có dấu dùng chung cho cả 4 lệnh. Đây là khối lớn và thường nằm trên đường găng (critical path)
 khi tổng hợp – xem `results/synth/summary.md`.

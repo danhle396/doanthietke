@@ -33,6 +33,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, HOME, JOBS, RESULTS, RISCV_PREFIX, ROOT, VERILATOR, run  # noqa: E402
+from md_table import write_md as write_md_file  # noqa: E402
 
 IMAGE = "ghcr.io/efabless/openlane2:2.3.10"
 PDK_ROOT = Path(os.environ.get("PDK_ROOT", HOME / ".volare"))
@@ -339,7 +340,7 @@ def write_md(data):
               f"Đường găng: `results/asic/timing_{t}.txt`.", ""]
     L += [f"Tái tạo: `make asic` (lần đầu khoảng 1 giờ; kết quả cũ được dùng lại nếu RTL và "
           "`asic/<top>/config.json` không đổi).", ""]
-    (OUT / "summary.md").write_text("\n".join(L))
+    write_md_file(OUT / "summary.md", "\n".join(L))
     print("\n".join(L))
 
 

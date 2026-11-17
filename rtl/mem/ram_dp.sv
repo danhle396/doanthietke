@@ -88,6 +88,7 @@ module ram_dp #(
   assign d_off   = d_addr - BASE;
   assign d_idx   = d_off[AW+1:2];
 
+  generate
   if (!SYNC) begin : g_comb
     logic [31:0]   mem [DEPTH];
     logic [AW-1:0] i_idx_next;
@@ -140,6 +141,7 @@ module ram_dp #(
     assign i_rdata = i_addr[1] ? {(i_last ? 16'b0 : b0_iq), b1_iq} : {b1_iq, b0_iq};
     assign d_rdata = {b1_dq, b0_dq};
   end
+  endgenerate
 
   /* verilator lint_off UNUSEDSIGNAL */
   // Upper offset bits only matter for the range check.

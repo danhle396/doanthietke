@@ -8,3 +8,8 @@ __pycache__/
 *.pyc
 asic/*/runs/
 asic/*/slpp_all/
+# Quartus II build output (fpga/)
+fpga/db/
+fpga/incremental_db/
+fpga/output_files/
+*.qws

@@ -6,6 +6,7 @@ Usage: make_results_md.py
 """
 import re
 from pathlib import Path
+from md_table import write_md  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 R = ROOT / "results"
@@ -61,7 +62,7 @@ def main():
             "`apb_transaction.png` (Wishbone → APB4), `uart_frame.png`, `spi_mode0.png`, `spi_mode3.png`, "
             "`walkthrough_pipeline.png`; lock-step RTL/Spike: `results/cosim/lockstep.png`; "
             "bảng pipeline theo chu kỳ: `results/waves/walkthrough_table.md`.", ""]
-    (ROOT / "docs/results.md").write_text("\n".join(out))
+    write_md(ROOT / "docs/results.md", "\n".join(out))
     print("[results] docs/results.md written")
 
 

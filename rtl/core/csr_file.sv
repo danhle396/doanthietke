@@ -237,11 +237,14 @@ module csr_file
     end
   end
 
-  for (genvar i = 3; i <= 10; i++) begin : g_hpm
+  genvar gi;
+  generate
+  for (gi = 3; gi <= 10; gi = gi + 1) begin : g_hpm
     always_ff @(posedge clk or negedge rst_n) begin
-      if (!rst_n)          hpm_q[i] <= 64'b0;
-      else if (hpm_inc[i-3]) hpm_q[i] <= hpm_q[i] + 64'd1;
+      if (!rst_n)            hpm_q[gi] <= 64'b0;
+      else if (hpm_inc[gi-3]) hpm_q[gi] <= hpm_q[gi] + 64'd1;
     end
   end
+  endgenerate
 
 endmodule

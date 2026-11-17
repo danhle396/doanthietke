@@ -10,6 +10,7 @@ import csv
 import json
 import re
 from pathlib import Path
+from md_table import write_md  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 R = ROOT / "results"
@@ -290,7 +291,7 @@ def main():
             L += [f"![Hình 4.13. Layout lõi single-cycle `rv_core_sc` – ảnh phóng to: die "
                   f"{s['die_mm2']:.2f} mm² so với {p['die_mm2']:.2f} mm² của Hình 4.12]"
                   "(../../results/asic/layout_rv_core_sc.png)", ""]
-    (ROOT / "docs/report/chuong4_xac_minh.md").write_text("\n".join(L))
+    write_md(ROOT / "docs/report/chuong4_xac_minh.md", "\n".join(L))
     print("[ch4] docs/report/chuong4_xac_minh.md written")
 
 

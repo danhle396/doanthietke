@@ -2,12 +2,12 @@
 
 ## Bốn mode
 
-| Mode | CPOL | CPHA | SCLK nghỉ | Lấy mẫu MISO | Đổi MOSI |
-|---|---|---|---|---|---|
-| 0 | 0 | 0 | thấp | cạnh lên (leading) | cạnh xuống (trailing); bit đầu đặt trước cạnh đầu tiên |
-| 1 | 0 | 1 | thấp | cạnh xuống (trailing) | cạnh lên (leading) |
-| 2 | 1 | 0 | cao | cạnh xuống (leading) | cạnh lên (trailing) |
-| 3 | 1 | 1 | cao | cạnh lên (trailing) | cạnh xuống (leading) |
+| Mode | CPOL | CPHA | SCLK nghỉ | Lấy mẫu MISO          | Đổi MOSI                                               |
+| ---- | ---- | ---- | --------- | --------------------- | ------------------------------------------------------ |
+|    0 |    0 |    0 | thấp      | cạnh lên (leading)    | cạnh xuống (trailing); bit đầu đặt trước cạnh đầu tiên |
+|    1 |    0 |    1 | thấp      | cạnh xuống (trailing) | cạnh lên (leading)                                     |
+|    2 |    1 |    0 | cao       | cạnh xuống (leading)  | cạnh lên (trailing)                                    |
+|    3 |    1 |    1 | cao       | cạnh lên (trailing)   | cạnh xuống (leading)                                   |
 
 "Leading" = cạnh rời mức nghỉ. CPOL chỉ đổi mức nghỉ; CPHA quyết định lấy mẫu ở cạnh thứ nhất hay thứ hai.
 Flash W25Q chạy mode 0 và 3 – hai mode cùng "lấy mẫu cạnh lên, đổi dữ liệu cạnh xuống".

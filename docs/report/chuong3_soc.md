@@ -9,16 +9,16 @@ interconnect Wishbone `dbus_xbar`, cầu Wishbone → APB4 `apb_bridge` và sáu
 
 Bảng 3.1. Bản đồ bộ nhớ (nguồn: `docs/memory_map.md`).
 
-| Vùng | Địa chỉ | Kích thước | Ghi chú |
-|---|---|---|---|
-| RAM | `0x8000_0000` | 128 KB | lệnh + dữ liệu; reset PC |
-| UART | `0x1000_0000` | 4 KB | APB slot 0 |
-| SPI | `0x1000_1000` | 4 KB | APB slot 1 |
-| TIMER64 | `0x1000_2000` | 4 KB | APB slot 2 |
-| GPIO | `0x1000_3000` | 4 KB | APB slot 3 |
-| INTC | `0x1000_4000` | 4 KB | APB slot 4 |
-| SIM_CTRL | `0x1000_F000` | 4 KB | APB slot 15, chỉ mô phỏng |
-| còn lại | – | – | access fault (load 5, store 7, fetch 1) |
+| Vùng     | Địa chỉ       | Kích thước | Ghi chú                                 |
+| -------- | ------------- | ---------- | --------------------------------------- |
+| RAM      | `0x8000_0000` | 128 KB     | lệnh + dữ liệu; reset PC                |
+| UART     | `0x1000_0000` | 4 KB       | APB slot 0                              |
+| SPI      | `0x1000_1000` | 4 KB       | APB slot 1                              |
+| TIMER64  | `0x1000_2000` | 4 KB       | APB slot 2                              |
+| GPIO     | `0x1000_3000` | 4 KB       | APB slot 3                              |
+| INTC     | `0x1000_4000` | 4 KB       | APB slot 4                              |
+| SIM_CTRL | `0x1000_F000` | 4 KB       | APB slot 15, chỉ mô phỏng               |
+| còn lại  | –             | –          | access fault (load 5, store 7, fetch 1) |
 
 RAM đặt ở `0x8000_0000` để khớp mặc định của Spike và riscv-tests. Reset ngoài đi qua `rst_sync` (bật bất đồng bộ,
 nhả đồng bộ qua 2 flip-flop) trước khi tới mọi khối.
@@ -31,13 +31,13 @@ nằm sau cầu Wishbone → **AMBA APB4**. Có bốn liên kết Wishbone: bus 
 
 Bảng 3.2. Tín hiệu Wishbone (phía master).
 
-| Tín hiệu | Bus lệnh | Bus dữ liệu | Ý nghĩa |
-|---|---|---|---|
-| `CYC`, `STB` | = 1 sau reset | có giao dịch load/store | chu kỳ bus / yêu cầu hợp lệ |
-| `ADR[31:0]` | PC (căn 2 byte) | địa chỉ byte | địa chỉ |
-| `WE`, `SEL[3:0]` | – | ghi / byte enable | chiều và byte lane |
-| `DAT_O`, `DAT_I` | – / lệnh 32 bit | dữ liệu ghi / đọc | dữ liệu |
-| `ACK`, `ERR` | kết thúc / lỗi lấy lệnh | kết thúc / lỗi truy cập | kết thúc chu kỳ (loại trừ nhau) |
+| Tín hiệu         | Bus lệnh                | Bus dữ liệu             | Ý nghĩa                         |
+| ---------------- | ----------------------- | ----------------------- | ------------------------------- |
+| `CYC`, `STB`     | = 1 sau reset           | có giao dịch load/store | chu kỳ bus / yêu cầu hợp lệ     |
+| `ADR[31:0]`      | PC (căn 2 byte)         | địa chỉ byte            | địa chỉ                         |
+| `WE`, `SEL[3:0]` | –                       | ghi / byte enable       | chiều và byte lane              |
+| `DAT_O`, `DAT_I` | – / lệnh 32 bit         | dữ liệu ghi / đọc       | dữ liệu                         |
+| `ACK`, `ERR`     | kết thúc / lỗi lấy lệnh | kết thúc / lỗi truy cập | kết thúc chu kỳ (loại trừ nhau) |
 
 Master giữ nguyên `CYC/STB`, địa chỉ, `WE`, `SEL` và dữ liệu ghi tới khi có `ACK` hoặc `ERR`; `ERR` dẫn tới access
 fault (mcause 1/5/7). Slave RAM trả `ACK` **ngay trong chu kỳ yêu cầu** (Wishbone classic cho phép), nên mọi lần lấy
@@ -100,15 +100,15 @@ parity error, FIFO đầy là overrun (byte bị bỏ).
 
 Bảng 3.3. Thanh ghi UART (nguồn: `docs/register_map.md`).
 
-| Off | Tên | Mô tả |
-|---|---|---|
-| 0x00 | DATA | W: đẩy TX FIFO; R: byte RX, bit 31 = RX rỗng, pop |
-| 0x04 | STATUS | TX_FULL/EMPTY/IDLE, RX_EMPTY/FULL, OVERRUN, FRAME_ERR, PARITY_ERR, TX_LEVEL, RX_LEVEL |
-| 0x08 | CTRL | TX_EN, RX_EN, PARITY_EN, PARITY_ODD, STOP2 |
-| 0x0C | BAUD_DIV | hệ số chia |
-| 0x10 | IRQ_EN | TX_WM, RX_WM, ERR |
-| 0x14 | IRQ_STATUS | TX_WM (TX_LEVEL ≤ ngưỡng), RX_WM (RX_LEVEL ≥ ngưỡng) theo mức; ERR dính, W1C |
-| 0x18 | WATERMARK | TX_WM_LVL, RX_WM_LVL |
+| Off  | Tên        | Mô tả                                                                                 |
+| ---- | ---------- | ------------------------------------------------------------------------------------- |
+| 0x00 | DATA       | W: đẩy TX FIFO; R: byte RX, bit 31 = RX rỗng, pop                                     |
+| 0x04 | STATUS     | TX_FULL/EMPTY/IDLE, RX_EMPTY/FULL, OVERRUN, FRAME_ERR, PARITY_ERR, TX_LEVEL, RX_LEVEL |
+| 0x08 | CTRL       | TX_EN, RX_EN, PARITY_EN, PARITY_ODD, STOP2                                            |
+| 0x0C | BAUD_DIV   | hệ số chia                                                                            |
+| 0x10 | IRQ_EN     | TX_WM, RX_WM, ERR                                                                     |
+| 0x14 | IRQ_STATUS | TX_WM (TX_LEVEL ≤ ngưỡng), RX_WM (RX_LEVEL ≥ ngưỡng) theo mức; ERR dính, W1C          |
+| 0x18 | WATERMARK  | TX_WM_LVL, RX_WM_LVL                                                                  |
 
 Ngắt theo mức (`irq = |(IRQ_STATUS & IRQ_EN)`) giúp trình xử lý đơn giản: đọc tới khi RX FIFO rỗng thì nguồn tự hết.
 Hình 3.5 là một khung UART 8N1 trích từ mô phỏng.
@@ -129,14 +129,14 @@ RX FIFO và bắt đầu byte kế (nếu còn). LSB-first được hiện thự
 
 Bảng 3.4. Thanh ghi SPI.
 
-| Off | Tên | Mô tả |
-|---|---|---|
-| 0x00 | DATA | W: đẩy TX FIFO; R: byte RX, bit 31 = RX rỗng, pop |
-| 0x04 | STATUS | TX_FULL/EMPTY, RX_EMPTY/FULL, BUSY, RX_OVERRUN, mức FIFO |
-| 0x08 | CTRL | EN, CPOL, CPHA, LSB_FIRST |
-| 0x0C | CLK_DIV | hệ số chia SCLK |
-| 0x10 | CS | CS_N[3:0] |
-| 0x14 | IRQ_EN | TX_EMPTY, RX_NOT_EMPTY, DONE, OVERRUN |
+| Off  | Tên        | Mô tả                                                                 |
+| ---- | ---------- | --------------------------------------------------------------------- |
+| 0x00 | DATA       | W: đẩy TX FIFO; R: byte RX, bit 31 = RX rỗng, pop                     |
+| 0x04 | STATUS     | TX_FULL/EMPTY, RX_EMPTY/FULL, BUSY, RX_OVERRUN, mức FIFO              |
+| 0x08 | CTRL       | EN, CPOL, CPHA, LSB_FIRST                                             |
+| 0x0C | CLK_DIV    | hệ số chia SCLK                                                       |
+| 0x10 | CS         | CS_N[3:0]                                                             |
+| 0x14 | IRQ_EN     | TX_EMPTY, RX_NOT_EMPTY, DONE, OVERRUN                                 |
 | 0x18 | IRQ_STATUS | hai bit mức; DONE (byte cuối xong, TX FIFO rỗng) và OVERRUN dính, W1C |
 
 Ngắt DONE cho phép firmware nạp tối đa 16 byte rồi ngủ (`wfi`) tới khi truyền xong. Hình 3.7 và 3.8 là khung SPI ở
@@ -164,15 +164,15 @@ lý ngắt ngoài đọc ACTIVE và gọi handler từng ngoại vi; mọi ngu�
 
 Bảng 3.5. Thanh ghi TIMER64, GPIO, INTC (nguồn: `docs/register_map.md`).
 
-| Khối | Off | Tên | Mô tả |
-|---|---|---|---|
-| TIMER64 | 0x00/0x04 | MTIME_LO/HI | bộ đếm 64 bit (RW) |
-| TIMER64 | 0x08/0x0C | MTIMECMP_LO/HI | ngưỡng so sánh (reset toàn 1) |
-| TIMER64 | 0x10 | CTRL | EN, PRESCALE[15:8] |
-| TIMER64 | 0x14 | MSIP | bit 0 → ngắt phần mềm |
-| GPIO | 0x00/0x04/0x08 | OUT / IN / DIR | xuất, nhập (đồng bộ 2 FF), hướng |
-| GPIO | 0x0C/0x10/0x14 | IRQ_EN / IRQ_STATUS / IRQ_TYPE | ngắt cạnh theo chân, W1C, lên/xuống |
-| INTC | 0x00/0x04/0x08 | PENDING / ENABLE / ACTIVE | mức nguồn, cho phép, nguồn đang hoạt động |
+| Khối    | Off            | Tên                            | Mô tả                                     |
+| ------- | -------------- | ------------------------------ | ----------------------------------------- |
+| TIMER64 | 0x00/0x04      | MTIME_LO/HI                    | bộ đếm 64 bit (RW)                        |
+| TIMER64 | 0x08/0x0C      | MTIMECMP_LO/HI                 | ngưỡng so sánh (reset toàn 1)             |
+| TIMER64 | 0x10           | CTRL                           | EN, PRESCALE[15:8]                        |
+| TIMER64 | 0x14           | MSIP                           | bit 0 → ngắt phần mềm                     |
+| GPIO    | 0x00/0x04/0x08 | OUT / IN / DIR                 | xuất, nhập (đồng bộ 2 FF), hướng          |
+| GPIO    | 0x0C/0x10/0x14 | IRQ_EN / IRQ_STATUS / IRQ_TYPE | ngắt cạnh theo chân, W1C, lên/xuống       |
+| INTC    | 0x00/0x04/0x08 | PENDING / ENABLE / ACTIVE      | mức nguồn, cho phép, nguồn đang hoạt động |
 
 ## 3.9. Kịch bản sử dụng flash SPI
 
@@ -198,14 +198,14 @@ theo ba biến thể `rv32i`, `rv32im`, `rv32imc` vì assembler tự nén lệnh
 
 Bảng 3.6. API driver chính (nguồn: `sw/drivers/*.h`).
 
-| Driver | Polling | Dùng ngắt |
-|---|---|---|
-| UART | `uart_putc`, `uart_getc`, `uart_flush` | `uart_rx_irq_start`, `uart_isr` (ring buffer), `uart_rx_read` |
-| SPI | `spi_xfer`, `spi_xfer_buf` | `spi_irq_mode`, `spi_xfer_buf_irq` (DONE + `wfi`), `spi_isr` |
-| Flash | `flash_read_id`, `flash_read`, `flash_page_program`, `flash_sector_erase`, `flash_wait_busy` | `flash_use_irq = 1` |
-| TIMER | `timer_mtime` (hi–lo–hi), `timer_set_cmp` (trình tự an toàn) | `timer_irq_enable`, `irq_timer_handler` |
-| GPIO | `gpio_write`, `gpio_read`, `gpio_set_dir` | `gpio_irq_config`, `gpio_isr` |
-| INTC | `intc_enable`, `intc_active` | `irq_external_handler` (phân phối tới các ISR) |
+| Driver | Polling                                                                                      | Dùng ngắt                                                     |
+| ------ | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| UART   | `uart_putc`, `uart_getc`, `uart_flush`                                                       | `uart_rx_irq_start`, `uart_isr` (ring buffer), `uart_rx_read` |
+| SPI    | `spi_xfer`, `spi_xfer_buf`                                                                   | `spi_irq_mode`, `spi_xfer_buf_irq` (DONE + `wfi`), `spi_isr`  |
+| Flash  | `flash_read_id`, `flash_read`, `flash_page_program`, `flash_sector_erase`, `flash_wait_busy` | `flash_use_irq = 1`                                           |
+| TIMER  | `timer_mtime` (hi–lo–hi), `timer_set_cmp` (trình tự an toàn)                                 | `timer_irq_enable`, `irq_timer_handler`                       |
+| GPIO   | `gpio_write`, `gpio_read`, `gpio_set_dir`                                                    | `gpio_irq_config`, `gpio_isr`                                 |
+| INTC   | `intc_enable`, `intc_active`                                                                 | `irq_external_handler` (phân phối tới các ISR)                |
 
 ## 3.11. Chương trình demo
 

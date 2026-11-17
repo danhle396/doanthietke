@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (BUILD, JOBS, MARCH, RESULTS, SPIKE, build_isa_test, build_soc,  # noqa: E402
                     cfg_variant, elf2hex, isa_tests, run_sim, symbol_addr)
 from run_isa import CONFIGS, EXCLUDED, suites_for  # noqa: E402
+from md_table import write_md  # noqa: E402
 
 LINE_RE = re.compile(r"^core\s+0: \d 0x([0-9a-f]+) \(0x([0-9a-f]+)\)(.*)$")
 REG_RE = re.compile(r"\bx(\d+)\s+0x([0-9a-f]+)")
@@ -262,7 +263,7 @@ def write_report(cname, rows):
         kn = "; ".join(sorted(set(r["known"]))) if r["known"] else ""
         lines.append(f"| {r['test']} | {r['result']} | {r['detail']} | {r['masked']} | {kn} |")
     lines += ["", f"Tái tạo: `.venv/bin/python scripts/compare_spike.py --config {cname}`", ""]
-    (out / f"{cname}.md").write_text("\n".join(lines))
+    write_md(out / f"{cname}.md", "\n".join(lines))
     return nm
 
 
@@ -311,7 +312,7 @@ def main():
                  "| Cấu hình | MATCH | Tổng |", "|---|---|---|"]
         lines += [f"| `{c}` | {m} | {t} |" for c, m, t in summary]
         lines += ["", "Tái tạo: `make spike`", ""]
-        (RESULTS / "spike/summary.md").write_text("\n".join(lines))
+        write_md(RESULTS / "spike/summary.md", "\n".join(lines))
     sys.exit(1 if bad else 0)
 
 

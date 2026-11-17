@@ -9,18 +9,18 @@ OpenLane 2 là chuỗi công cụ mã nguồn mở biến RTL thành file layout
 kit) sky130A của SkyWater mô tả quy trình 130 nm: luật thiết kế, lớp kim loại, thư viện cell chuẩn
 `sky130_fd_sc_hd` (cổng logic, flip-flop đã vẽ sẵn layout, có thông số timing ở nhiều góc PVT).
 
-| Bước | Công cụ | Làm gì |
-|---|---|---|
-| Lint, tổng hợp | Verilator, Yosys + Synlig | RTL → netlist gồm cell sky130 |
-| Floorplan, lưới nguồn | OpenROAD | Chọn kích thước die (mật độ 40 %), đặt chân I/O, vẽ lưới VPWR/VGND trên met4/met5 |
-| Đặt cell (placement) | OpenROAD | Đặt ~50 nghìn cell vào hàng; sửa slew/cap/fanout bằng buffer |
-| CTS | OpenROAD (TritonCTS) | Dựng cây buffer clock để clock tới mọi flip-flop gần như cùng lúc (skew nhỏ) |
-| Tối ưu timing | OpenROAD (resizer) | Đổi kích thước cell, nhân bản cell, chèn buffer để sửa setup/hold |
-| Đi dây | OpenROAD (FastRoute, TritonRoute) | Đi dây toàn cục rồi chi tiết trên li1, met1–met5; sửa antenna bằng diode |
-| Trích ký sinh, STA | OpenRCX, OpenSTA | Tính R, C thật của dây → timing ở 9 góc PVT, công suất |
-| Xuất GDS | Magic, KLayout | Hai công cụ xuất độc lập; XOR so hai bản phải giống nhau |
-| DRC | Magic, KLayout | Kiểm luật hình học (độ rộng, khoảng cách, mật độ kim loại) |
-| LVS | Netgen | Trích mạch từ layout, so với netlist – layout phải đúng mạch đã tổng hợp |
+| Bước                  | Công cụ                           | Làm gì                                                                            |
+| --------------------- | --------------------------------- | --------------------------------------------------------------------------------- |
+| Lint, tổng hợp        | Verilator, Yosys + Synlig         | RTL → netlist gồm cell sky130                                                     |
+| Floorplan, lưới nguồn | OpenROAD                          | Chọn kích thước die (mật độ 40 %), đặt chân I/O, vẽ lưới VPWR/VGND trên met4/met5 |
+| Đặt cell (placement)  | OpenROAD                          | Đặt ~50 nghìn cell vào hàng; sửa slew/cap/fanout bằng buffer                      |
+| CTS                   | OpenROAD (TritonCTS)              | Dựng cây buffer clock để clock tới mọi flip-flop gần như cùng lúc (skew nhỏ)      |
+| Tối ưu timing         | OpenROAD (resizer)                | Đổi kích thước cell, nhân bản cell, chèn buffer để sửa setup/hold                 |
+| Đi dây                | OpenROAD (FastRoute, TritonRoute) | Đi dây toàn cục rồi chi tiết trên li1, met1–met5; sửa antenna bằng diode          |
+| Trích ký sinh, STA    | OpenRCX, OpenSTA                  | Tính R, C thật của dây → timing ở 9 góc PVT, công suất                            |
+| Xuất GDS              | Magic, KLayout                    | Hai công cụ xuất độc lập; XOR so hai bản phải giống nhau                          |
+| DRC                   | Magic, KLayout                    | Kiểm luật hình học (độ rộng, khoảng cách, mật độ kim loại)                        |
+| LVS                   | Netgen                            | Trích mạch từ layout, so với netlist – layout phải đúng mạch đã tổng hợp          |
 
 Chạy: `make asic` (Docker image OpenLane 2.3.10, lần đầu khoảng 1–1,5 giờ trên máy 4 nhân, 7,5 GB RAM).
 

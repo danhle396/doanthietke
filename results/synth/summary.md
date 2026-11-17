@@ -4,46 +4,46 @@ Diện tích: Yosys `synth -flatten` (thư viện generic, đơn vị = số cel
 
 ## Bảng S1 – Diện tích lõi và ngoại vi (generic)
 
-| Khối | Tham số | Cell | Flip-flop |
-|---|---|---|---|
-| `rv_core_m1c1_bp0` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 0} | 24567 | 2532 |
-| `rv_core_m1c1_bp1` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 1} | 28970 | 3045 |
-| `rv_core_m1c1_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 2} | 32801 | 4966 |
-| `rv_core_m1c0_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 0, 'BP_MODE': 2} | 30995 | 4871 |
-| `rv_core_m0c0_bp2` | {'ENABLE_M': 0, 'ENABLE_C': 0, 'BP_MODE': 2} | 21370 | 4699 |
-| `rv_core_sc` | – | 10477 | 1509 |
-| `uart_apb` | – | 1457 | 411 |
-| `spi_apb` | – | 1145 | 364 |
-| `timer64_apb` | – | 1245 | 146 |
-| `gpio_apb` | – | 611 | 130 |
-| `intc_apb` | – | 54 | 3 |
-| `apb_bridge` | – | 182 | 71 |
-| `dbus_xbar` | – | 173 | 0 |
-| `sim_ctrl` | – | 18 | 0 |
-| `rst_sync` | – | 2 | 2 |
-| `soc_top` | – | 37779 | 6077 |
+| Khối               | Tham số                                      | Cell  | Flip-flop |
+| ------------------ | -------------------------------------------- | ----- | --------- |
+| `rv_core_m1c1_bp0` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 0} | 24567 |      2532 |
+| `rv_core_m1c1_bp1` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 1} | 28970 |      3045 |
+| `rv_core_m1c1_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 1, 'BP_MODE': 2} | 32801 |      4966 |
+| `rv_core_m1c0_bp2` | {'ENABLE_M': 1, 'ENABLE_C': 0, 'BP_MODE': 2} | 30995 |      4871 |
+| `rv_core_m0c0_bp2` | {'ENABLE_M': 0, 'ENABLE_C': 0, 'BP_MODE': 2} | 21370 |      4699 |
+| `rv_core_sc`       | –                                            | 10477 |      1509 |
+| `uart_apb`         | –                                            |  1457 |       411 |
+| `spi_apb`          | –                                            |  1145 |       364 |
+| `timer64_apb`      | –                                            |  1245 |       146 |
+| `gpio_apb`         | –                                            |   611 |       130 |
+| `intc_apb`         | –                                            |    54 |         3 |
+| `apb_bridge`       | –                                            |   182 |        71 |
+| `dbus_xbar`        | –                                            |   173 |         0 |
+| `sim_ctrl`         | –                                            |    18 |         0 |
+| `rst_sync`         | –                                            |     2 |         2 |
+| `soc_top`          | –                                            | 37779 |      6077 |
 
 Nguồn: `results/synth/area.csv`.
 
 ## Bảng S2 – Diện tích `rv_core` theo BHT × BTB (BP_MODE 2, số cell)
 
-| BHT \ BTB | 8 | 16 | 32 | 64 |
-|---|---|---|---|---|
-| 16 | 26427 | 27412 | 29403 | 33277 |
-| 64 | 27170 | 28112 | 30096 | 33915 |
-| 256 | 29826 | 30811 | 32801 | 36664 |
-| 1024 | 40870 | 41829 | 43819 | 47690 |
+| BHT \ BTB | 8     | 16    | 32    | 64    |
+| --------- | ----- | ----- | ----- | ----- |
+|        16 | 26427 | 27412 | 29403 | 33277 |
+|        64 | 27170 | 28112 | 30096 | 33915 |
+|       256 | 29826 | 30811 | 32801 | 36664 |
+|      1024 | 40870 | 41829 | 43819 | 47690 |
 
 ## Bảng S3 – ECP5: tài nguyên và Fmax ước lượng
 
-| Thiết kế | LUT4 | FF | Fmax trung vị (MHz) | min – max (5 seed) | Đường găng (seed trung vị, tóm tắt) |
-|---|---|---|---|---|---|
-| `m1c1_bp2` | 9715 | 4966 | 40.44 | 38.21 – 42.38 | `u_ex.mem_rd` → `u_ex.fwd_rs1` (36 chặng logic/định tuyến) |
-| `m1c1_bp0` | 5493 | 2532 | 44.76 | 41.92 – 46.27 | `u_ex.mem_rd_we` → `u_ex.mem_rd_we` (25 chặng logic/định tuyến) |
-| `m0c0_bp2` | 8446 | 4699 | 45.48 | 43.7 – 46.64 | `u_ex.mem_rd_we` → `u_if.pc_q` (46 chặng logic/định tuyến) |
-| `sc` | 4501 | 1509 | 46.22 | 44.09 – 47.74 | `u_csr.wdata` → `u_csr.wdata` (42 chặng logic/định tuyến) |
-| `soc_top_1k` | 11413 | 5565 | 44.07 | 41.43 – 45.76 | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_ex.mem_rd_we` (19 chặng logic/định tuyến) |
-| `soc_top_m0c0_1k` | 10240 | 5298 | 42.64 | 34.78 – 44.0 | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_if.id_insn` (51 chặng logic/định tuyến) |
-| `soc_top_sc_1k` | 8886 | 2108 | 25.95 | 24.6 – 26.42 | `g_sc.u_core.pc_q` → `g_sc.u_core.u_csr.wdata` (37 chặng logic/định tuyến) |
+| Thiết kế          | LUT4  | FF   | Fmax trung vị (MHz) | min – max (5 seed) | Đường găng (seed trung vị, tóm tắt)                                                         |
+| ----------------- | ----- | ---- | ------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
+| `m1c1_bp2`        |  9715 | 4966 |               40.44 | 38.21 – 42.38      | `u_ex.mem_rd` → `u_ex.fwd_rs1` (36 chặng logic/định tuyến)                                  |
+| `m1c1_bp0`        |  5493 | 2532 |               44.76 | 41.92 – 46.27      | `u_ex.mem_rd_we` → `u_ex.mem_rd_we` (25 chặng logic/định tuyến)                             |
+| `m0c0_bp2`        |  8446 | 4699 |               45.48 | 43.7 – 46.64       | `u_ex.mem_rd_we` → `u_if.pc_q` (46 chặng logic/định tuyến)                                  |
+| `sc`              |  4501 | 1509 |               46.22 | 44.09 – 47.74      | `u_csr.wdata` → `u_csr.wdata` (42 chặng logic/định tuyến)                                   |
+| `soc_top_1k`      | 11413 | 5565 |               44.07 | 41.43 – 45.76      | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_ex.mem_rd_we` (19 chặng logic/định tuyến) |
+| `soc_top_m0c0_1k` | 10240 | 5298 |               42.64 | 34.78 – 44.0       | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_if.id_insn` (51 chặng logic/định tuyến)   |
+| `soc_top_sc_1k`   |  8886 | 2108 |               25.95 | 24.6 – 26.42       | `g_sc.u_core.pc_q` → `g_sc.u_core.u_csr.wdata` (37 chặng logic/định tuyến)                  |
 
 Chi tiết từng chặng: `results/synth/critical_path_<tên>.txt`. `soc_top_*_1k` dùng RAM 1 KB (LUT RAM) thay cho 128 KB để đặt được trên FPGA và tính cả đường đọc RAM tổ hợp; Fmax của lõi đứng riêng (`m1c1_bp2`, `sc`…) **không** gồm đường qua RAM (cổng vào/ra lõi không được ràng buộc), nên so sánh single-cycle với pipeline phải dùng các dòng `soc_top_*`.
