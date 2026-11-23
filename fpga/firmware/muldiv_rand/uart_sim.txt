@@ -1,0 +1,11 @@
+muldiv_rand
+mul    : ok
+mulh   : ok
+mulhsu : ok
+mulhu  : ok
+div    : ok
+divu   : ok
+rem    : ok
+remu   : ok
+div64  : ok
+RESULT muldiv_rand: PASS (9 checks, 0 errors)

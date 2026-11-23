@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Waveform figures, pipeline walkthrough table and GTKWave save files.
+"""Waveform screenshots, pipeline walkthrough table and GTKWave save files.
 
 Runs short simulations on a VCD build of tb_soc (m1c1_bp2), finds the time
-window of each scene automatically from the signals, and draws it with
-scripts/vcd2png.py:
+window of each scene automatically from the signals, opens the VCD in the
+real GTKWave (virtual X display) with that window and a marker on the event,
+and saves a screenshot of the GTKWave window (scripts/gtkwave_shot.py):
   forwarding, load-use stall, misprediction + flush, compressed instructions,
   trap entry/exit (MSI interrupt and ECALL), APB transaction, UART frame,
   SPI frame mode 0 and mode 3.
@@ -18,13 +19,27 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import BUILD, RESULTS, ROOT, build_soc, make_cfg, run_sim, symbol_addr  # noqa: E402
 from build_sw import build_program  # noqa: E402
-from vcd2png import Vcd, plot  # noqa: E402
+from vcd2png import Vcd  # noqa: E402  (VCD reader: finds the scene windows)
+from gtkwave_shot import Screen  # noqa: E402
 from md_table import write_md  # noqa: E402
 
 OUT = RESULTS / "waves"
 GTKW = ROOT / "docs/gtkw"
 PERIOD = 20
 C = "dut.g_pipe.u_core."
+SCREEN = None          # gtkwave_shot.Screen, opened in main()
+
+
+def shot(vcd_path, v, items, t0, t1, out, marker=None, width=1600):
+    """GTKWave screenshot of signals `items` between t0 and t1 (ns). An item is
+    a signal name, or "#text" for a comment row; labels drop the hierarchy prefix."""
+    rows = []
+    for it in items:
+        if it.startswith("#"):
+            rows.append(("comment", it[1:]))
+        else:
+            rows.append(("sig", it, v.width[it], it.replace(C, "").replace("dut.", "")))
+    SCREEN.shot(vcd_path, rows, t0, t1, out, marker_ns=marker, width=width)
 
 PIPE = ["clk", C + "u_if.pc_q", C + "id_valid", C + "id_pc", C + "ex_valid", C + "ex_pc",
         C + "mem_valid", C + "mem_pc", C + "wb_valid", C + "wb_pc"]
@@ -91,12 +106,10 @@ def walkthrough():
     t_if = first_time(v, C + "u_if.pc_q", lambda x: x == start)
     t_wb = first_time(v, C + "wb_pc", lambda x: x == end, after=t_if)
     t0, t1 = t_if - 2 * PERIOD, t_wb + 3 * PERIOD
-    lab = {s: s.replace(C, "") for s in PIPE + CTRL}
-    sigs = [C + "u_if.pc_q", C + "id_pc", C + "ex_pc", C + "mem_pc", C + "wb_pc", C + "stall_id",
-            C + "flush_id_ex", C + "ex_redirect", C + "mem_trap", C + "fwd_a", C + "fwd_b"]
-    plot(v, sigs, t0, t1, OUT / "walkthrough_pipeline.png",
-         "Hình W1. Toàn bộ đoạn walkthrough (m1c1_bp2): PC ở từng tầng và tín hiệu điều khiển",
-         labels=[lab[s] for s in sigs])
+    sigs = ["#PC ở từng tầng", "clk", C + "u_if.pc_q", C + "id_pc", C + "ex_pc", C + "mem_pc",
+            C + "wb_pc", "#Điều khiển", C + "stall_id", C + "flush_id_ex", C + "ex_redirect",
+            C + "mem_trap", C + "fwd_a", C + "fwd_b"]
+    shot(vcd_path, v, sigs, t0, t1, OUT / "walkthrough_pipeline.png", width=2560)
 
     # ---- table: one row per clock cycle ----
     first_edge = ((t0 // PERIOD) + 1) * PERIOD - PERIOD // 2  # rising edges at 10, 30, ...
@@ -142,32 +155,29 @@ def walkthrough():
 
     # ---- focused scenes ----
     t_lw = first_time(v, C + "ex_pc", lambda x: x == start, after=t_if)
-    sigs = ["clk", C + "id_pc", C + "ex_pc", C + "mem_pc", C + "wb_pc", C + "stall_id", C + "flush_id_ex",
-            C + "fwd_a", C + "fwd_b", C + "rf_waddr", C + "rf_wdata"]
+    sigs = ["clk", "#PC ở từng tầng", C + "id_pc", C + "ex_pc", C + "mem_pc", C + "wb_pc",
+            "#Hazard (fwd: 1 = ex_mem, 2 = mem_wb)", C + "stall_id", C + "flush_id_ex", C + "fwd_a",
+            C + "fwd_b", "#Ghi thanh ghi", C + "rf_waddr", C + "rf_wdata"]
     a, b = window(t_lw, 2, 8)
-    plot(v, sigs, a, b, OUT / "load_use_forwarding.png",
-         "Hình W2. Load-use stall (1 chu kỳ) và forwarding ex_mem / mem_wb (fwd: 1 = ex_mem, 2 = mem_wb)",
-         labels=[lab.get(s, s) for s in sigs])
+    shot(vcd_path, v, sigs, a, b, OUT / "load_use_forwarding.png", marker=t_lw)
     t_c = first_time(v, C + "id_is_c", lambda x: x == 1, after=t_if)
-    sigs = ["clk", C + "u_if.pc_q", C + "id_pc", C + "id_is_c", C + "ex_pc", C + "ex_is_c", C + "wb_pc"]
+    sigs = ["clk", C + "u_if.pc_q", "#ID", C + "id_pc", C + "id_is_c", "#EX", C + "ex_pc",
+            C + "ex_is_c", "#WB", C + "wb_pc"]
     a, b = window(t_c, 3, 7)
-    plot(v, sigs, a, b, OUT / "compressed.png",
-         "Hình W3. Lệnh nén: PC tăng 2, lệnh 32 bit sau đó nằm vắt qua ranh giới word",
-         labels=[lab.get(s, s) for s in sigs])
+    shot(vcd_path, v, sigs, a, b, OUT / "compressed.png", marker=t_c)
     t_m = first_time(v, C + "ex_redirect", lambda x: x == 1, after=t_if)
-    sigs = ["clk", C + "u_if.pc_q", C + "id_valid", C + "id_pc", C + "ex_valid", C + "ex_pc",
-            C + "ex_redirect", C + "flush_if_id", C + "flush_id_ex", C + "mem_valid", C + "mem_pc"]
+    sigs = ["clk", C + "u_if.pc_q", "#ID", C + "id_valid", C + "id_pc", "#EX", C + "ex_valid",
+            C + "ex_pc", C + "ex_redirect", "#Flush", C + "flush_if_id", C + "flush_id_ex", "#MEM",
+            C + "mem_valid", C + "mem_pc"]
     a, b = window(t_m, 3, 5)
-    plot(v, sigs, a, b, OUT / "mispredict_flush.png",
-         "Hình W4. Nhánh taken bị đoán sai ở EX: flush if_id, id_ex (2 bubble), nạp actual_npc",
-         labels=[lab.get(s, s) for s in sigs])
+    shot(vcd_path, v, sigs, a, b, OUT / "mispredict_flush.png", marker=t_m)
     t_tr = first_time(v, C + "mem_trap", lambda x: x == 1, after=t_if)
     t_end = first_time(v, C + "wb_pc", lambda x: x == end, after=t_tr)
-    sigs = ["clk", C + "irq_req", C + "mem_valid", C + "mem_pc", C + "mem_trap", C + "trap_cause",
-            C + "mem_redirect", C + "u_if.pc_q", C + "u_csr.mepc_q", C + "wb_pc"]
-    plot(v, sigs, t_tr - 3 * PERIOD, t_end + 2 * PERIOD, OUT / "trap_entry_exit.png",
-         "Hình W5. Vào/ra trap: ngắt MSI rồi ECALL, nhảy tới handler, MRET quay về mepc",
-         labels=[lab.get(s, s) for s in sigs])
+    sigs = ["clk", C + "irq_req", "#MEM: trap", C + "mem_valid", C + "mem_pc", C + "mem_trap",
+            C + "trap_cause", C + "mem_redirect", "#PC, CSR", C + "u_if.pc_q", C + "u_csr.mepc_q",
+            C + "wb_pc"]
+    shot(vcd_path, v, sigs, t_tr - 3 * PERIOD, t_end + 2 * PERIOD, OUT / "trap_entry_exit.png",
+         marker=t_tr, width=2560)
     gtkw("pipeline", str(BUILD / "logs/systest/m1c1_bp2/hello.fst"),
          [(s.replace("dut.", "dut.") if s != "clk" else "clk", v.width[s]) for s in PIPE + CTRL])
     vcd_path.unlink()
@@ -181,15 +191,13 @@ def apb_uart():
     v = Vcd(vcd_path, sigs_apb + ["dut.uart_tx", "dut.u_uart.u_tx.state_q", "dut.u_uart.tx_level"])
     t = first_time(v, "dut.psel", lambda x: x == 1)
     a, b = window(t, 3, 6)
-    plot(v, sigs_apb, a, b, OUT / "apb_transaction.png",
-         "Hình W6. Ghi UART.DATA: Wishbone (CYC/STB giữ đến ACK) → cầu APB4 IDLE → SETUP (PSEL) "
-         "→ ACCESS (PENABLE, PREADY)",
-         labels=[s.replace("dut.", "") for s in sigs_apb])
-    t = first_time(v, "dut.uart_tx", lambda x: x == 0)
-    s2 = ["clk", "dut.uart_tx", "dut.u_uart.u_tx.state_q", "dut.u_uart.tx_level"]
-    plot(v, s2, t - 8 * PERIOD, t + 168 * PERIOD, OUT / "uart_frame.png",
-         "Hình W7. Một khung UART 8N1 (BAUD_DIV = 0: 16 chu kỳ/bit): start, 8 bit LSB trước, stop",
-         labels=[s.replace("dut.", "") for s in s2])
+    shot(vcd_path, v, ["clk", "#Wishbone (dbus, CPU)"] + sigs_apb[1:7] + ["#APB4 (cầu -> UART)"]
+         + sigs_apb[7:], a, b, OUT / "apb_transaction.png", marker=t)
+    # first start bit after the CPU wrote UART.DATA (uart_tx is 0 during reset)
+    t = first_time(v, "dut.uart_tx", lambda x: x == 0, after=t)
+    s2 = ["clk", "#Chân TX (8N1, 16 chu kỳ/bit)", "dut.uart_tx", "#Bộ phát", "dut.u_uart.u_tx.state_q",
+          "dut.u_uart.tx_level"]
+    shot(vcd_path, v, s2, t - 8 * PERIOD, t + 168 * PERIOD, OUT / "uart_frame.png", marker=t)
     gtkw("apb_uart", str(BUILD / "logs/systest/m1c1_bp2/hello.fst"),
          [(s, v.width[s]) for s in sigs_apb + ["dut.uart_tx"]])
     vcd_path.unlink()
@@ -204,19 +212,20 @@ def spi():
     for mode, ctrl in ((0, 0b0001), (3, 0b0111)):
         t_cfg = first_time(v, "dut.u_spi.ctrl_q", lambda x, c=ctrl: x == c)
         t = first_time(v, "dut.u_spi.eng_busy", lambda x: x == 1, after=t_cfg)
-        plot(v, sigs, t - 4 * PERIOD, t + 40 * PERIOD, OUT / f"spi_mode{mode}.png",
-             f"Hình W{8 + (mode == 3)}. Khung SPI mode {mode} (CPOL={mode >> 1}, CPHA={mode & 1}), "
-             "CLK_DIV = 0, MSB trước",
-             labels=[s.replace("dut.", "") for s in sigs])
+        shot(vcd_path, v, ["clk", f"#Chân SPI (mode {mode}: CPOL={mode >> 1}, CPHA={mode & 1})"]
+             + sigs[1:5] + ["#Bộ điều khiển"] + sigs[5:], t - 4 * PERIOD, t + 40 * PERIOD,
+             OUT / f"spi_mode{mode}.png", marker=t)
     gtkw("spi", str(BUILD / "logs/systest/m1c1_bp2/spi_modes.fst"), [(s, v.width[s]) for s in sigs])
     vcd_path.unlink()
 
 
 def main():
+    global SCREEN
     OUT.mkdir(parents=True, exist_ok=True)
-    walkthrough()
-    apb_uart()
-    spi()
+    with Screen() as SCREEN:
+        walkthrough()
+        apb_uart()
+        spi()
     print("[waves] " + ", ".join(sorted(p.name for p in OUT.glob("*.png"))))
 
 

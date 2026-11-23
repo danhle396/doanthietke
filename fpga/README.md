@@ -21,21 +21,29 @@ có Quartus II. Không cần Linux, không cần trình biên dịch RISC-V (fir
   file `mem/*.mif`: reset bằng KEY[0], công tắc → LED, UART, lệnh `b` đều đúng (PASS).
 - Danh sách file trong `de2_soc.qsf` elaborate sạch bằng Yosys (top `de2_top`).
 
-**Đã compile bằng Quartus II 13.0sp1 (12/11/2026, firmware `board_demo`):** thành công, 0 Critical Warning.
+**Compile bằng Quartus II 13.0sp1 (17/11/2026, firmware `board_demo`, có console JTAG và màn hình 7 đoạn):**
+thành công, 0 Critical Warning.
 
-| Số liệu (Flow Summary / TimeQuest)    | Giá trị                                     |
-| ------------------------------------- | ------------------------------------------- |
-| Total logic elements                  | 10 767 / 33 216 (32 %)                      |
-| Dedicated logic registers             | 5 671 (17 %)                                |
-| Memory bits                           | 262 656 / 483 840 (54 %), 68 / 105 khối M4K |
-| Embedded Multiplier 9-bit             | 6 / 70                                      |
-| PLL                                   | 1 / 4                                       |
-| Fmax clock CPU (Slow Model)           | 36,02 MHz (yêu cầu 24 MHz)                  |
-| Setup slack / Hold slack (Slow Model) | +7,218 ns / +0,391 ns                       |
-| Đường găng                            | `uart_apb/u_txf/level` → cổng RAM M4K       |
+| Số liệu (Flow Summary / TimeQuest)    | Giá trị                                                     |
+| ------------------------------------- | ----------------------------------------------------------- |
+| Total logic elements                  | 12 127 / 33 216 (37 %)                                      |
+| Dedicated logic registers             | 6 302 (19 %)                                                |
+| Memory bits                           | 328 192 / 483 840 (68 %): RAM 32 KB + FIFO console 8 KB     |
+| Embedded Multiplier 9-bit             | 8 / 70 (bộ nhân 33 × 33)                                    |
+| PLL                                   | 1 / 4                                                       |
+| Fmax clock CPU (Slow Model)           | 35,48 MHz (yêu cầu 24 MHz)                                  |
+| Setup slack / Hold slack (Slow Model) | +6,739 ns / +0,391 ns                                       |
+| Đường găng                            | thanh ghi địa chỉ RAM M4K (cạnh xuống) → `if_stage` của lõi |
 
-**Chưa được kiểm chứng:** chạy trên board thật – đó là phần bạn thực hiện theo hướng dẫn dưới đây. Nếu có lỗi,
-gửi lại nguyên văn thông báo lỗi (mục 9).
+Bản compile đầu tiên (12/11, chưa có console và màn hình): 10 767 LE, 6 khối nhân, Fmax 36,02 MHz.
+
+**Lỗi tìm ra khi chạy trên board (17/11/2026) và đã sửa:** `MULH`, `MULHSU`, `MULHU` trả về toàn `0`/`1`
+(chỉ là bản sao bit dấu), trong khi mô phỏng RTL (Verilator) đúng. Nguyên nhân: `rtl/core/muldiv.sv` viết phép nhân
+trong một phép ép độ rộng `66'(a * b)`; Quartus II 13.0 tính tích ở 33 bit rồi mới mở rộng dấu (chỉ dùng 6 khối
+nhân). Đã viết lại theo kiểu Verilog-2001 (toán hạng `signed` 33 bit, đích `signed` 66 bit, độ rộng theo ngữ cảnh
+phép gán), Quartus dùng 8 khối nhân. Thêm test `muldiv_rand` (8 lệnh RV32M + chia 64 bit, so với mô hình chỉ dùng
+cộng/dịch): trên bitstream cũ FAIL ở `mulh`, `mulhsu`, `mulhu`; mô phỏng PASS. Biểu hiện ban đầu: lệnh `i` của
+`board_demo` in `CPI x1000` sai khi `mcycle × 1000` vượt 2³².
 
 ## 2. Chuẩn bị
 
@@ -85,6 +93,18 @@ gửi lại nguyên văn thông báo lỗi (mục 9).
 Sau khi nạp: **LEDG0** (PLL locked) và **LEDG1** (hết reset) sáng, **LEDG8** nhấp nháy ~1,4 Hz (clock CPU chạy).
 Nhấn **KEY0** để reset CPU (chương trình chạy lại từ đầu).
 
+### 5.1. Ghi vào chip cấu hình EPCS16 (bật nguồn là chạy, không cần máy tính)
+
+Nạp JTAG ở trên chỉ giữ thiết kế đến khi tắt nguồn. Để board tự nạp lúc bật nguồn, ghi file `.pof` vào EPCS16:
+
+1. Gạt công tắc **RUN/PROG** sang **PROG**.
+2. Programmer: Mode **Active Serial Programming**, *Add File* `output_files/de2_soc.pof` (thiết bị EPCS16), tick
+   *Program/Configure* (và *Verify*) → **Start**. Hoặc dòng lệnh:
+   `quartus_pgm -c USB-Blaster -m AS -o "pv;output_files/de2_soc.pof"`.
+3. Gạt **RUN/PROG** về **RUN**, tắt rồi bật nguồn: board chạy `board_demo` ngay, không cần cáp USB.
+
+Đổi firmware mặc định trong EPCS: chọn firmware (mục 7), chạy Assembler (sinh lại `.pof`), ghi lại như trên.
+
 ## 6. Terminal
 
 PuTTY: *Connection type* **Serial**, cổng **COMx** (xem Device Manager), **115200**, 8 data bit, không parity,
@@ -94,20 +114,76 @@ Firmware mặc định là `board_demo`. Nhấn KEY0, terminal hiện:
 
 ```
 === RISC-V RV32IMC SoC on DE2 (Cyclone II EP2C35) ===
-commands: h help | i info | s switches | b benchmark | f flash ID | q quit
+commands: h help | i info | s switches | b benchmark | t self-test | f flash ID | q quit
 >
 ```
 
-| Lệnh | Kết quả trên board                                                                                                                                    |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `h`  | danh sách lệnh                                                                                                                                        |
-| `i`  | tần số CPU, `misa = 0x40001104`, thời gian chạy, mcycle / minstret / CPI                                                                              |
-| `s`  | giá trị SW[15:0]                                                                                                                                      |
-| `b`  | chạy workload 2 lần, in performance counter. **Lần 2: `cycles=391205 instret=323166`** – phải trùng với mô phỏng (`firmware/board_demo/uart_sim.txt`) |
-| `f`  | JEDEC ID của flash (W25Q32: `ef 40 16`), hoặc `(no flash on GPIO_0)`                                                                                  |
-| `q`  | thoát (nhấn KEY0 để chạy lại)                                                                                                                         |
+| Lệnh | Kết quả trên board                                                                                                                                                                      |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `h`  | danh sách lệnh                                                                                                                                                                          |
+| `i`  | tần số CPU, `misa = 0x40001104`, thời gian chạy, mcycle / minstret / CPI                                                                                                                |
+| `s`  | giá trị SW[15:0]                                                                                                                                                                        |
+| `b`  | chạy workload 2 lần, in performance counter. **Lần 2: `cycles=391209 instret=323167`**, `result = 0x1dfc7c31` – phải trùng với mô phỏng (`firmware/board_demo/uart_sim.txt`)            |
+| `t`  | tự kiểm tra: 8 lệnh RV32M và chia 64 bit (giá trị chuẩn tính độc lập), RAM 4 KB hai mẫu bù nhau, `misa`, timer so với `mcycle` (2 ms); in `RESULT selftest: PASS (13 checks, 0 errors)` |
+| `f`  | JEDEC ID của flash (W25Q32: `ef 40 16`), hoặc `(no flash on GPIO_0)`                                                                                                                    |
+| `q`  | thoát (nhấn KEY0 để chạy lại)                                                                                                                                                           |
 
 Gạt **SW0..SW7**: LEDR0..LEDR7 đổi theo ngay (ngắt GPIO). **LEDR8..LEDR15** đếm giây (ngắt timer).
+
+### 6.1. Không có cáp RS-232: console qua chính cáp USB-Blaster
+
+Trong FPGA có thêm khối `board/jtag_uart_bridge.sv` (dùng megafunction `sld_virtual_jtag`). Khối này **nghe chính
+chân TX của UART trong SoC**, giải mã từng byte (115200 8N1) vào FIFO 8 KB và gửi về máy tính qua cáp JTAG.
+Chiều ngược lại, nó phát byte từ máy tính vào chân RX của SoC (AND với chân RS-232, cả hai nghỉ ở mức 1). Một bit
+điều khiển cho phép máy tính giữ CPU ở trạng thái reset, thay cho việc bấm KEY0. SoC và firmware **không đổi**:
+CPU vẫn phát UART thật, chỉ có đường truyền về máy tính là cáp USB-Blaster thay vì cáp RS-232.
+
+Chạy trên Windows (Python 3 + Quartus, không cần Linux), trong thư mục `fpga`:
+
+| Lệnh                                       | Tác dụng                                                                                        |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| `python tools/jtag_uart.py term`           | terminal tương tác (Ctrl+R reset CPU, Ctrl+Q thoát)                                             |
+| `python tools/jtag_uart.py run -c i -c b`  | reset CPU, in đầu ra, gửi từng lệnh sau dấu nhắc `>`                                            |
+| `python tools/jtag_uart.py load dhrystone` | chép MIF vào `mem/` → Update MIF → Assembler → nạp JTAG                                         |
+| `python tools/jtag_uart.py test`           | chạy lần lượt mọi firmware, so đầu ra với `firmware/<tên>/uart_sim.txt`, ghi `board_results.md` |
+| `python tools/jtag_uart.py test --flash`   | như trên, thêm `spi_flash` và `demo` (cần module flash trên JP1)                                |
+
+Không mở cửa sổ Programmer / SignalTap của Quartus khi đang dùng console (cùng dùng cáp JTAG).
+
+**Reset không nạp lại RAM.** KEY0 (hoặc Ctrl+R / bit reset của console) chỉ khởi động lại CPU; nội dung RAM chỉ
+được nạp từ MIF khi cấu hình FPGA. Chương trình tự sửa mã hoặc dữ liệu của mình (`branch_smc` vá lệnh,
+`qsort` sắp xếp mảng tại chỗ) sẽ cho kết quả khác ở lần chạy thứ hai. Vì vậy `test` và `run --no-reset` lấy đầu
+ra của **lần chạy đầu tiên** sau khi nạp (FIFO 8 KB của cầu đã giữ sẵn), còn `board_demo` thì chạy lại thoải mái.
+
+### 6.2. Trình diễn không cần máy tính: phím, màn hình 7 đoạn và LED
+
+Khối `board/key_cmd.sv` biến nút nhấn thành lệnh console (gửi ký tự + Enter vào chân RX của SoC):
+
+| Phím | Lệnh | Thấy trên board (SW17 SW16 = 0 0)                                                         |
+| ---- | ---- | ----------------------------------------------------------------------------------------- |
+| KEY0 | –    | reset CPU; HEX về `--------`, LEDR8..15 về 0                                              |
+| KEY1 | `b`  | HEX hiện số chu kỳ lần chạy 2 của benchmark (`391209`, trùng mô phỏng); LEDG2 chớp (UART) |
+| KEY2 | `t`  | HEX hiện `tESt PASS`, LEDG7 sáng (lỗi: `tESt FAIL`, LEDR17 sáng)                          |
+| KEY3 | `f`  | LEDR16 chớp (SPI hoạt động), đọc JEDEC ID của flash                                       |
+
+Khối `board/board_display.sv` chỉ **quan sát** SoC (các byte UART CPU phát ra, địa chỉ nạp lệnh, các đường ngắt,
+chân chọn SPI), không tác động vào SoC. **SW17, SW16** chọn nội dung HEX7..HEX0:
+
+| SW17 SW16 | HEX7..HEX0                                                                                                                             |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+|       0 0 | **Kết quả** firmware in ra gần nhất: `tESt PASS` / `tESt FAIL` (dòng `RESULT ...`), hoặc số chu kỳ sau `cycles=` (benchmark, lệnh `b`) |
+|       0 1 | **PC**: địa chỉ lệnh CPU đang nạp (hex, 8 lần/giây) – thấy CPU chạy vòng lặp nào                                                       |
+|       1 0 | **Số lần nạp lệnh trong 1 giây** (thập phân) – khoảng 2 × 10⁷ ở 24 MHz                                                                 |
+|       1 1 | **Số ký tự UART** CPU đã gửi từ lúc reset                                                                                              |
+
+| LED    | Ý nghĩa                                    | LED       | Ý nghĩa                               |
+| ------ | ------------------------------------------ | --------- | ------------------------------------- |
+| LEDG0  | PLL đã khóa                                | LEDG5     | ngắt timer (nháy mỗi lần ngắt)        |
+| LEDG1  | CPU đang chạy (hết reset)                  | LEDG6     | ngắt ngoài qua INTC (GPIO, UART, SPI) |
+| LEDG2  | UART đang phát                             | LEDG7     | test in `PASS`                        |
+| LEDG3  | máy tính đang giữ CPU reset (console JTAG) | LEDG8     | nhịp tim ~1,4 Hz (clock CPU chạy)     |
+| LEDG4  | console JTAG đang trao đổi                 | LEDR16    | SPI đang chọn thiết bị (CS tích cực)  |
+| LEDR17 | test in `FAIL`                             | LEDR0..15 | GPIO của SoC (firmware điều khiển)    |
 
 ## 7. Đổi firmware (không cần compile lại toàn bộ)
 

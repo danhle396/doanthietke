@@ -30,7 +30,12 @@ module soc_top #(
   output logic [3:0]  spi_cs_n,
   input  logic [15:0] gpio_i,
   output logic [15:0] gpio_o,
-  output logic [15:0] gpio_oe
+  output logic [15:0] gpio_oe,
+  // observation only (board display, fpga/board/board_display.sv): existing
+  // nets brought out, no logic added; leave unconnected elsewhere
+  output logic [31:0] dbg_fetch_adr,  // instruction bus address
+  output logic        dbg_fetch,      // instruction bus acknowledge (one fetch)
+  output logic [2:0]  dbg_irq         // {meip, msip, mtip} interrupt lines
 );
 
   localparam logic [15:0] SLOT_MASK = 16'h801F;  // slots 0-4 and 15
@@ -84,6 +89,10 @@ module soc_top #(
   logic        br_cyc, br_stb, br_we, br_ack, br_err;
   logic [3:0]  br_sel;
   logic [31:0] br_adr, br_wdat, br_rdat;
+
+  assign dbg_fetch_adr = ibus_adr;
+  assign dbg_fetch     = ibus_cyc & ibus_stb & ibus_ack;
+  assign dbg_irq       = {irq_meip, irq_msip, irq_mtip};
 
   ram_dp #(.DEPTH(RAM_DEPTH), .SYNC(RAM_SYNC)) u_ram (
     .clk,

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
-"""Performance experiments (spec 12.1). Outputs results/perf/*.csv, *.png and
-summary.md.
+"""Performance experiments (spec 12.1). Outputs results/perf/*.csv and summary.md
+(tables only, no charts); the table of each experiment measured in a run is
+also printed, and scripts/capture_results.py screenshots that terminal
+(results/perf/terminal_exp<k>.png, linked from summary.md).
 
   exp1  predictor: BP_MODE 0/1/2 x every benchmark (rv32imc ELF)
   exp2  BHT_ENTRIES {16,64,256,1024} x BTB_ENTRIES {8,16,32,64} at BP_MODE 2
@@ -35,8 +37,6 @@ BENCHES = ["dhrystone", "coremark", "median", "multiply", "qsort", "rsort", "tow
            "vvadd", "memcpy"]
 
 # reference categorical palette (slots 1-5, adjacent-pair validated) and text inks
-C = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4"]
-INK, INK2, GRID, SURF = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
 
 
 def parse_bench(text):
@@ -91,44 +91,6 @@ def geomean(xs):
     for x in xs:
         p *= x
     return p ** (1 / len(xs))
-
-
-# --------------------------------------------------------------------------
-# plotting helpers (matplotlib, static figures for the report)
-# --------------------------------------------------------------------------
-def plt_setup():
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-    plt.rcParams.update({
-        "figure.facecolor": SURF, "axes.facecolor": SURF, "savefig.facecolor": SURF,
-        "axes.edgecolor": GRID, "axes.labelcolor": INK2, "xtick.color": INK2,
-        "ytick.color": INK2, "text.color": INK, "axes.grid": True, "grid.color": GRID,
-        "grid.linewidth": 0.6, "axes.axisbelow": True, "axes.spines.top": False,
-        "axes.spines.right": False, "font.size": 9, "legend.frameon": False,
-    })
-    return plt
-
-
-def grouped_bars(plt, cats, series, labels, ylabel, title, fname, ylim=None, fmt="{:.2f}"):
-    import numpy as np
-    fig, ax = plt.subplots(figsize=(8, 3.6))
-    n = len(series)
-    w = 0.8 / n
-    x = np.arange(len(cats))
-    for i, (vals, lab) in enumerate(zip(series, labels)):
-        ax.bar(x + (i - (n - 1) / 2) * w, vals, w * 0.92, color=C[i], label=lab,
-               edgecolor=SURF, linewidth=1)
-    ax.set_xticks(x)
-    ax.set_xticklabels(cats, rotation=0)
-    ax.set_ylabel(ylabel)
-    ax.set_title(title, loc="left", color=INK)
-    if ylim:
-        ax.set_ylim(*ylim)
-    ax.legend(ncol=n, loc="upper left", bbox_to_anchor=(0, -0.12))
-    fig.tight_layout()
-    fig.savefig(OUT / fname, dpi=150)
-    plt.close(fig)
 
 
 # --------------------------------------------------------------------------
@@ -226,14 +188,27 @@ def exp5():
 
 
 # --------------------------------------------------------------------------
-def report(e1, e2, e3, e4, e5):
-    plt = plt_setup()
+def report(e1, e2, e3, e4, e5, show=()):
+    """Write results/perf/summary.md; print to the terminal the section of every
+    experiment in `show` (the ones measured in this run)."""
     lines = ["# Đánh giá hiệu năng", "",
              "Số liệu đo trong vùng đo của từng benchmark (giữa hai lần `setStats`/`start_time`) bằng "
              "`mcycle`, `minstret`, `mhpmcounter3..10`. Tái tạo: `make perf` "
              "(= `.venv/bin/python scripts/run_perf.py`).", ""]
     checks = []
+    sec_start = {}
+
+    def shots(k):
+        """Print section k (from its '## ' heading) if it was measured now; link the
+        terminal screenshot of its run when there is one (scripts/capture_results.py)."""
+        if k in show:
+            from md_table import align_tables
+            print(align_tables("\n".join(lines[sec_start[k]:])), flush=True)
+        png = OUT / f"terminal_exp{k}.png"
+        return [f"![Ảnh chụp terminal: thí nghiệm {k}](terminal_exp{k}.png)", ""] if png.exists() else []
+
     if e1:
+        sec_start[1] = len(lines)
         lines += ["## Thí nghiệm 1 – Bộ dự đoán rẽ nhánh (rv32imc, BHT 256, BTB 32)", "",
                   "Bảng P1. CPI, độ chính xác dự đoán (branch + jump) và chu kỳ penalty "
                   "(toàn chương trình = 2×redirect ở EX + 1×redirect ở ID). "
@@ -248,29 +223,22 @@ def report(e1, e2, e3, e4, e5):
                          " | ".join(str(r["penalty_cycles"]) for r in rr) + " |")
         gm = [geomean([by[(b, m)]["cpi"] for b in BENCHES]) for m in (0, 1, 2)]
         lines += [f"| **geomean CPI** | {gm[0]:.3f} | {gm[1]:.3f} | {gm[2]:.3f} | | | | | | |", ""]
-        grouped_bars(plt, BENCHES, [[by[(b, m)]["cpi"] for b in BENCHES] for m in (0, 1, 2)],
-                     ["BP_MODE 0 (tĩnh)", "BP_MODE 1 (BHT@ID)", "BP_MODE 2 (BHT+BTB@IF)"],
-                     "CPI (chu kỳ / lệnh)", "Hình P1. CPI theo chế độ dự đoán", "exp1_cpi.png")
-        grouped_bars(plt, BENCHES, [[100 * by[(b, m)]["accuracy"] for b in BENCHES] for m in (0, 1, 2)],
-                     ["BP_MODE 0", "BP_MODE 1", "BP_MODE 2"], "Độ chính xác dự đoán (%)",
-                     "Hình P2. Độ chính xác dự đoán (branch + JAL/JALR)", "exp1_accuracy.png",
-                     ylim=(0, 100))
-        lines += ["![Hình P1](exp1_cpi.png)", "", "![Hình P2](exp1_accuracy.png)", ""]
+        lines += shots(1)
         d = by[("dhrystone", 2)]["cpi"]
         checks.append(("CPI Dhrystone (BP2) trong [1.0, 2.0]", 1.0 <= d <= 2.0, f"{d:.3f}"))
         worse = [b for b in BENCHES if by[(b, 2)]["cycles"] > by[(b, 0)]["cycles"]]
         checks.append(("BP_MODE=2 không tệ hơn BP_MODE=0 (mọi benchmark)", not worse,
                        "tệ hơn: " + ", ".join(worse) if worse else "đạt"))
     if e2:
-        import numpy as np
+        sec_start[2] = len(lines)
         bhts, btbs = (16, 64, 256, 1024), (8, 16, 32, 64)
-        acc = np.zeros((4, 4))
-        cpi = np.zeros((4, 4))
+        acc = [[0.0] * 4 for _ in range(4)]
+        cpi = [[0.0] * 4 for _ in range(4)]
         for i, h in enumerate(bhts):
             for j, t in enumerate(btbs):
                 rs = [r for r in e2 if r["bht"] == h and r["btb"] == t]
-                acc[i, j] = 100 * sum(r["accuracy"] for r in rs) / len(rs)
-                cpi[i, j] = geomean([r["cpi"] for r in rs])
+                acc[i][j] = 100 * sum(r["accuracy"] for r in rs) / len(rs)
+                cpi[i][j] = geomean([r["cpi"] for r in rs])
         synth = {}
         sj = RESULTS / "synth/summary.json"
         if sj.exists():
@@ -285,35 +253,12 @@ def report(e1, e2, e3, e4, e5):
             cells = []
             for j, t in enumerate(btbs):
                 area = synth.get(f"bht{h}_btb{t}")
-                cells.append(f"{acc[i,j]:.1f}% / {cpi[i,j]:.3f}" + (f" / {area} cell" if area else ""))
+                cells.append(f"{acc[i][j]:.1f}% / {cpi[i][j]:.3f}" + (f" / {area} cell" if area else ""))
             lines.append(f"| {h} | " + " | ".join(cells) + " |")
         lines.append("")
-        fig, ax = plt.subplots(figsize=(5.2, 3.8))
-        im = ax.imshow(acc, cmap="Blues", origin="lower", vmin=acc.min() - 2, vmax=100)
-        for i in range(4):
-            for j in range(4):
-                ax.text(j, i, f"{acc[i,j]:.1f}", ha="center", va="center",
-                        color=SURF if acc[i, j] > (acc.min() + 100) / 2 + 1 else INK, fontsize=9)
-        ax.set_xticks(range(4)); ax.set_xticklabels(btbs)
-        ax.set_yticks(range(4)); ax.set_yticklabels(bhts)
-        ax.set_xlabel("BTB_ENTRIES"); ax.set_ylabel("BHT_ENTRIES"); ax.grid(False)
-        ax.set_title("Hình P3. Độ chính xác dự đoán trung bình (%)", loc="left", color=INK)
-        fig.colorbar(im, ax=ax, shrink=0.8)
-        fig.tight_layout(); fig.savefig(OUT / "exp2_accuracy_heatmap.png", dpi=150); plt.close(fig)
-        lines += ["![Hình P3](exp2_accuracy_heatmap.png)", ""]
-        if synth:
-            fig, ax = plt.subplots(figsize=(6, 3.8))
-            for j, t in enumerate(btbs):
-                xs = [synth.get(f"bht{h}_btb{t}", 0) for h in bhts]
-                ax.plot(xs, cpi[:, j], marker="o", color=C[j], linewidth=2, markersize=6,
-                        label=f"BTB {t}")
-            ax.set_xlabel("Diện tích rv_core (số cell Yosys)")
-            ax.set_ylabel("geomean CPI")
-            ax.set_title("Hình P4. CPI theo diện tích (mỗi đường: BHT 16→1024)", loc="left", color=INK)
-            ax.legend(ncol=4, loc="upper left", bbox_to_anchor=(0, -0.15))
-            fig.tight_layout(); fig.savefig(OUT / "exp2_cpi_vs_area.png", dpi=150); plt.close(fig)
-            lines += ["![Hình P4](exp2_cpi_vs_area.png)", ""]
+        lines += shots(2)
     if e3:
+        sec_start[3] = len(lines)
         lines += ["## Thí nghiệm 3 – Extension C", "",
                   "Bảng P3. Kích thước `.text` (byte) và CPI của ELF rv32im so với rv32imc, cùng lõi "
                   "`m1c1_bp2`. Nguồn: `results/perf/exp3_rvc.csv`.", "",
@@ -326,13 +271,9 @@ def report(e1, e2, e3, e4, e5):
         tot_im = sum(r["text_im"] for r in e3)
         tot_imc = sum(r["text_imc"] for r in e3)
         lines += [f"| **tổng** | {tot_im} | {tot_imc} | {100*(1-tot_imc/tot_im):.1f}% | | | | | |", ""]
-        grouped_bars(plt, [r["bench"] for r in e3], [[r["text_im"] / 1024 for r in e3],
-                                                      [r["text_imc"] / 1024 for r in e3]],
-                     ["rv32im", "rv32imc"], "Kích thước .text (KiB)",
-                     "Hình P5. Kích thước mã với và không có extension C", "exp3_text_size.png")
-        lines += ["![Hình P5](exp3_text_size.png)", ""]
+        lines += shots(3)
     if e4:
-        import numpy as np
+        sec_start[4] = len(lines)
         lines += ["## Thí nghiệm 4 – Phân rã CPI (m1c1_bp2, rv32imc)", "",
                   "Bảng P4. CPI = 1 (lệnh) + các thành phần stall/lệnh. `mispredict` = 2 chu kỳ × số lần sai "
                   "dự đoán ở EX; `other` = phần còn lại (chủ yếu redirect 1 chu kỳ ở ID cho JAL). "
@@ -343,23 +284,9 @@ def report(e1, e2, e3, e4, e5):
             lines.append(f"| {r['bench']} | {r['cpi']:.3f} | {r['load_use']:.3f} | {r['muldiv']:.3f} | "
                          f"{r['bus']:.3f} | {r['mispredict']:.3f} | {r['other']:.3f} |")
         lines.append("")
-        fig, ax = plt.subplots(figsize=(8, 3.8))
-        x = np.arange(len(e4))
-        bottom = np.ones(len(e4))
-        ax.bar(x, bottom, 0.6, color=GRID, label="lệnh (CPI = 1)", edgecolor=SURF, linewidth=1)
-        for k, (key, lab) in enumerate([("load_use", "load-use"), ("muldiv", "MulDiv"),
-                                        ("bus", "chờ bus"), ("mispredict", "sai dự đoán"),
-                                        ("other", "khác")]):
-            v = np.array([max(r[key], 0) for r in e4])
-            ax.bar(x, v, 0.6, bottom=bottom, color=C[k], label=lab, edgecolor=SURF, linewidth=1)
-            bottom += v
-        ax.set_xticks(x); ax.set_xticklabels([r["bench"] for r in e4])
-        ax.set_ylabel("CPI"); ax.set_ylim(0.9, max(bottom) * 1.05)
-        ax.set_title("Hình P6. Phân rã CPI (BP_MODE 2)", loc="left", color=INK)
-        ax.legend(ncol=6, loc="upper left", bbox_to_anchor=(0, -0.12))
-        fig.tight_layout(); fig.savefig(OUT / "exp4_cpi_breakdown.png", dpi=150); plt.close(fig)
-        lines += ["![Hình P6](exp4_cpi_breakdown.png)", ""]
+        lines += shots(4)
     if e5:
+        sec_start[5] = len(lines)
         cores = []
         for r in e5:
             if r["core"] not in cores:
@@ -385,6 +312,7 @@ def report(e1, e2, e3, e4, e5):
                          f"{perf:.1f} | {rel} |" if perf else
                          f"| {c} | {g:.3f} | {dh:.3f} | – | – | {rel} |")
         lines.append("")
+        lines += shots(5)
     if checks:
         lines += ["## Kiểm tra hợp lý (spec 12.1)", "", "| Kiểm tra | Kết quả | Giá trị |", "|---|---|---|"]
         lines += [f"| {n} | {'ĐẠT' if ok else 'KHÔNG ĐẠT'} | {v} |" for n, ok, v in checks]
@@ -423,7 +351,8 @@ def main():
     e3 = exp3() if 3 in exps and not args.report_only else load_csv("exp3_rvc.csv")
     e4 = exp4(e1) if (4 in exps and e1 and not args.report_only) else load_csv("exp4_cpi_breakdown.csv")
     e5 = exp5() if 5 in exps and not args.report_only else load_csv("exp5_sc_vs_pipeline.csv")
-    checks = report(e1, e2, e3, e4, e5)
+    fresh = set() if args.report_only else set(exps)
+    checks = report(e1, e2, e3, e4, e5, show=fresh)
     for n, ok, v in checks:
         print(f"[perf] {'OK  ' if ok else 'FAIL'} {n}: {v}")
     sys.exit(0 if all(ok for _, ok, _ in checks) else 1)

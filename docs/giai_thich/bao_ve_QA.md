@@ -229,18 +229,18 @@ mỗi truy cập (đo bằng `wb_checker`); UART 115200 baud ≈ 11,5 kB/s; SPI 
 
 **66. Đã làm layout chưa?** Rồi, cho hai lõi: OpenLane 2.3.10 với PDK sky130A, đi hết RTL → GDSII (tổng hợp, floorplan,
 lưới nguồn, đặt cell, CTS, đi dây, trích ký sinh, STA 9 góc, DRC, LVS). Lõi pipeline: die 962 × 972 µm,
-62 600 cell, diện tích cell 0,460 mm²; DRC, LVS, XOR đều 0 (D30, `make asic`).
+62 890 cell, diện tích cell 0,462 mm²; DRC, LVS, XOR đều 0 (D30, `make asic`).
 Không làm cả SoC vì RAM 128 KB cần macro SRAM – dựng bằng flip-flop sẽ là khoảng 1 triệu flip-flop.
 
-**67. Fmax trên ASIC?** Ràng buộc 40 MHz. Sau đi dây: 66,0 MHz ở góc TT (25 °C, 1,80 V), 87,4 MHz ở FF,
-nhưng chỉ 34,5 MHz ở SS (100 °C, 1,60 V) – không đạt 40 MHz ở góc chậm. Sign-off mặc định của OpenLane chỉ
+**67. Fmax trên ASIC?** Ràng buộc 40 MHz. Sau đi dây: 67,7 MHz ở góc TT (25 °C, 1,80 V), 87,0 MHz ở FF,
+nhưng chỉ 34,6 MHz ở SS (100 °C, 1,60 V) – không đạt 40 MHz ở góc chậm. Sign-off mặc định của OpenLane chỉ
 bắt buộc góc TT. Cao hơn ECP5 (44 MHz) vì cell chuẩn nhanh hơn LUT. Đường găng vẫn là forwarding → EX → PC như trên FPGA.
 
 **68. Làm sao biết layout đúng chức năng?** LVS chứng minh layout đúng netlist; mô phỏng gate-level chứng minh netlist
 đúng RTL: netlist sau đi dây chạy bằng Icarus Verilog với mô hình cell sky130, cùng testbench với RTL (Verilator).
 64/64 riscv-tests (lõi pipeline) và 41/41 (single-cycle) PASS với cùng số chu kỳ và cùng chữ ký ghi bộ nhớ.
 
-**69. Còn vi phạm gì?** 26 net vi phạm antenna, vài vi phạm max slew/cap ở góc TT (7/21) và nhiều hơn ở SS. Đã thử 4 cấu
+**69. Còn vi phạm gì?** 33 net vi phạm antenna, vi phạm max slew/cap ở góc TT (22/48) và nhiều hơn ở SS. Đã thử 4 cấu
 hình: chèn diode ở mọi net dài sửa gần hết antenna nhưng thêm ~29 nghìn diode làm tải tăng, slew xấu đi; cấu hình cuối
 chỉ chèn diode trên net dài hơn 250 µm. OpenLane báo cảnh báo, không chặn sign-off; phải sửa hết trước khi tape-out.
 

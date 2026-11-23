@@ -68,18 +68,23 @@ Hoàn thành – Phase 0–8 xong, nghiệm thu mục 17 đạt
 - [x] Commit final
 
 ### Bổ sung sau nghiệm thu (yêu cầu đề cương)
-- [x] Sơ đồ hệ thống draw.io (`docs/diagrams/he_thong.drawio`, 4 trang)
+- [x] Sơ đồ draw.io vẽ lại: kiến trúc (`docs/diagrams/kien_truc.drawio`, 5 trang) và quy trình thiết kế (`docs/diagrams/quy_trinh_thiet_ke.drawio`, 3 trang); hình matplotlib/Mermaid/WaveDrom của báo cáo chuyển sang `docs/report/hinh/`
 - [x] RAM đồng bộ cho FPGA (`RAM_SYNC`, D27) – số chu kỳ trùng khớp
 - [x] Thư mục `fpga/` cho board DE2 (Quartus II 13.0sp1, PLL 24 MHz, 16 firmware `.mif`, `make fpga`)
 - [x] Bus Wishbone B4 classic (D28), `wb_checker`, `tb_dbus_xbar` – số chu kỳ trùng khớp
 - [x] Compile Quartus II 13.0sp1 (12/11/2026): 10 767 LE (32 %), 262 656 bit nhớ, Fmax 36,02 MHz > 24 MHz, setup slack +7,218 ns (sửa RTL: bọc `generate`/`endgenerate`, `genvar` khai báo riêng cho Quartus 13)
-- [ ] Nạp board, đo thực nghiệm, công suất (sinh viên chạy trên board, xem `fpga/README.md` mục 5–8)
+- [x] Chạy trên board DE2 (17/11/2026): console UART qua cáp USB-Blaster (`jtag_uart_bridge`, `fpga/tools/jtag_uart.py`), màn hình 7 đoạn + LED (`board_display`), phím KEY1–3 (`key_cmd`), lệnh tự kiểm tra `t`; video demo; phát hiện và sửa lỗi Quartus tổng hợp sai `MULH*` (`muldiv.sv`), thêm test `muldiv_rand`
+- [x] Log chạy 15 firmware trên board (17/11/2026, `fpga/board_results.md`): 15/15 ĐẠT, số chu kỳ trùng mô phỏng
+- [ ] Công suất (Quartus PowerPlay, ước lượng) – tùy chọn
+- [x] `results/` chỉ gồm ảnh chụp thật (22/11/2026): sóng = ảnh GTKWave, layout = ảnh KLayout, terminal của từng bước (`scripts/capture_results.py`), Quartus GUI, ảnh board; bỏ biểu đồ matplotlib
 - [x] Co-simulation C++ lock-step với Spike (`make cosim`, D29), RTL có lỗi cài sẵn bị bắt, hình lock-step
 - [x] Bảng thông lượng (`scripts/throughput.py`)
 - [x] Layout ASIC hai lõi bằng OpenLane 2 / sky130A (`make asic`, D30): DRC/LVS/XOR sạch, Fmax 3 góc PVT, gate-level netlist sau đi dây ≡ RTL
 
 ## Kết quả regression gần nhất
 
+- 22/11/2026 Chạy lại toàn bộ để chụp kết quả thật: `make regress` PASS (isa 7 cấu hình 0 FAIL, Spike 73/73, 72/72, 64/64, 50/50 MATCH, systest gồm `muldiv_rand` PASS); coverage line core 99,8 %, periph 97,5 %, functional 71/71; `make synth`: Fmax SoC pipeline 43,73 MHz (trước 44,07, do sửa bộ nhân và cổng quan sát `soc_top`); `make cosim` 4 cấu hình MATCH; `make asic` (OpenLane chạy lại): `rv_core` 0,935 mm², 62 890 cell, Fmax 67,7 / 34,6 / 87,0 MHz (TT/SS/FF), DRC/LVS/XOR 0, 33 net antenna; `rv_core_sc` 0,284 mm², 10 net antenna; gate-level ≡ RTL 64/64 và 41/41.
+- 17/11/2026 Board DE2: Quartus 12 228 LE (37 %), Fmax 35,5 MHz, slack +6,75 ns; trên board 13/15 firmware ĐẠT ngay, 2 (`branch_smc`, `qsort`) ĐẠT sau khi công cụ đọc lần chạy đầu (reset không nạp lại RAM); `board_demo` run 2 trùng mô phỏng.
 - 28/10/2026 Layout ASIC (`make asic`, cấu hình 4 trong D30): `rv_core` die 0,94 mm², 62 600 cell, Fmax 66,0 / 34,5 / 87,4 MHz (TT/SS/FF), DRC 0, LVS 0, XOR 0, 26 net antenna; `rv_core_sc` 0,28 mm², 8 net antenna; gate-level ≡ RTL 64/64 và 41/41 riscv-tests.
 - 27/10/2026 Bus Wishbone + RAM đồng bộ: `make regress` PASS (lint 9 cấu hình; unit 14/14; isa 415 PASS / 0 FAIL trên 7 cấu hình; Spike 259/259 MATCH; systest PASS; 0 vi phạm Wishbone); 9 benchmark trùng khớp số chu kỳ trước/sau; `make fpga`: 16/16 firmware + `de2_top` PASS trong mô phỏng.
 - 26/10/2026 Nghiệm thu: `git clone . /tmp/check && make fetch regress` → PASS (lint; unit 13/13; isa 351 PASS / 0 FAIL / 16 EXCLUDED có lý do; Spike 259/259 MATCH, khác biệt KNOWN: marchid, misa; systest 15 lượt PASS).

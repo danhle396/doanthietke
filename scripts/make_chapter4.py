@@ -103,7 +103,9 @@ def main():
     L += ["## 4.4. System test", "",
           "Bảng 4.4. System test (nguồn: `results/systest/summary.md`).", ""] + sysrows + [""]
     L += ["## 4.5. Waveform minh họa", "",
-          "Các hình được sinh tự động từ VCD bằng `scripts/make_waves.py`; trục hoành tính theo chu kỳ clock.", "",
+          "Các hình là ảnh chụp cửa sổ GTKWave mở file VCD của mô phỏng RTL (`scripts/make_waves.py` tìm khung thời "
+          "gian của từng sự kiện, đặt marker đỏ tại sự kiện rồi chụp màn hình; GTKWave chạy trên màn hình ảo Xvfb). "
+          "Cột trái là tên tín hiệu và giá trị tại marker.", "",
           "![Hình 4.1. Load-use stall và forwarding](../../results/waves/load_use_forwarding.png)", "",
           "![Hình 4.2. Lệnh nén](../../results/waves/compressed.png)", "",
           "![Hình 4.3. Sai dự đoán và flush](../../results/waves/mispredict_flush.png)", "",
@@ -130,8 +132,8 @@ def main():
           "lý của đặc tả (CPI Dhrystone trong [1,0; 2,0] và BP_MODE 2 không tệ hơn BP_MODE 0) đều đạt.", "",
           "Bảng 4.6. CPI, độ chính xác, penalty (nguồn: `results/perf/exp1_predictor.csv`).", ""]
     L += table_after("perf/summary.md", "Bảng P1") + [""]
-    L += ["![Hình 4.5. CPI theo chế độ dự đoán](../../results/perf/exp1_cpi.png)", "",
-          "![Hình 4.6. Độ chính xác dự đoán](../../results/perf/exp1_accuracy.png)", ""]
+    L += ["![Hình 4.5. Ảnh chụp terminal khi chạy thí nghiệm 1 "
+          "(`run_perf.py --exp 1`)](../../results/perf/terminal_exp1.png)", ""]
     if (R / "perf/exp2_sweep.csv").exists():
         L += ["### 4.7.2. Kích thước BHT và BTB", "",
               "Bảng 4.7. Độ chính xác trung bình / geomean CPI / diện tích theo BHT × BTB (nguồn: "
@@ -147,18 +149,20 @@ def main():
               f"{acc(1024, 32):.1f}% ở BTB 32) vì các benchmark có ít nhánh nóng; trong khi đó diện tích tăng mạnh theo "
               f"BHT ({cells.get('bht64_btb32')} → {cells.get('bht1024_btb32')} cell) vì bảng làm bằng flip-flop. "
               "Điểm cân bằng hợp lý cho các tải này là BHT 64 × BTB 32.", ""]
-        L += ["![Hình 4.7. Độ chính xác theo BHT × BTB](../../results/perf/exp2_accuracy_heatmap.png)", "",
-              "![Hình 4.8. CPI theo diện tích](../../results/perf/exp2_cpi_vs_area.png)", ""]
+        L += ["![Hình 4.6. Ảnh chụp terminal khi chạy thí nghiệm 2 "
+              "(`run_perf.py --exp 2`)](../../results/perf/terminal_exp2.png)", ""]
     L += ["### 4.7.3. Extension C", "",
           f"Tổng kích thước `.text` của 9 benchmark giảm từ {tot_im} xuống {tot_imc} byte "
           f"({100 * (1 - tot_imc / tot_im):.1f}%), trong khi CPI gần như không đổi.", "",
           "Bảng 4.8. Kích thước mã và CPI (nguồn: `results/perf/exp3_rvc.csv`).", ""]
     L += table_after("perf/summary.md", "Bảng P3") + [""]
-    L += ["![Hình 4.9. Kích thước mã](../../results/perf/exp3_text_size.png)", "",
+    L += ["![Hình 4.7. Ảnh chụp terminal khi chạy thí nghiệm 3 "
+          "(`run_perf.py --exp 3`)](../../results/perf/terminal_exp3.png)", "",
           "### 4.7.4. Phân rã CPI", "",
           "Bảng 4.9. Phân rã CPI ở BP_MODE 2 (nguồn: `results/perf/exp4_cpi_breakdown.csv`).", ""]
     L += table_after("perf/summary.md", "Bảng P4") + [""]
-    L += ["![Hình 4.10. Phân rã CPI](../../results/perf/exp4_cpi_breakdown.png)", "",
+    L += ["![Hình 4.8. Ảnh chụp terminal khi chạy thí nghiệm 4 (`run_perf.py --exp 4`, tính từ các bộ "
+          "đếm hiệu năng đo ở thí nghiệm 1)](../../results/perf/terminal_exp4.png)", "",
           "Sai dự đoán là nguồn mất chu kỳ lớn nhất ở các benchmark có nhánh phụ thuộc dữ liệu (median, qsort); "
           "load-use đáng kể ở CoreMark và Dhrystone; stall MulDiv chỉ xuất hiện ở Dhrystone (một phép chia mỗi vòng); "
           "các benchmark không truy cập ngoại vi trong vùng đo nên không có chờ bus.", ""]
@@ -166,6 +170,8 @@ def main():
         L += ["### 4.7.5. Single-cycle so với pipeline", "",
               "Bảng 4.10. CPI, Fmax và hiệu năng tương đối (nguồn: `results/perf/exp5_sc_vs_pipeline.csv`).", ""]
         L += table_after("perf/summary.md", "Bảng P5") + [""]
+        L += ["![Hình 4.9. Ảnh chụp terminal khi chạy thí nghiệm 5 "
+              "(`run_perf.py --exp 5`)](../../results/perf/terminal_exp5.png)", ""]
         L += ["Pipeline có CPI lớn hơn 1 một chút nhưng tần số SoC cao hơn nhiều so với single-cycle (đường tổ hợp của "
               "single-cycle đi qua RAM hai lần), nên hiệu năng (∝ Fmax/CPI) cao hơn rõ rệt; phiên bản RV32I có Fmax cao "
               "hơn RV32IMC vì không có bộ nhân nằm trên đường găng.", ""]
@@ -228,6 +234,10 @@ def main():
               "hợp toán hạng gây sai – lý do cần bộ test có hướng như riscv-tests bên cạnh benchmark.", "",
               "Bảng 4.14. Phát hiện lỗi cài sẵn (nguồn: `results/cosim/mutant.md`).", ""]
         L += table_after("cosim/mutant.md") + [""]
+        L += ["![Hình 4.10. Ảnh chụp terminal khi chạy `make cosim` (4 cấu hình, kiểm tra lỗi cài sẵn, "
+              "hình lock-step)](../../results/cosim/terminal_cosim.png)", ""]
+        L += ["Hình 4.11 là ảnh chụp GTKWave mở file VCD ghi từ log commit của harness (mỗi chu kỳ: lệnh RTL "
+              "retire ở WB, lệnh Spike commit tương ứng, kết quả so khớp).", ""]
         L += ["![Hình 4.11. Lock-step RTL – Spike: chu kỳ không retire (stall/flush) không làm lệch so sánh vì "
               "so theo từng lệnh](../../results/cosim/lockstep.png)", ""]
     if (R / "perf/throughput.md").exists():

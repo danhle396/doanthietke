@@ -6,8 +6,8 @@ Gộp mọi lần chạy: unit testbench, riscv-tests (cả ma trận cấu hìn
 
 | Thư mục    | Line            | Toggle           |
 | ---------- | --------------- | ---------------- |
-| rtl (khác) | 100.0% (98/98)  | 97.8% (180/184)  |
-| rtl/core   | 99.8% (592/593) | 100.0% (477/477) |
+| rtl (khác) | 100.0% (98/98)  | 97.9% (183/187)  |
+| rtl/core   | 99.8% (592/593) | 100.0% (478/478) |
 | rtl/periph | 97.5% (119/122) | 98.6% (212/215)  |
 
 ## Bảng C2 – Theo file
@@ -30,7 +30,7 @@ Gộp mọi lần chạy: unit testbench, riscv-tests (cả ma trận cấu hìn
 | `rtl/core/imm_gen.sv`             | 100.0% (8/8)     | 100.0% (3/3)   |
 | `rtl/core/lsu.sv`                 | 100.0% (21/21)   | 100.0% (16/16) |
 | `rtl/core/mem_stage.sv`           | 100.0% (71/71)   | 100.0% (77/77) |
-| `rtl/core/muldiv.sv`              | 100.0% (32/32)   | 100.0% (23/23) |
+| `rtl/core/muldiv.sv`              | 100.0% (32/32)   | 100.0% (24/24) |
 | `rtl/core/regfile.sv`             | 100.0% (9/9)     | 100.0% (10/10) |
 | `rtl/core/wb_stage.sv`            | 100.0% (7/7)     | 100.0% (27/27) |
 | `rtl/core_sc/rv_core_sc.sv`       | 100.0% (59/59)   | 100.0% (58/58) |
@@ -47,6 +47,6 @@ Gộp mọi lần chạy: unit testbench, riscv-tests (cả ma trận cấu hìn
 | `rtl/periph/uart/uart_rx.sv`      | 100.0% (7/7)     | 100.0% (20/20) |
 | `rtl/periph/uart/uart_tx.sv`      | 100.0% (16/16)   | 100.0% (20/20) |
 | `rtl/rst_sync.sv`                 | 100.0% (1/1)     | 100.0% (4/4)   |
-| `rtl/soc_top.sv`                  | 100.0% (9/9)     | 94.3% (33/35)  |
+| `rtl/soc_top.sv`                  | 100.0% (9/9)     | 94.7% (36/38)  |
 
 Các dòng chưa phủ và giải thích: `results/coverage/uncovered.md`. Functional coverage: `results/coverage/functional.md`.

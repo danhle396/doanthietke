@@ -27,7 +27,7 @@ sweep_bht256_btb16,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 256, ""BTB_ENTRIES
 sweep_bht256_btb32,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 256, ""BTB_ENTRIES"": 32}",32801,4966
 sweep_bht256_btb64,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 256, ""BTB_ENTRIES"": 64}",36664,6822
 sweep_bht1024_btb8,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 1024, ""BTB_ENTRIES"": 8}",40870,5078
-sweep_bht1024_btb16,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 1024, ""BTB_ENTRIES"": 16}",41829,5558
-sweep_bht1024_btb32,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 1024, ""BTB_ENTRIES"": 32}",43819,6502
+sweep_bht1024_btb16,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 1024, ""BTB_ENTRIES"": 16}",41837,5558
+sweep_bht1024_btb32,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 1024, ""BTB_ENTRIES"": 32}",43817,6502
 sweep_bht1024_btb64,rv_core,"{""BP_MODE"": 2, ""BHT_ENTRIES"": 1024, ""BTB_ENTRIES"": 64}",47690,8358
-soc_top,soc_top,{},37779,6077
+soc_top,soc_top,{},37785,6077

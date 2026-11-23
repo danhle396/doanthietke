@@ -194,8 +194,10 @@ def main():
             un.append(f"| {l} | `{code.replace('|', '¦')}` | {explain(rel, code)} |")
         un.append("")
     write_md(OUT / "uncovered.md", "\n".join(un))
-    run([sys.executable, str(ROOT / "scripts/cov_report.py"), str(merged)])
-    print("\n".join(md[:12 + len(groups)]))
+    rep = run([sys.executable, str(ROOT / "scripts/cov_report.py"), str(merged)])
+    from md_table import align_tables
+    print(align_tables("\n".join(md)).rstrip())   # tables C1 and C2 (every file)
+    print(rep.stdout.strip())                    # functional coverage: cover points hit
 
 
 if __name__ == "__main__":

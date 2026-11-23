@@ -10,7 +10,7 @@ Bảng 5.1. Mục tiêu của đề tài và kết quả đạt được (bằng
 | Dự đoán rẽ nhánh                   | 3 chế độ (tĩnh, BHT ở ID, BHT + BTB ở IF) chọn bằng tham số; phát hiện sai dự đoán thống nhất bằng `pred_npc`; CPI giảm rõ rệt ở chế độ 2 (Chương 4)                                                                                         |
 | Ngoại vi truyền thông UART và SPI  | UART (parity, 1/2 stop, lấy mẫu ×16, FIFO, ngắt watermark/lỗi) và SPI master (4 mode, MSB/LSB, FIFO, ngắt DONE/overrun), có driver polling và ngắt                                                                                           |
 | SoC hoàn chỉnh                     | RAM 128 KB, bus nội bộ + APB4, TIMER64, GPIO, INTC; firmware chạy demo đọc flash SPI định kỳ và nhận lệnh qua UART                                                                                                                           |
-| Tổng hợp được                      | Lint sạch, Yosys sạch, đặt–định tuyến trên ECP5 (Fmax ước lượng trong `results/synth/summary.md`); layout ASIC của hai lõi bằng OpenLane/sky130A: DRC và LVS sạch, lõi pipeline 0,94 mm², Fmax 66,0 MHz ở góc TT (`results/asic/summary.md`) |
+| Tổng hợp được                      | Lint sạch, Yosys sạch, đặt–định tuyến trên ECP5 (Fmax ước lượng trong `results/synth/summary.md`); layout ASIC của hai lõi bằng OpenLane/sky130A: DRC và LVS sạch, lõi pipeline 0,94 mm², Fmax 67,7 MHz ở góc TT (`results/asic/summary.md`) |
 | Xác minh                           | 14 unit testbench; riscv-tests trên 7 cấu hình; kiểm tra giao thức Wishbone; co-simulation C++ lock-step với Spike khi đang chạy; khớp từng lệnh với Spike; 11 system test; coverage                                                         |
 | Đánh giá                           | 5 thí nghiệm hiệu năng có số liệu tái tạo được bằng `make perf`                                                                                                                                                                              |
 
@@ -36,7 +36,7 @@ Bảng 5.1. Mục tiêu của đề tài và kết quả đạt được (bằng
   pipeline; Fmax ước lượng của SoC pipeline khoảng 44 MHz (trung vị 5 seed, 41–46 MHz) trên ECP5 (Bảng 4.12).
 - JALR (đặc biệt `ret`) dự đoán bằng đích lần trước nên sai nhiều khi hàm được gọi từ nhiều nơi.
 - Ngắt phải chờ bộ chia lặp hoàn tất rồi mới hủy lệnh chia (độ trễ ngắt xấu nhất tăng ~34 chu kỳ).
-- Layout ASIC chỉ cho lõi (chưa có macro SRAM, pad I/O); tại góc chậm SS lõi pipeline chỉ đạt 34,5 MHz (< 40 MHz); còn 26 net vi phạm antenna và một số vi phạm max slew/cap – chưa sẵn sàng tape-out. Công suất là ước lượng của OpenSTA, không phải đo.
+- Layout ASIC chỉ cho lõi (chưa có macro SRAM, pad I/O); tại góc chậm SS lõi pipeline chỉ đạt 34,6 MHz (< 40 MHz); còn 33 net vi phạm antenna và một số vi phạm max slew/cap – chưa sẵn sàng tape-out. Công suất là ước lượng của OpenSTA, không phải đo.
 
 ## 5.4. Hướng phát triển
 

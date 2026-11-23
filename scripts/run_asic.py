@@ -27,6 +27,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -171,16 +172,15 @@ def gate_level(top):
 # --------------------------------------------------------------------------
 # Report
 # --------------------------------------------------------------------------
-RENDER = r"""
+GUI_MACRO = r"""
 import pya
 # Only the routing layers (li1, met1..met5) and the die boundary: the full
 # layer set hides everything under well/implant/fill shapes.
 SHOW = {(67, 20), (68, 20), (69, 20), (70, 20), (71, 20), (72, 20), (235, 4)}
-lv = pya.LayoutView()
-lv.set_config("background-color", "#ffffff")
-lv.set_config("grid-visible", "false")
-lv.set_config("text-visible", "false")
-lv.load_layout(gds, 0)
+mw = pya.Application.instance().main_window()
+mw.resize(1800, 1150)
+mw.load_layout(gds, 0)
+lv = mw.current_view()
 lv.load_layer_props(lyp)
 it = lv.begin_layers()
 while not it.at_end():
@@ -190,18 +190,79 @@ while not it.at_end():
     it.next()
 lv.max_hier()
 lv.zoom_fit()
-lv.save_image(out, int(size), int(size))
+
+# KLayout opens a "Tip" dialog at start-up; it would cover the middle of the
+# view (no window manager on the virtual display), so close it when it shows.
+def _close_tips():
+    for w in pya.QApplication.topLevelWidgets():
+        if w.windowTitle == "Tip" and w.isVisible():
+            w.close()
+_tip_timer = pya.QTimer(mw)
+_tip_timer.interval = 500
+_tip_timer.timeout = _close_tips
+_tip_timer.start()
 """
 
 
 def render(top):
+    """Screenshot of the KLayout window (GUI, on a virtual X display) showing the
+    final GDS with the sky130 layer colours; nothing is drawn by this script."""
+    import shutil
+    import time
     gds = run_dir(top) / "final/gds" / f"{top}.gds"
-    script = WORK / "render_gds.py"
-    script.write_text(RENDER)
+    lyp = PDK / "libs.tech/klayout/tech/sky130A.lyp"
+    macro = WORK / "klayout_view.py"
+    macro.write_text(GUI_MACRO)
     png = OUT / f"layout_{top}.png"
-    docker(["klayout", "-z", "-nc", "-rx", "-r", str(script), "-rd", f"gds={gds}",
-            "-rd", f"lyp={PDK / 'libs.tech/klayout/tech/sky130A.lyp'}", "-rd", f"out={png}",
-            "-rd", "size=1400"], ROOT, log=WORK / f"render_{top}.log", timeout=900)
+    disp = ":79"
+    env = dict(os.environ, DISPLAY=disp, QT_QPA_PLATFORM="xcb", HOME=str(WORK / "klayout_home"))
+    env.pop("WAYLAND_DISPLAY", None)
+    (WORK / "klayout_home").mkdir(parents=True, exist_ok=True)
+    xvfb = subprocess.Popen(["Xvfb", disp, "-screen", "0", "1920x1200x24", "-nolisten", "tcp"],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    kl = None
+    try:
+        time.sleep(1.5)
+        kl = subprocess.Popen([shutil.which("klayout") or "klayout", "-nc", "-rd", f"gds={gds}",
+                               "-rd", f"lyp={lyp}", "-rm", str(macro)], env=env,
+                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                              start_new_session=True)
+        win = None
+        for _ in range(600):
+            tree = subprocess.run(["xwininfo", "-root", "-tree"], env=env, capture_output=True,
+                                  text=True).stdout
+            m = re.search(r"^\s*(0x[0-9a-f]+) \"KLayout[^\"]*\"", tree, re.M)
+            if m and f"{top}.gds" in tree:
+                win = m.group(1)
+                break
+            time.sleep(0.5)
+        if not win:
+            raise RuntimeError("KLayout window did not appear")
+        # A large GDS takes minutes to draw in software (a progress box sits in the
+        # middle of the view meanwhile): grab every 20 s until two grabs are equal.
+        prev, tmp = None, WORK / f"klayout_{top}_grab.png"
+        for _ in range(30):
+            time.sleep(20)
+            # no window manager on Xvfb: make every window repaint the area left by
+            # KLayout's (closed) loading-progress box before grabbing
+            subprocess.run(["xrefresh"], env=env, check=False)
+            time.sleep(3)
+            subprocess.run(["import", "-window", win, str(tmp)], env=env, check=True)
+            data = tmp.read_bytes()
+            if data == prev:
+                break
+            prev = data
+        shutil.move(str(tmp), str(png))
+    finally:
+        if kl:
+            os.killpg(kl.pid, 15)
+            try:
+                kl.wait(15)
+            except subprocess.TimeoutExpired:   # KLayout may ignore TERM while busy
+                os.killpg(kl.pid, 9)
+                kl.wait(15)
+        xvfb.terminate()
+        xvfb.wait(10)
     return png
 
 
@@ -336,7 +397,8 @@ def write_md(data):
           "(`results/asic/gl_<top>.csv`).", ""]
     L += ["## Hình", ""]
     for t in tops:
-        L += [f"![Layout {t}](layout_{t}.png)", "", f"*Layout `{t}` (GDS cuối, KLayout).* "
+        L += [f"![Layout {t}](layout_{t}.png)", "", f"*Layout `{t}`: ảnh chụp cửa sổ KLayout mở GDS cuối "
+              "(lớp li1, met1–met5).* "
               f"Đường găng: `results/asic/timing_{t}.txt`.", ""]
     L += [f"Tái tạo: `make asic` (lần đầu khoảng 1 giờ; kết quả cũ được dùng lại nếu RTL và "
           "`asic/<top>/config.json` không đổi).", ""]

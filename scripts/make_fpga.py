@@ -41,6 +41,8 @@ FIRMWARE = [
     ("irq_priority", "tests", "Thứ tự ưu tiên MEI > MSI > MTI, mtvec direct/vectored", "–"),
     ("exceptions", "tests", "Illegal, ecall, ebreak, misaligned, access fault", "–"),
     ("irq_during_div", "tests", "Ngắt khi bộ chia đang chạy", "–"),
+    ("muldiv_rand", "tests", "8 lệnh RV32M và phép chia 64 bit (libgcc) trên toán hạng biên + ngẫu nhiên, "
+     "so với mô hình chỉ dùng cộng/dịch", "–"),
     ("branch_smc", "tests", "Trap sau nhánh đoán sai; self-modifying code + FENCE.I", "–"),
     ("spi_flash", "tests", "JEDEC ID, xóa sector, ghi/đọc page qua SPI", "module flash W25Qxx trên GPIO_0"),
     ("demo", "tests", "Đọc flash định kỳ theo ngắt timer + lệnh UART r/w/s/q", "module flash W25Qxx trên GPIO_0"),
@@ -71,11 +73,24 @@ _LEDR = ["AE23", "AF23", "AB21", "AC22", "AD22", "AD23", "AD21", "AC21", "AA14",
          "Y13", "AA13", "AC14", "AD15", "AE15", "AF13", "AE13", "AE12", "AD12"]
 _LEDG = ["AE22", "AF22", "W19", "V18", "U18", "U17", "AA20", "Y18", "Y12"]
 _GPIO0 = ["D25", "J22", "E26", "E25", "F24", "F23", "J21"]
-for name, lst in (("KEY", _KEY), ("SW", _SW), ("LEDR", _LEDR), ("LEDG", _LEDG), ("GPIO_0", _GPIO0)):
+# 7-segment digits, segments [0..6] = a..g, active low (DE2 User Manual table 4.4)
+_HEX = [["AF10", "AB12", "AC12", "AD11", "AE11", "V14", "V13"],
+        ["V20", "V21", "W21", "Y22", "AA24", "AA23", "AB24"],
+        ["AB23", "V22", "AC25", "AC26", "AB26", "AB25", "Y24"],
+        ["Y23", "AA25", "AA26", "Y26", "Y25", "U22", "W24"],
+        ["U9", "U1", "U2", "T4", "R7", "R6", "T3"],
+        ["T2", "P6", "P7", "T9", "R5", "R4", "R3"],
+        ["R2", "P4", "P3", "M2", "M3", "M5", "M4"],
+        ["L3", "L2", "L9", "L6", "L7", "P9", "N9"]]
+_GROUPS = [("KEY", _KEY), ("SW", _SW), ("LEDR", _LEDR), ("LEDG", _LEDG), ("GPIO_0", _GPIO0)]
+_GROUPS += [(f"HEX{d}", segs) for d, segs in enumerate(_HEX)]
+for name, lst in _GROUPS:
     for i, p in enumerate(lst):
         PINS[f"{name}[{i}]"] = p
 
-BOARD_FILES = ["board/ram_bank16_m4k.sv", "board/pll_cpu.v", "board/de2_top.sv"]
+BOARD_FILES = ["board/ram_bank16_m4k.sv", "board/pll_cpu.v", "board/jtag_uart_bridge.sv",
+               "board/board_display.sv", "board/key_cmd.sv",
+               "board/de2_top.sv"]
 
 
 # --------------------------------------------------------------------------
@@ -149,7 +164,7 @@ def simulate(exe, entry, elf):
 
 def summary(kind, uart_text, has_expect):
     r = re.search(r"RESULT \S+: (PASS[^\n]*)", uart_text)
-    if r:
+    if r and kind != "fpga":     # board_demo: report the benchmark (its self-test is checked too)
         return r.group(1)
     if kind == "tests":
         return "khớp expect.txt" if has_expect else ""
@@ -158,6 +173,25 @@ def summary(kind, uart_text, has_expect):
         c, i, cpi = m[-1].groups()   # board_demo: run 2 (deterministic predictor state)
         return f"{c} chu kỳ, {i} lệnh, CPI {int(cpi) / 1000:.3f}"
     return ""
+
+
+def bridge_sim():
+    """Unit test of the JTAG console bridge (fpga/board/jtag_uart_bridge.sv)
+    against a model of the host protocol of fpga/tools/jtag_uart.tcl."""
+    out = BUILD / "verilator" / "tb_jtag_bridge"
+    obj = out / "obj"
+    if obj.exists():
+        shutil.rmtree(obj)
+    obj.mkdir(parents=True)
+    run([VERILATOR, "--binary", "--timing", "-j", str(JOBS), "--top-module", "tb_jtag_bridge",
+         "-Mdir", str(obj), "-o", "Vtb", "-O2", "-Wno-fatal", "-Wno-lint", "-Wno-style",
+         "--timescale", "1ns/1ps", str(FPGA / "board/jtag_uart_bridge.sv"),
+         str(ROOT / "tb/fpga/tb_jtag_bridge.sv")], log=out / "build.log")
+    log = BUILD / "logs" / "fpga" / "tb_jtag_bridge.txt"
+    res = run([str(obj / "Vtb")], log=log, check=False, timeout=600)
+    ok = res.returncode == 0 and re.search(r"^PASS\s*$", res.stdout, re.M) is not None
+    shutil.rmtree(obj)
+    return ok, log
 
 
 def board_top_sim():
@@ -306,7 +340,14 @@ def main():
              "Không đưa lên board: " + "; ".join(f"`{n}` ({why})" for n, why in EXCLUDED) + "."]
     write_md(FPGA / "firmware" / "DANH_SACH.md", "\n".join(rows) + "\n")
 
-    # 5. board top level with the megafunction stand-ins (default firmware)
+    # 5. JTAG console bridge, then the board top level with the megafunction
+    #    stand-ins (default firmware)
+    if not args.no_sim:
+        ok, log = bridge_sim()
+        print(f"[fpga] jtag_uart_bridge (host protocol model) {'PASS' if ok else 'FAIL'}  log: "
+              f"{log.relative_to(ROOT)}")
+        if not ok:
+            results["jtag_uart_bridge"] = (False, "")
     if not args.no_sim and args.default == "board_demo":
         ok, log = board_top_sim()
         print(f"[fpga] de2_top (stubs, mem/*.mif) {'PASS' if ok else 'FAIL'}  log: "

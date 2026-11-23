@@ -2,7 +2,7 @@
 
 Harness `cosim/cosim_main.cpp` (Verilator C++): mỗi lệnh RTL retire được so **ngay khi chạy** với lệnh kế tiếp Spike commit (pc, mã lệnh, thanh ghi đích + giá trị, địa chỉ load, địa chỉ + dữ liệu store); lệch là dừng. Giá trị đọc từ counter được theo dõi (taint) như `compare_spike.py`.
 
-MATCH (kể cả KNOWN) 72 / 72; 1638940 lệnh được so khớp; tổng thời gian chạy 22.3 s.
+MATCH (kể cả KNOWN) 72 / 72; 1638940 lệnh được so khớp; tổng thời gian chạy 9.0 s.
 
 | Chương trình              | Kết quả | Lệnh so khớp | Giá trị counter bị che | Chu kỳ | Chi tiết                                                                                                                        |
 | ------------------------- | ------- | ------------ | ---------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------- |

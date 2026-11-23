@@ -19,9 +19,7 @@ Bảng P1. CPI, độ chính xác dự đoán (branch + jump) và chu kỳ penal
 | memcpy          |   1.399 |   1.200 |   1.001 |    0.4% |   99.9% |   99.9% |       21508 |       10905 |         250 |
 | **geomean CPI** |   1.320 |   1.223 |   1.097 |         |         |         |             |             |             |
 
-![Hình P1](exp1_cpi.png)
-
-![Hình P2](exp1_accuracy.png)
+![Ảnh chụp terminal: thí nghiệm 1](terminal_exp1.png)
 
 ## Thí nghiệm 2 – Quét kích thước BHT × BTB (BP_MODE 2)
 
@@ -32,11 +30,9 @@ Bảng P2. Độ chính xác trung bình (%) / geomean CPI trên 9 benchmark; di
 |        16 | 82.0% / 1.116 / 26427 cell | 83.7% / 1.106 / 27412 cell | 84.7% / 1.099 / 29403 cell | 85.2% / 1.096 / 33277 cell |
 |        64 | 82.1% / 1.115 / 27170 cell | 84.0% / 1.104 / 28112 cell | 85.0% / 1.097 / 30096 cell | 85.6% / 1.093 / 33915 cell |
 |       256 | 82.1% / 1.115 / 29826 cell | 83.9% / 1.104 / 30811 cell | 85.0% / 1.097 / 32801 cell | 85.5% / 1.093 / 36664 cell |
-|      1024 | 82.1% / 1.115 / 40870 cell | 83.9% / 1.104 / 41829 cell | 85.0% / 1.097 / 43819 cell | 85.6% / 1.093 / 47690 cell |
+|      1024 | 82.1% / 1.115 / 40870 cell | 83.9% / 1.104 / 41837 cell | 85.0% / 1.097 / 43817 cell | 85.6% / 1.093 / 47690 cell |
 
-![Hình P3](exp2_accuracy_heatmap.png)
-
-![Hình P4](exp2_cpi_vs_area.png)
+![Ảnh chụp terminal: thí nghiệm 2](terminal_exp2.png)
 
 ## Thí nghiệm 3 – Extension C
 
@@ -55,7 +51,7 @@ Bảng P3. Kích thước `.text` (byte) và CPI của ELF rv32im so với rv32i
 | memcpy    |     4536 |      3516 | 22.5% |        40.0% |     20110 |      20110 |  1.001 |   1.001 |
 | **tổng**  |    53388 |     40676 | 23.8% |              |           |            |        |         |
 
-![Hình P5](exp3_text_size.png)
+![Ảnh chụp terminal: thí nghiệm 3](terminal_exp3.png)
 
 ## Thí nghiệm 4 – Phân rã CPI (m1c1_bp2, rv32imc)
 
@@ -73,7 +69,7 @@ Bảng P4. CPI = 1 (lệnh) + các thành phần stall/lệnh. `mispredict` = 2 
 | vvadd     | 1.008 |    0.004 |  0.000 | 0.000 |      0.003 | 0.001 |
 | memcpy    | 1.001 |    0.001 |  0.000 | 0.000 |      0.000 | 0.000 |
 
-![Hình P6](exp4_cpi_breakdown.png)
+![Ảnh chụp terminal: thí nghiệm 4](terminal_exp4.png)
 
 ## Thí nghiệm 5 – Single-cycle so với pipeline
 
@@ -81,9 +77,11 @@ Bảng P5. CPI (geomean), Fmax ước lượng của SoC tương ứng (nextpnr 
 
 | Lõi                              | geomean CPI | Dhrystone CPI | Fmax (MHz) | Fmax/CPI | Hiệu năng tương đối |
 | -------------------------------- | ----------- | ------------- | ---------- | -------- | ------------------- |
-| rv_core_sc (single-cycle, RV32I) |       1.000 |         1.000 |      25.95 |     25.9 |               1.00× |
-| rv_core pipeline RV32I           |       1.104 |         1.178 |      42.64 |     38.6 |               1.49× |
-| rv_core pipeline RV32IMC         |       1.097 |         1.204 |      44.07 |     40.2 |               1.55× |
+| rv_core_sc (single-cycle, RV32I) |       1.000 |         1.000 |      25.67 |     25.7 |               1.00× |
+| rv_core pipeline RV32I           |       1.104 |         1.178 |      43.67 |     39.6 |               1.54× |
+| rv_core pipeline RV32IMC         |       1.097 |         1.204 |      43.73 |     39.9 |               1.55× |
+
+![Ảnh chụp terminal: thí nghiệm 5](terminal_exp5.png)
 
 ## Kiểm tra hợp lý (spec 12.1)
 

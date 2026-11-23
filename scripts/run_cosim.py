@@ -11,8 +11,9 @@ Also:
   * mutant check: the RTL is rebuilt with -DCOSIM_MUTANT (deliberate SLTU bug
     in alu.sv) and every program of m1c1_bp2 is run; the report lists which
     programs detect the bug and where;
-  * lock-step figure: commits of one benchmark window written by the harness
-    (+trace_csv) drawn as waveforms (RTL retire vs Spike commit).
+  * lock-step figure: commits of one benchmark window recorded by the harness
+    (+trace_csv: RTL retirement and Spike commit, cycle by cycle) are written
+    to a VCD and shown in the real GTKWave (screenshot, scripts/gtkwave_shot.py).
 
 Results: results/cosim/<config>.md, mutant.md, summary.md, lockstep.png.
 
@@ -144,29 +145,11 @@ def mutant_check():
     return len(det), len(rows)
 
 
-class _Trace:
-    """Minimal stand-in for vcd2png.Vcd built from the harness CSV."""
-
-    def __init__(self):
-        self.data, self.width = {}, {}
-
-    def add(self, name, width, pts):
-        self.width[name] = width
-        self.data[name] = ([t for t, _ in pts], [v for _, v in pts])
-
-    def value(self, name, t):
-        ts, vs = self.data[name]
-        v = None
-        for tt, vv in zip(ts, vs):
-            if tt <= t:
-                v = vv
-        return v
-
-
 def lockstep_figure(cname="m1c1_bp2", bench="qsort", start=0, scan=50000, n=10, max_span=16):
-    """Trace `scan` commits from `start`, draw the window of `n` commits with the most
-    cycles without a retirement (stall / flush bubbles), at most `max_span` cycles long."""
-    from vcd2png import plot
+    """Trace `scan` commits from `start`, keep the window of `n` commits with the most
+    cycles without a retirement (stall / flush bubbles), at most `max_span` cycles long,
+    write it as a VCD (one value change per clock) and screenshot it in GTKWave."""
+    from gtkwave_shot import Screen
     cfg = CONFIGS[cname]
     exe = build_cosim(cfg)
     job = next(j for j in bench_jobs(cname) if j[0] == "bench-" + bench)
@@ -184,43 +167,42 @@ def lockstep_figure(cname="m1c1_bp2", bench="qsort", start=0, scan=50000, n=10, 
     P = 20
     c0, c1 = int(rows[0]["cycle"]) - 1, int(rows[-1]["cycle"]) + 2
     by_cycle = {int(x["cycle"]): x for x in rows}
-    tr = _Trace()
-    ret, rpc, spc, rval, sval, ok = [], [], [], [], [], []
-    last = {"rpc": None, "spc": None, "rval": None, "sval": None}
+    sigs = [("clk", 1), ("rtl_retire", 1), ("rtl_pc", 32), ("rtl_rd", 5), ("rtl_wdata", 32),
+            ("spike_pc", 32), ("spike_rd", 5), ("spike_wdata", 32), ("match", 1)]
+    ids = {name: chr(33 + i) for i, (name, _) in enumerate(sigs)}
+    vcd = BUILD / "cosim" / f"lockstep_{bench}.vcd"
+    vcd.parent.mkdir(parents=True, exist_ok=True)
+    L = ["$timescale 1ns $end", "$scope module cosim $end"]
+    L += [f"$var wire {w} {ids[n]} {n} $end" for n, w in sigs]
+    L += ["$upscope $end", "$enddefinitions $end"]
 
-    def put(lst, t, v):              # a bus point only when the value changes
-        if not lst or lst[-1][1] != v:
-            lst.append((t, v))
+    def val(name, width, v):
+        return f"{v}{ids[name]}" if width == 1 else f"b{v:b} {ids[name]}"
 
+    last = {n: 0 for n, _ in sigs}
     for c in range(c0, c1):
-        t = c * P
         x = by_cycle.get(c)
-        ret.append((t, 1 if x else 0))
-        ok.append((t, 1 if x and x["status"] in ("MATCH", "MASKED") else 0))
-        if x:
-            last["rpc"] = int(x["rtl_pc"], 16) - 0x80000000
-            last["spc"] = int(x["spike_pc"], 16) - 0x80000000
-            if int(x["rtl_rd"]) >= 0:
-                last["rval"] = int(x["rtl_val"], 16) & 0xFFFF
-            if int(x["spike_rd"]) >= 0:
-                last["sval"] = int(x["spike_val"], 16) & 0xFFFF
-        put(rpc, t, last["rpc"])
-        put(spc, t, last["spc"])
-        put(rval, t, last["rval"])
-        put(sval, t, last["sval"])
-    clk = []
-    for c in range(c0, c1):
-        clk += [(c * P - P // 2, 0), (c * P, 1)]
-    tr.add("clk", 1, clk)
-    names = ["RTL retire (WB)", "RTL pc − 0x8000_0000", "Spike pc − 0x8000_0000",
-             "RTL rd ← (16 bit thấp)", "Spike rd ← (16 bit thấp)", "khớp (mỗi lệnh retire)"]
-    for name, pts, w in zip(names, (ret, rpc, spc, rval, sval, ok), (1, 32, 32, 32, 32, 1)):
-        tr.add(name, w, pts)
-    sigs = ["clk"] + names
+        cur = dict(last, clk=1, rtl_retire=1 if x else 0,
+                   match=1 if x and x["status"] in ("MATCH", "MASKED") else 0)
+        if x:      # bus values hold until the next retirement
+            cur["rtl_pc"], cur["spike_pc"] = int(x["rtl_pc"], 16), int(x["spike_pc"], 16)
+            for side in ("rtl", "spike"):
+                rd = int(x[f"{side}_rd"])
+                if rd >= 0:
+                    cur[f"{side}_rd"], cur[f"{side}_wdata"] = rd, int(x[f"{side}_val"], 16)
+        L.append(f"#{c * P}")
+        L += [val(n, w, cur[n]) for n, w in sigs if c == c0 or cur[n] != last[n]]
+        L += [f"#{c * P + P // 2}", val("clk", 1, 0)]
+        last = dict(cur, clk=0)
+    vcd.write_text("\n".join(L) + "\n")
+    rowsg = [("comment", f"RTL: lệnh retire ở tầng WB ({bench}, lệnh #{start}-#{start + n - 1})")]
+    rowsg += [("sig", nm, w, nm) for nm, w in sigs[:5]]
+    rowsg += [("comment", "Spike: lệnh commit tương ứng"), ]
+    rowsg += [("sig", nm, w, nm) for nm, w in sigs[5:8]]
+    rowsg += [("comment", "Harness: so khớp từng lệnh"), ("sig", "match", 1, "match")]
     out = OUT / "lockstep.png"
-    plot(tr, sigs, c0 * P, (c1 - 1) * P, out,
-         f"Hình W10. Co-simulation lock-step ({bench}, lệnh #{start}–#{start + n - 1}): mỗi lệnh RTL retire "
-         "được so ngay với lệnh Spike commit", period=P)
+    with Screen(top="cosim") as scr:
+        scr.shot(vcd, rowsg, c0 * P, (c1 - 1) * P, out)
     return out, r
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Block diagrams and FSMs for the report (matplotlib, because mmdc /
 wavedrom-cli are not installed). The Mermaid sources of the same diagrams are
-written next to the PNGs in docs/diagrams/*.mmd.
+written next to the PNGs in docs/report/hinh/*.mmd.
 
 Usage: draw_diagrams.py
 """
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patches import FancyBboxPatch, Circle  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "docs/diagrams"
+OUT = ROOT / "docs/report/hinh"
 INK, INK2, SURF, LINE = "#0b0b0b", "#52514e", "#fcfcfb", "#52514e"
 FILL = ["#d5e5f7", "#fbe1d6", "#d2f0e4", "#fbecc8", "#f8dce6", "#e4e3df"]
 

@@ -36,15 +36,22 @@ module muldiv
 );
 
   // ---------------- Multiplier ----------------
-  logic        a_sign, b_sign;
+  logic               a_sign, b_sign;
+  logic signed [32:0] a_ext, b_ext;
   /* verilator lint_off UNUSEDSIGNAL */
-  logic [65:0] prod;  // 33x33 product, bits [65:64] are sign extension
+  logic signed [65:0] prod;  // 33x33 product, bits [65:64] are sign extension
   /* verilator lint_on UNUSEDSIGNAL */
-  logic [31:0] mul_res;
+  logic [31:0]        mul_res;
 
   assign a_sign = (op == MD_MULH) || (op == MD_MULHSU);
   assign b_sign = (op == MD_MULH);
-  assign prod   = 66'($signed({a_sign & a[31], a}) * $signed({b_sign & b[31], b}));
+  assign a_ext  = {a_sign & a[31], a};
+  assign b_ext  = {b_sign & b[31], b};
+  // Plain signed operands and a 66-bit signed target: the product is sized by
+  // the assignment context (IEEE 1364 rule) in every tool. A size cast of the
+  // product, 66'(x * y), is read by Quartus II 13.0 as a 33-bit product that is
+  // then sign-extended (MULH/MULHU returned only copies of bit 32 on the board).
+  assign prod   = a_ext * b_ext;
   assign mul_res = (op == MD_MUL) ? prod[31:0] : prod[63:32];
 
   // ---------------- Divider ----------------

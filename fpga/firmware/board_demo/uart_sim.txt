@@ -1,24 +1,29 @@
 
 === RISC-V RV32IMC SoC on DE2 (Cyclone II EP2C35) ===
-commands: h help | i info | s switches | b benchmark | f flash ID | q quit
+commands: h help | i info | s switches | b benchmark | t self-test | f flash ID | q quit
 > h
-commands: h help | i info | s switches | b benchmark | f flash ID | q quit
+commands: h help | i info | s switches | b benchmark | t self-test | f flash ID | q quit
 > i
 CPU      : rv_core RV32IMC, 24000000 Hz, misa = 0x40001104
 uptime   : 0 s, switch events: 0
-mcycle   : 446487  minstret: 257190  CPI x1000: 1736
+mcycle   : 504737  minstret: 286447  CPI x1000: 1762
 > s
 SW[15:0] = 0x0a0a
 > b
 run 1:
-[bench] name=board_demo cycles=391208 instret=323166 cpi_x1000=1210
-[bench] branch=36825 branch_miss=1031 jump=2 jump_miss=1 acc_x1000=971
-[bench] stall_load_use=10 stall_muldiv=65967 stall_bus=0 compressed=146218
+[bench] name=board_demo cycles=391211 instret=323167 cpi_x1000=1210
+[bench] branch=36825 branch_miss=1032 jump=2 jump_miss=1 acc_x1000=971
+[bench] stall_load_use=10 stall_muldiv=65967 stall_bus=0 compressed=211755
 run 2:
-[bench] name=board_demo cycles=391205 instret=323166 cpi_x1000=1210
-[bench] branch=36825 branch_miss=1030 jump=2 jump_miss=1 acc_x1000=972
-[bench] stall_load_use=10 stall_muldiv=65967 stall_bus=0 compressed=146218
+[bench] name=board_demo cycles=391209 instret=323167 cpi_x1000=1210
+[bench] branch=36825 branch_miss=1031 jump=2 jump_miss=1 acc_x1000=971
+[bench] stall_load_use=10 stall_muldiv=65967 stall_bus=0 compressed=211755
 result = 0x1dfc7c31
+> t
+RV32M    : ok
+RAM      : ok
+CSR/timer: ok
+RESULT selftest: PASS (13 checks, 0 errors)
 > f
 JEDEC ID : ef 40 16
 > q

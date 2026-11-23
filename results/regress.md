@@ -2,11 +2,11 @@
 
 | Bước    | Kết quả | Thời gian (s) |
 | ------- | ------- | ------------- |
-| lint    | PASS    |             3 |
-| unit    | PASS    |             3 |
+| lint    | PASS    |             4 |
+| unit    | PASS    |             0 |
 | sw      | PASS    |             0 |
-| isa     | PASS    |            86 |
-| spike   | PASS    |           129 |
-| systest | PASS    |             5 |
+| isa     | PASS    |             1 |
+| spike   | PASS    |            67 |
+| systest | PASS    |             9 |
 
 Tổng: PASS. Tái tạo: `make regress`.

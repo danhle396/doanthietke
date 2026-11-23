@@ -52,7 +52,7 @@ macro SRAM và ngoại vi ở cấp chip.
   hoặc cell lớn hơn.
 - Bốn lần thử cấu hình (D30) cho thấy sự đánh đổi: chèn diode ở mọi net dài hơn 90 µm sửa gần hết antenna nhưng
   diode làm tăng tải → slew xấu đi và số cell tăng ~55 %; không chèn diode thì slew tốt nhưng còn 145 net vi phạm
-  antenna. Cấu hình cuối chỉ chèn diode trên net dài hơn 250 µm: còn 26 net, slew ở góc TT gần như sạch. Các vi phạm còn lại được liệt kê trong bảng; OpenLane báo cảnh báo,
+  antenna. Cấu hình cuối chỉ chèn diode trên net dài hơn 250 µm: lần chạy gần nhất (22/11/2026) còn 33 net vi phạm antenna và 22 / 48 vi phạm max slew / max cap ở góc TT. Các vi phạm còn lại được liệt kê trong bảng; OpenLane báo cảnh báo,
   không chặn sign-off, nhưng phải sửa hết trước khi tape-out thật.
 
 ## Làm sao biết layout vẫn đúng chức năng

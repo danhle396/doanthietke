@@ -12,16 +12,16 @@ Bảng 4.1. Kết quả unit testbench (nguồn: `results/unit/summary.md`).
 
 | Testbench             | Kết quả | Seed | Thời gian (s) | Ghi chú      |
 | --------------------- | ------- | ---- | ------------- | ------------ |
-| tb_alu                | PASS    |    1 |           2.8 | 15440 checks |
+| tb_alu                | PASS    |    1 |           0.0 | 15440 checks |
 | tb_regfile            | PASS    |    1 |           0.0 | 40134 checks |
-| tb_muldiv             | PASS    |    1 |           0.0 | 4316 checks  |
+| tb_muldiv             | PASS    |    1 |           0.1 | 4316 checks  |
 | tb_compressed_decoder | PASS    |    1 |           0.1 | 2104 checks  |
 | tb_bp                 | PASS    |    1 |           0.0 | 6304 checks  |
 | tb_csr                | PASS    |    1 |           0.0 | 136 checks   |
 | tb_fifo               | PASS    |    1 |           0.0 | 77335 checks |
 | tb_apb_bridge         | PASS    |    1 |           0.0 | 3038 checks  |
 | tb_dbus_xbar          | PASS    |    1 |           0.0 | 5815 checks  |
-| tb_uart               | PASS    |    1 |           0.0 | 549 checks   |
+| tb_uart               | PASS    |    1 |           0.1 | 549 checks   |
 | tb_spi                | PASS    |    1 |           0.0 | 395 checks   |
 | tb_timer              | PASS    |    1 |           0.0 | 220 checks   |
 | tb_gpio               | PASS    |    1 |           0.0 | 617 checks   |
@@ -81,10 +81,12 @@ Bảng 4.4. System test (nguồn: `results/systest/summary.md`).
 | branch_smc     | `m1c1_bp2`   | PASS    |   24718 | RESULT branch_smc: PASS (4 checks, 0 errors)     |
 | branch_smc     | `m1c1_bp0`   | PASS    |   24775 | RESULT branch_smc: PASS (4 checks, 0 errors)     |
 | branch_smc     | `sc`         | PASS    |   24691 | RESULT branch_smc: PASS (4 checks, 0 errors)     |
+| muldiv_rand    | `m1c1_bp2`   | PASS    | 6031222 | RESULT muldiv_rand: PASS (9 checks, 0 errors)    |
+| muldiv_rand    | `m1c0_bp2`   | PASS    | 6040505 | RESULT muldiv_rand: PASS (9 checks, 0 errors)    |
 
 ## 4.5. Waveform minh họa
 
-Các hình được sinh tự động từ VCD bằng `scripts/make_waves.py`; trục hoành tính theo chu kỳ clock.
+Các hình là ảnh chụp cửa sổ GTKWave mở file VCD của mô phỏng RTL (`scripts/make_waves.py` tìm khung thời gian của từng sự kiện, đặt marker đỏ tại sự kiện rồi chụp màn hình; GTKWave chạy trên màn hình ảo Xvfb). Cột trái là tên tín hiệu và giá trị tại marker.
 
 ![Hình 4.1. Load-use stall và forwarding](../../results/waves/load_use_forwarding.png)
 
@@ -102,8 +104,8 @@ Bảng 4.5. Line và toggle coverage theo thư mục (nguồn: `results/coverage
 
 | Thư mục    | Line            | Toggle           |
 | ---------- | --------------- | ---------------- |
-| rtl (khác) | 100.0% (98/98)  | 97.8% (180/184)  |
-| rtl/core   | 99.8% (592/593) | 100.0% (477/477) |
+| rtl (khác) | 100.0% (98/98)  | 97.9% (183/187)  |
+| rtl/core   | 99.8% (592/593) | 100.0% (478/478) |
 | rtl/periph | 97.5% (119/122) | 98.6% (212/215)  |
 
 Functional coverage: 71/71 điểm `cover property` đạt (`results/coverage/functional.md`), gồm mọi nhóm lệnh, 8 lệnh M, lệnh nén, 4 đường forward, các loại stall, sai dự đoán theo loại, mọi mcause, ngắt khi bộ chia đang chạy, trap ngay sau nhánh sai, lệnh 32 bit vắt qua ranh giới word, 4 mode SPI, định dạng UART và trạng thái đầy/rỗng của các FIFO.
@@ -131,9 +133,7 @@ Bảng 4.6. CPI, độ chính xác, penalty (nguồn: `results/perf/exp1_predict
 | memcpy          |   1.399 |   1.200 |   1.001 |    0.4% |   99.9% |   99.9% |       21508 |       10905 |         250 |
 | **geomean CPI** |   1.320 |   1.223 |   1.097 |         |         |         |             |             |             |
 
-![Hình 4.5. CPI theo chế độ dự đoán](../../results/perf/exp1_cpi.png)
-
-![Hình 4.6. Độ chính xác dự đoán](../../results/perf/exp1_accuracy.png)
+![Hình 4.5. Ảnh chụp terminal khi chạy thí nghiệm 1 (`run_perf.py --exp 1`)](../../results/perf/terminal_exp1.png)
 
 ### 4.7.2. Kích thước BHT và BTB
 
@@ -144,13 +144,11 @@ Bảng 4.7. Độ chính xác trung bình / geomean CPI / diện tích theo BHT 
 |        16 | 82.0% / 1.116 / 26427 cell | 83.7% / 1.106 / 27412 cell | 84.7% / 1.099 / 29403 cell | 85.2% / 1.096 / 33277 cell |
 |        64 | 82.1% / 1.115 / 27170 cell | 84.0% / 1.104 / 28112 cell | 85.0% / 1.097 / 30096 cell | 85.6% / 1.093 / 33915 cell |
 |       256 | 82.1% / 1.115 / 29826 cell | 83.9% / 1.104 / 30811 cell | 85.0% / 1.097 / 32801 cell | 85.5% / 1.093 / 36664 cell |
-|      1024 | 82.1% / 1.115 / 40870 cell | 83.9% / 1.104 / 41829 cell | 85.0% / 1.097 / 43819 cell | 85.6% / 1.093 / 47690 cell |
+|      1024 | 82.1% / 1.115 / 40870 cell | 83.9% / 1.104 / 41837 cell | 85.0% / 1.097 / 43817 cell | 85.6% / 1.093 / 47690 cell |
 
-Độ chính xác chủ yếu phụ thuộc kích thước BTB (82.1% với 8 entry lên 85.5% với 64 entry, BHT 256), còn BHT lớn hơn 64 entry gần như không cải thiện (85.0% so với 85.0% ở BTB 32) vì các benchmark có ít nhánh nóng; trong khi đó diện tích tăng mạnh theo BHT (30096 → 43819 cell) vì bảng làm bằng flip-flop. Điểm cân bằng hợp lý cho các tải này là BHT 64 × BTB 32.
+Độ chính xác chủ yếu phụ thuộc kích thước BTB (82.1% với 8 entry lên 85.5% với 64 entry, BHT 256), còn BHT lớn hơn 64 entry gần như không cải thiện (85.0% so với 85.0% ở BTB 32) vì các benchmark có ít nhánh nóng; trong khi đó diện tích tăng mạnh theo BHT (30096 → 43817 cell) vì bảng làm bằng flip-flop. Điểm cân bằng hợp lý cho các tải này là BHT 64 × BTB 32.
 
-![Hình 4.7. Độ chính xác theo BHT × BTB](../../results/perf/exp2_accuracy_heatmap.png)
-
-![Hình 4.8. CPI theo diện tích](../../results/perf/exp2_cpi_vs_area.png)
+![Hình 4.6. Ảnh chụp terminal khi chạy thí nghiệm 2 (`run_perf.py --exp 2`)](../../results/perf/terminal_exp2.png)
 
 ### 4.7.3. Extension C
 
@@ -171,7 +169,7 @@ Bảng 4.8. Kích thước mã và CPI (nguồn: `results/perf/exp3_rvc.csv`).
 | memcpy    |     4536 |      3516 | 22.5% |        40.0% |     20110 |      20110 |  1.001 |   1.001 |
 | **tổng**  |    53388 |     40676 | 23.8% |              |           |            |        |         |
 
-![Hình 4.9. Kích thước mã](../../results/perf/exp3_text_size.png)
+![Hình 4.7. Ảnh chụp terminal khi chạy thí nghiệm 3 (`run_perf.py --exp 3`)](../../results/perf/terminal_exp3.png)
 
 ### 4.7.4. Phân rã CPI
 
@@ -189,7 +187,7 @@ Bảng 4.9. Phân rã CPI ở BP_MODE 2 (nguồn: `results/perf/exp4_cpi_breakdo
 | vvadd     | 1.008 |    0.004 |  0.000 | 0.000 |      0.003 | 0.001 |
 | memcpy    | 1.001 |    0.001 |  0.000 | 0.000 |      0.000 | 0.000 |
 
-![Hình 4.10. Phân rã CPI](../../results/perf/exp4_cpi_breakdown.png)
+![Hình 4.8. Ảnh chụp terminal khi chạy thí nghiệm 4 (`run_perf.py --exp 4`, tính từ các bộ đếm hiệu năng đo ở thí nghiệm 1)](../../results/perf/terminal_exp4.png)
 
 Sai dự đoán là nguồn mất chu kỳ lớn nhất ở các benchmark có nhánh phụ thuộc dữ liệu (median, qsort); load-use đáng kể ở CoreMark và Dhrystone; stall MulDiv chỉ xuất hiện ở Dhrystone (một phép chia mỗi vòng); các benchmark không truy cập ngoại vi trong vùng đo nên không có chờ bus.
 
@@ -199,9 +197,11 @@ Bảng 4.10. CPI, Fmax và hiệu năng tương đối (nguồn: `results/perf/e
 
 | Lõi                              | geomean CPI | Dhrystone CPI | Fmax (MHz) | Fmax/CPI | Hiệu năng tương đối |
 | -------------------------------- | ----------- | ------------- | ---------- | -------- | ------------------- |
-| rv_core_sc (single-cycle, RV32I) |       1.000 |         1.000 |      25.95 |     25.9 |               1.00× |
-| rv_core pipeline RV32I           |       1.104 |         1.178 |      42.64 |     38.6 |               1.49× |
-| rv_core pipeline RV32IMC         |       1.097 |         1.204 |      44.07 |     40.2 |               1.55× |
+| rv_core_sc (single-cycle, RV32I) |       1.000 |         1.000 |      25.67 |     25.7 |               1.00× |
+| rv_core pipeline RV32I           |       1.104 |         1.178 |      43.67 |     39.6 |               1.54× |
+| rv_core pipeline RV32IMC         |       1.097 |         1.204 |      43.73 |     39.9 |               1.55× |
+
+![Hình 4.9. Ảnh chụp terminal khi chạy thí nghiệm 5 (`run_perf.py --exp 5`)](../../results/perf/terminal_exp5.png)
 
 Pipeline có CPI lớn hơn 1 một chút nhưng tần số SoC cao hơn nhiều so với single-cycle (đường tổ hợp của single-cycle đi qua RAM hai lần), nên hiệu năng (∝ Fmax/CPI) cao hơn rõ rệt; phiên bản RV32I có Fmax cao hơn RV32IMC vì không có bộ nhân nằm trên đường găng.
 
@@ -228,47 +228,47 @@ Bảng 4.11. Diện tích (nguồn: `results/synth/area.csv`).
 | `dbus_xbar`        | –                                            |   173 |         0 |
 | `sim_ctrl`         | –                                            |    18 |         0 |
 | `rst_sync`         | –                                            |     2 |         2 |
-| `soc_top`          | –                                            | 37779 |      6077 |
+| `soc_top`          | –                                            | 37785 |      6077 |
 
 Bảng 4.12. Tài nguyên ECP5 và Fmax (nguồn: `results/synth/summary.md`).
 
-| Thiết kế          | LUT4  | FF   | Fmax trung vị (MHz) | min – max (5 seed) | Đường găng (seed trung vị, tóm tắt)                                                         |
-| ----------------- | ----- | ---- | ------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
-| `m1c1_bp2`        |  9715 | 4966 |               40.44 | 38.21 – 42.38      | `u_ex.mem_rd` → `u_ex.fwd_rs1` (36 chặng logic/định tuyến)                                  |
-| `m1c1_bp0`        |  5493 | 2532 |               44.76 | 41.92 – 46.27      | `u_ex.mem_rd_we` → `u_ex.mem_rd_we` (25 chặng logic/định tuyến)                             |
-| `m0c0_bp2`        |  8446 | 4699 |               45.48 | 43.7 – 46.64       | `u_ex.mem_rd_we` → `u_if.pc_q` (46 chặng logic/định tuyến)                                  |
-| `sc`              |  4501 | 1509 |               46.22 | 44.09 – 47.74      | `u_csr.wdata` → `u_csr.wdata` (42 chặng logic/định tuyến)                                   |
-| `soc_top_1k`      | 11413 | 5565 |               44.07 | 41.43 – 45.76      | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_ex.mem_rd_we` (19 chặng logic/định tuyến) |
-| `soc_top_m0c0_1k` | 10240 | 5298 |               42.64 | 34.78 – 44.0       | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_if.id_insn` (51 chặng logic/định tuyến)   |
-| `soc_top_sc_1k`   |  8886 | 2108 |               25.95 | 24.6 – 26.42       | `g_sc.u_core.pc_q` → `g_sc.u_core.u_csr.wdata` (37 chặng logic/định tuyến)                  |
+| Thiết kế          | LUT4  | FF   | Fmax trung vị (MHz) | min – max (5 seed) | Đường găng (seed trung vị, tóm tắt)                                                    |
+| ----------------- | ----- | ---- | ------------------- | ------------------ | -------------------------------------------------------------------------------------- |
+| `m1c1_bp2`        |  9715 | 4966 |               40.68 | 40.23 – 42.55      | `u_id.ex_is_load` → `u_ex.fwd_rs1` (49 chặng logic/định tuyến)                         |
+| `m1c1_bp0`        |  5493 | 2532 |               43.45 | 41.73 – 46.99      | `u_ex.mem_rd_we` → `dbus_adr_o` (27 chặng logic/định tuyến)                            |
+| `m0c0_bp2`        |  8446 | 4699 |               45.48 | 43.7 – 46.64       | `u_ex.mem_rd_we` → `u_if.pc_q` (46 chặng logic/định tuyến)                             |
+| `sc`              |  4501 | 1509 |               46.22 | 44.09 – 47.74      | `u_csr.wdata` → `u_csr.wdata` (42 chặng logic/định tuyến)                              |
+| `soc_top_1k`      | 11663 | 5565 |               43.73 | 42.02 – 44.79      | `g_pipe.u_core.u_ex.mem_rd_we` → `g_pipe.u_core.u_if.pc_q` (22 chặng logic/định tuyến) |
+| `soc_top_m0c0_1k` | 10211 | 5298 |               43.67 | 39.74 – 46.95      | `g_pipe.u_core.u_ex.mem_rd` → `g_pipe.u_core.u_if.id_insn` (33 chặng logic/định tuyến) |
+| `soc_top_sc_1k`   |  8281 | 2108 |               25.67 | 24.97 – 26.11      | `g_sc.u_core.pc_q` → `g_sc.u_core.irq_mtip` (41 chặng logic/định tuyến)                |
 
-Đường găng của lõi `m1c1_bp2` (seed trung vị, 40.44 MHz) gồm các chặng sau (trích `results/synth/critical_path_m1c1_bp2.txt`, chỉ giữ tên nguồn/đích):
+Đường găng của lõi `m1c1_bp2` (seed trung vị, 40.68 MHz) gồm các chặng sau (trích `results/synth/critical_path_m1c1_bp2.txt`, chỉ giữ tên nguồn/đích):
 
 ```
-Source u_ex.mem_rd_TRELLIS_FF_DI_1.Q
-Sink   u_ex.mem_rd_we_LUT4_B_Z_LUT4_Z_1_A_LUT4_A_Z_LUT4_Z_1.A
-Source u_ex.mem_rd_we_LUT4_B_Z_LUT4_Z_1_A_LUT4_A_Z_LUT4_Z_1.F
-Sink   u_ex.mem_rd_we_LUT4_B_Z_L6MUX21_SD_Z_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.M
-Source u_ex.mem_rd_we_LUT4_B_Z_L6MUX21_SD_Z_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
-Sink   u_ex.fwd_rs1_L6MUX21_Z_16_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.M
-Source u_ex.fwd_rs1_L6MUX21_Z_16_D1_L6MUX21_Z_D1_PFUMX_Z_ALUT_LUT4_Z.OFX
-Sink   u_ex.fwd_rs1_L6MUX21_Z_16_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.FXB
-Source u_ex.fwd_rs1_L6MUX21_Z_16_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
+Source u_id.ex_is_load_TRELLIS_FF_DI_Q_TRELLIS_FF_Q.Q
+Sink   u_ex.mem_rd_we_LUT4_B.D
+Source u_ex.mem_rd_we_LUT4_B.F
+Sink   u_ex.mem_rd_we_LUT4_B_Z_PFUMX_C0_1_ALUT_LUT4_Z.M
+Source u_ex.mem_rd_we_LUT4_B_Z_PFUMX_C0_1_ALUT_LUT4_Z.OFX
+Sink   u_ex.fwd_rs1_L6MUX21_Z_2_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.M
+Source u_ex.fwd_rs1_L6MUX21_Z_2_D1_L6MUX21_Z_D0_PFUMX_Z_ALUT_LUT4_Z.OFX
 Sink   u_ex.fwd_rs2_PFUMX_Z_BLUT_LUT4_Z_B_LUT4_B_Z_PFUMX_BLUT_Z_CCU2C_B0_S0_LUT4_D_Z_LUT4_Z_B_PFUMX_C0_Z_LU
 Source u_ex.fwd_rs2_PFUMX_Z_BLUT_LUT4_Z_B_LUT4_B_Z_PFUMX_BLUT_Z_CCU2C_B0_S0_LUT4_D_Z_LUT4_Z_B_PFUMX_C0_Z_LU
 Sink   u_ex.fwd_rs2_PFUMX_Z_BLUT_LUT4_Z_B_LUT4_B_Z_PFUMX_BLUT_Z_CCU2C_B0_S0_LUT4_D_Z_LUT4_Z_B_PFUMX_C0_Z_LU
-   ... (53 chặng giữa) ...
-Sink   flush_id_ex_LUT4_Z_D_LUT4_Z.D
+Source u_ex.fwd_rs2_PFUMX_Z_BLUT_LUT4_Z_B_LUT4_B_Z_PFUMX_BLUT_Z_CCU2C_B0_S0_LUT4_D_Z_LUT4_Z_B_PFUMX_C0_Z_LU
+Sink   u_ex.fwd_rs2_PFUMX_Z_BLUT_LUT4_Z_B_LUT4_B_Z_PFUMX_BLUT_Z_CCU2C_B0_S0_LUT4_D_Z_LUT4_Z_B_PFUMX_C0_Z_LU
+   ... (79 chặng giữa) ...
+Sink   flush_id_ex_LUT4_Z_D_LUT4_Z.C
 Source flush_id_ex_LUT4_Z_D_LUT4_Z.F
 Sink   flush_id_ex_LUT4_Z.D
 Source flush_id_ex_LUT4_Z.F
-Sink   u_ex.fwd_rs1_L6MUX21_Z_16_D0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z_D_TRELLIS_FF_Q.CE
-Source u_ex.fwd_rs1_L6MUX21_Z_16_D0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z_D_TRELLIS_FF_Q.CE
+Sink   u_ex.fwd_rs1_L6MUX21_Z_7_D0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z_D_TRELLIS_FF_Q.CE
+Source u_ex.fwd_rs1_L6MUX21_Z_7_D0_L6MUX21_Z_D1_PFUMX_Z_BLUT_LUT4_Z_D_TRELLIS_FF_Q.CE
 ```
 
 Đường găng bắt đầu ở thanh ghi `ex_mem` (chỉ số `rd` và `rd_we` của lệnh ở MEM), qua bộ so khớp forwarding và mux toán hạng (`fwd_rs1/fwd_rs2`), vào chuỗi cộng carry dài (`CCU2C`) của khối tính toán ở EX, rồi tới tín hiệu điều khiển đi vào chân enable của thanh ghi. Đặc điểm này giống nhau ở cả 5 seed: forwarding nối thẳng vào EX trong cùng chu kỳ là giới hạn tần số. Bộ nhân (4 khối DSP `MULT18X18D`) nằm cùng tầng nhưng không phải đường dài nhất ở các seed đã chạy. Hướng cải thiện: chèn thanh ghi sau mux forward (đổi lại thêm stall), tách bộ nhân hai tầng, rút ngắn logic stall/redirect.
 
-Với SoC dùng lõi single-cycle (`soc_top_sc_1k`, 25.95 MHz), đường găng đi từ `pc_q` qua cổng đọc lệnh của RAM, giải mã, tệp thanh ghi, ALU tới cổng dữ liệu RAM – toàn bộ trong một chu kỳ, nên tần số thấp hơn hẳn SoC pipeline (`soc_top_1k`: 44.07 MHz). Fmax của lõi đứng riêng (Bảng 4.12, dòng `sc`) không gồm RAM nên không dùng để so sánh.
+Với SoC dùng lõi single-cycle (`soc_top_sc_1k`, 25.67 MHz), đường găng đi từ `pc_q` qua cổng đọc lệnh của RAM, giải mã, tệp thanh ghi, ALU tới cổng dữ liệu RAM – toàn bộ trong một chu kỳ, nên tần số thấp hơn hẳn SoC pipeline (`soc_top_1k`: 43.73 MHz). Fmax của lõi đứng riêng (Bảng 4.12, dòng `sc`) không gồm RAM nên không dùng để so sánh.
 
 ## 4.9. Co-simulation C++ lock-step với Spike
 
@@ -278,10 +278,10 @@ Bảng 4.13. Co-simulation trên ma trận cấu hình (nguồn: `results/cosim/
 
 | Cấu hình   | MATCH | Tổng | Lệnh so khớp | Thời gian (s) |
 | ---------- | ----- | ---- | ------------ | ------------- |
-| `m1c1_bp2` |    73 |   73 |      1639070 |          21.8 |
-| `m1c0_bp2` |    72 |   72 |      1638940 |          22.3 |
-| `m0c0_bp2` |    64 |   64 |      2516910 |          31.4 |
-| `sc`       |    50 |   50 |      2528472 |          36.3 |
+| `m1c1_bp2` |    73 |   73 |      1639070 |           8.8 |
+| `m1c0_bp2` |    72 |   72 |      1638940 |           9.0 |
+| `m0c0_bp2` |    64 |   64 |      2516910 |          11.6 |
+| `sc`       |    50 |   50 |      2528472 |          13.6 |
 
 Để kiểm chứng chính harness, RTL được build thêm với `-DCOSIM_MUTANT`: SLTU/SLTIU lấy bit 31 của hiệu thay cho bit mượn – một lỗi thực tế, sai khi hai toán hạng khác nhau ở bit 31. Co-simulation phát hiện lỗi ngay tại lệnh sai đầu tiên (Bảng 4.14). Các benchmark không lộ lỗi này vì không gặp tổ hợp toán hạng gây sai – lý do cần bộ test có hướng như riscv-tests bên cạnh benchmark.
 
@@ -292,6 +292,10 @@ Bảng 4.14. Phát hiện lỗi cài sẵn (nguồn: `results/cosim/mutant.md`).
 | rv32ui-p-sltiu | #63                | pc 0x800000e4 (0x8006b713) x14=0x00000000 | pc 0x800000e4 (0x8006b713) x14=0x00000001 |
 | rv32ui-p-sltu  | #68                | pc 0x800000ee (0x00c5b733) x14=0x00000000 | pc 0x800000ee (0x00c5b733) x14=0x00000001 |
 
+![Hình 4.10. Ảnh chụp terminal khi chạy `make cosim` (4 cấu hình, kiểm tra lỗi cài sẵn, hình lock-step)](../../results/cosim/terminal_cosim.png)
+
+Hình 4.11 là ảnh chụp GTKWave mở file VCD ghi từ log commit của harness (mỗi chu kỳ: lệnh RTL retire ở WB, lệnh Spike commit tương ứng, kết quả so khớp).
+
 ![Hình 4.11. Lock-step RTL – Spike: chu kỳ không retire (stall/flush) không làm lệch so sánh vì so theo từng lệnh](../../results/cosim/lockstep.png)
 
 ## 4.10. Thông lượng
@@ -300,36 +304,36 @@ Thời gian chạy và MIPS của các benchmark ở 24 MHz (clock CPU trên boa
 
 Bảng 4.15. Thời gian chạy và MIPS.
 
-| Benchmark        | Lệnh   | Chu kỳ | CPI   | Thời gian @24 MHz (µs) | MIPS @24 MHz | Thời gian @44.07 MHz (µs) | MIPS @44.07 MHz |
+| Benchmark        | Lệnh   | Chu kỳ | CPI   | Thời gian @24 MHz (µs) | MIPS @24 MHz | Thời gian @43.73 MHz (µs) | MIPS @43.73 MHz |
 | ---------------- | ------ | ------ | ----- | ---------------------- | ------------ | ------------------------- | --------------- |
-| dhrystone        | 277083 | 333617 | 1.204 |                13900.7 |         19.9 |                    7570.2 |            36.6 |
-| coremark         | 626769 | 695588 | 1.110 |                28982.8 |         21.6 |                   15783.7 |            39.7 |
-| median           |   4307 |   5404 | 1.255 |                  225.2 |         19.1 |                     122.6 |            35.1 |
-| multiply         |  20953 |  22282 | 1.063 |                  928.4 |         22.6 |                     505.6 |            41.4 |
-| qsort            | 123560 | 148150 | 1.199 |                 6172.9 |         20.0 |                    3361.7 |            36.8 |
-| rsort            | 171186 | 171242 | 1.000 |                 7135.1 |         24.0 |                    3885.7 |            44.1 |
-| towers           |   3777 |   4028 | 1.066 |                  167.8 |         22.5 |                      91.4 |            41.3 |
-| vvadd            |   2469 |   2489 | 1.008 |                  103.7 |         23.8 |                      56.5 |            43.7 |
-| memcpy           |  20089 |  20110 | 1.001 |                  837.9 |         24.0 |                     456.3 |            44.0 |
-| **geomean MIPS** |        |        |       |                        |     **21.9** |                           |        **40.2** |
+| dhrystone        | 277083 | 333617 | 1.204 |                13900.7 |         19.9 |                    7629.0 |            36.3 |
+| coremark         | 626769 | 695588 | 1.110 |                28982.8 |         21.6 |                   15906.4 |            39.4 |
+| median           |   4307 |   5404 | 1.255 |                  225.2 |         19.1 |                     123.6 |            34.9 |
+| multiply         |  20953 |  22282 | 1.063 |                  928.4 |         22.6 |                     509.5 |            41.1 |
+| qsort            | 123560 | 148150 | 1.199 |                 6172.9 |         20.0 |                    3387.8 |            36.5 |
+| rsort            | 171186 | 171242 | 1.000 |                 7135.1 |         24.0 |                    3915.9 |            43.7 |
+| towers           |   3777 |   4028 | 1.066 |                  167.8 |         22.5 |                      92.1 |            41.0 |
+| vvadd            |   2469 |   2489 | 1.008 |                  103.7 |         23.8 |                      56.9 |            43.4 |
+| memcpy           |  20089 |  20110 | 1.001 |                  837.9 |         24.0 |                     459.9 |            43.7 |
+| **geomean MIPS** |        |        |       |                        |     **21.9** |                           |        **39.9** |
 
 Bảng 4.16. Dhrystone và CoreMark.
 
-| Chỉ số                                                        | /MHz  | @24 MHz | @44.07 MHz |
+| Chỉ số                                                        | /MHz  | @24 MHz | @43.73 MHz |
 | ------------------------------------------------------------- | ----- | ------- | ---------- |
-| Dhrystone (DMIPS; 500 vòng, 1 DMIPS = 1757 vòng/s)            | 0.853 |    20.5 |       37.6 |
-| CoreMark (2 vòng, không phải lần chạy hợp lệ theo luật EEMBC) |  2.88 |    69.0 |      126.7 |
+| Dhrystone (DMIPS; 500 vòng, 1 DMIPS = 1757 vòng/s)            | 0.853 |    20.5 |       37.3 |
+| CoreMark (2 vòng, không phải lần chạy hợp lệ theo luật EEMBC) |  2.88 |    69.0 |      125.7 |
 
 Bảng 4.17. Bus và ngoại vi.
 
-| Đường truyền                                               | Chu kỳ / đơn vị | Nguồn                                                            | @24 MHz           | @44.07 MHz         |
+| Đường truyền                                               | Chu kỳ / đơn vị | Nguồn                                                            | @24 MHz           | @43.73 MHz         |
 | ---------------------------------------------------------- | --------------- | ---------------------------------------------------------------- | ----------------- | ------------------ |
-| RAM qua Wishbone (load/store 32 bit, ACK cùng chu kỳ)      |               1 | RTL; số chu kỳ benchmark trùng khớp với RAM tổ hợp               | 96.00 MB/s        | 176.28 MB/s        |
-| Thanh ghi ngoại vi qua Wishbone → APB4                     |               3 | đo bằng `wb_checker` (system test `hello`: 3.00 chu kỳ/truy cập) | 8.00 M truy cập/s | 14.69 M truy cập/s |
-| UART 115200 baud (BAUD_DIV 12 @24 MHz, khung 8N1 = 10 bit) |            2080 | 16 × (12 + 1) chu kỳ/bit                                         | 11.5 kB/s         | 21.2 kB/s          |
-| UART tối đa (BAUD_DIV 0, khung 8N1)                        |             160 | 16 chu kỳ/bit                                                    | 150.0 kB/s        | 275.4 kB/s         |
-| SPI tối đa (CLK_DIV 0, SCLK = f/2, burst)                  |              17 | 17 × (CLK_DIV + 1) chu kỳ/byte                                   | 1.41 MB/s         | 2.59 MB/s          |
-| SPI flash trong firmware (CLK_DIV 1, SCLK = f/4)           |              34 | 17 × 2 chu kỳ/byte                                               | 0.71 MB/s         | 1.30 MB/s          |
+| RAM qua Wishbone (load/store 32 bit, ACK cùng chu kỳ)      |               1 | RTL; số chu kỳ benchmark trùng khớp với RAM tổ hợp               | 96.00 MB/s        | 174.92 MB/s        |
+| Thanh ghi ngoại vi qua Wishbone → APB4                     |               3 | đo bằng `wb_checker` (system test `hello`: 3.00 chu kỳ/truy cập) | 8.00 M truy cập/s | 14.58 M truy cập/s |
+| UART 115200 baud (BAUD_DIV 12 @24 MHz, khung 8N1 = 10 bit) |            2080 | 16 × (12 + 1) chu kỳ/bit                                         | 11.5 kB/s         | 21.0 kB/s          |
+| UART tối đa (BAUD_DIV 0, khung 8N1)                        |             160 | 16 chu kỳ/bit                                                    | 150.0 kB/s        | 273.3 kB/s         |
+| SPI tối đa (CLK_DIV 0, SCLK = f/2, burst)                  |              17 | 17 × (CLK_DIV + 1) chu kỳ/byte                                   | 1.41 MB/s         | 2.57 MB/s          |
+| SPI flash trong firmware (CLK_DIV 1, SCLK = f/4)           |              34 | 17 × 2 chu kỳ/byte                                               | 0.71 MB/s         | 1.29 MB/s          |
 
 ## 4.11. Layout ASIC với OpenLane 2 (sky130A)
 
@@ -340,26 +344,26 @@ Bảng 4.18. Kết quả place & route (nguồn: `results/asic/summary.md`).
 | Chỉ số                                       | `rv_core`                     | `rv_core_sc`                 |
 | -------------------------------------------- | ----------------------------- | ---------------------------- |
 | Chu kỳ ràng buộc (SDC)                       | 25 ns (40 MHz)                | 25 ns (40 MHz)               |
-| Kích thước die                               | 961.8 × 972.5 µm (0.935 mm²)  | 527.7 × 538.4 µm (0.284 mm²) |
-| Số cell chuẩn (gồm tap, fill, diode, buffer) | 62,600                        | 18,069                       |
-| Diện tích cell chuẩn                         | 459,999 µm²                   | 139,680 µm²                  |
-| Mật độ (utilization)                         | 51.0 %                        | 52.6 %                       |
-| Tổng chiều dài dây                           | 1,761,890 µm                  | 548,711 µm                   |
-| Setup slack / Fmax – TT 25 °C 1,80 V         | +9.85 ns / **66.0 MHz**       | +5.46 ns / **51.2 MHz**      |
-| Setup slack / Fmax – SS 100 °C 1,60 V        | -3.99 ns / **34.5 MHz**       | -4.08 ns / **34.4 MHz**      |
-| Setup slack / Fmax – FF −40 °C 1,95 V        | +13.56 ns / **87.4 MHz**      | +8.80 ns / **61.7 MHz**      |
-| Hold slack (TT)                              | +0.304 ns                     | +0.322 ns                    |
-| Công suất tổng (TT, ước lượng)               | 80.00 mW                      | 7.50 mW                      |
-| – trong đó: internal / switching / leakage   | 34.14 mW / 45.86 mW / 0.50 µW | 4.79 mW / 2.71 mW / 0.16 µW  |
+| Kích thước die                               | 961.8 × 972.5 µm (0.935 mm²)  | 527.6 × 538.4 µm (0.284 mm²) |
+| Số cell chuẩn (gồm tap, fill, diode, buffer) | 62,890                        | 18,275                       |
+| Diện tích cell chuẩn                         | 461,518 µm²                   | 140,736 µm²                  |
+| Mật độ (utilization)                         | 51.2 %                        | 53.0 %                       |
+| Tổng chiều dài dây                           | 1,751,630 µm                  | 561,664 µm                   |
+| Setup slack / Fmax – TT 25 °C 1,80 V         | +10.22 ns / **67.7 MHz**      | +5.55 ns / **51.4 MHz**      |
+| Setup slack / Fmax – SS 100 °C 1,60 V        | -3.92 ns / **34.6 MHz**       | -3.33 ns / **35.3 MHz**      |
+| Setup slack / Fmax – FF −40 °C 1,95 V        | +13.51 ns / **87.0 MHz**      | +8.83 ns / **61.8 MHz**      |
+| Hold slack (TT)                              | +0.302 ns                     | +0.324 ns                    |
+| Công suất tổng (TT, ước lượng)               | 84.04 mW                      | 7.70 mW                      |
+| – trong đó: internal / switching / leakage   | 35.39 mW / 48.65 mW / 0.50 µW | 4.92 mW / 2.79 mW / 0.16 µW  |
 | DRC (Magic / KLayout / router)               | 0 / 0 / 0                     | 0 / 0 / 0                    |
 | LVS (Netgen) – số lỗi                        | 0                             | 0                            |
-| Antenna – số net vi phạm                     | 26                            | 8                            |
+| Antenna – số net vi phạm                     | 33                            | 10                           |
 | XOR GDS Magic ↔ KLayout                      | 0                             | 0                            |
-| Vi phạm max slew / max cap – TT              | 7 / 21                        | 15 / 0                       |
-| Vi phạm max slew / max cap – góc xấu nhất    | 1,187 / 44                    | 347 / 0                      |
+| Vi phạm max slew / max cap – TT              | 22 / 48                       | 0 / 3                        |
+| Vi phạm max slew / max cap – góc xấu nhất    | 1,303 / 74                    | 401 / 4                      |
 | Gate-level (netlist sau đi dây) ≡ RTL        | 64/64 riscv-tests             | 41/41 riscv-tests            |
 
-Lõi pipeline chiếm die 961.8 × 972.5 µm với 62,600 cell (gồm tap, fill, diode, buffer). Ở góc điển hình TT, đường găng sau đi dây cho Fmax 66.0 MHz – cao hơn ước lượng ECP5 ở mục 4.8 vì cell chuẩn nhanh hơn LUT. Ở góc chậm SS (100 °C, 1,60 V) Fmax còn 34.5 MHz, nên mục tiêu 40 MHz chỉ đạt ở góc TT và FF; OpenLane mặc định chỉ coi vi phạm setup ở góc TT là lỗi sign-off. DRC, LVS và so sánh XOR giữa hai bản GDS đều bằng 0. Lõi single-cycle nhỏ hơn khoảng 3.3 lần về diện tích cell (139,680 so với 459,999 µm²). Fmax của nó không so trực tiếp được với lõi pipeline: lõi single-cycle không có đường thanh ghi → thanh ghi bên trong, mọi đường găng đi qua bộ nhớ bên ngoài khối (chân `ibus`/`dbus`) với 20 % chu kỳ dành cho mỗi phía – cùng lý do như mục 4.8.
+Lõi pipeline chiếm die 961.8 × 972.5 µm với 62,890 cell (gồm tap, fill, diode, buffer). Ở góc điển hình TT, đường găng sau đi dây cho Fmax 67.7 MHz – cao hơn ước lượng ECP5 ở mục 4.8 vì cell chuẩn nhanh hơn LUT. Ở góc chậm SS (100 °C, 1,60 V) Fmax còn 34.6 MHz, nên mục tiêu 40 MHz chỉ đạt ở góc TT và FF; OpenLane mặc định chỉ coi vi phạm setup ở góc TT là lỗi sign-off. DRC, LVS và so sánh XOR giữa hai bản GDS đều bằng 0. Lõi single-cycle nhỏ hơn khoảng 3.3 lần về diện tích cell (140,736 so với 461,518 µm²). Fmax của nó không so trực tiếp được với lõi pipeline: lõi single-cycle không có đường thanh ghi → thanh ghi bên trong, mọi đường găng đi qua bộ nhớ bên ngoài khối (chân `ibus`/`dbus`) với 20 % chu kỳ dành cho mỗi phía – cùng lý do như mục 4.8.
 
 Đường găng của lõi pipeline ở góc TT (`results/asic/timing_rv_core.txt`) bắt đầu ở thanh ghi `mem_is_load` của tầng MEM (đầu vào logic forwarding/hazard), qua các cổng so khớp chỉ số thanh ghi, một chuỗi cell nối tiếp dài của khối cộng/so sánh ở EX, logic redirect, và kết thúc ở thanh ghi PC (bit 30, cũng là chân `ibus_adr_o[30]`) – cùng dạng với đường găng trên ECP5 ở mục 4.8: forwarding nối thẳng vào EX rồi quyết định PC trong một chu kỳ. Với lõi single-cycle, đường găng đi từ chân `ibus_dat_i` (mã lệnh) qua giải mã, đọc tệp thanh ghi, cộng địa chỉ tới chân `dbus_adr_o`; chu kỳ thật của SoC single-cycle còn phải cộng thời gian đọc RAM lệnh và RAM dữ liệu.
 

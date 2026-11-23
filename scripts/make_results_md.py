@@ -12,6 +12,20 @@ ROOT = Path(__file__).resolve().parent.parent
 R = ROOT / "results"
 
 
+def shots(path):
+    """Terminal screenshots (scripts/capture_results.py) of the run that produced `path`,
+    unless the summary already links them."""
+    d = (R / path).parent
+    text = (R / path).read_text() if (R / path).exists() else ""
+    out = []
+    for png in sorted(d.glob("terminal_*.png")):
+        if png.name in text:
+            continue
+        rel = Path("../results") / png.relative_to(R)
+        out += [f"![Ảnh chụp terminal: `{png.stem[len('terminal_'):]}`]({rel.as_posix()})", ""]
+    return out
+
+
 def section(path, title, fix_links=True):
     p = R / path
     if not p.exists():
@@ -22,7 +36,8 @@ def section(path, title, fix_links=True):
     if fix_links:  # image links relative to docs/
         base = (Path("../results") / path).parent
         text = re.sub(r"!\[([^\]]*)\]\(([^)/]+\.png)\)", lambda m: f"![{m.group(1)}]({base}/{m.group(2)})", text)
-    return [f"## {title}", "", f"Nguồn: `results/{path}`.", "", text.strip(), ""]
+    return [f"## {title}", "", f"Nguồn: `results/{path}`.", "", text.strip(), ""] + \
+        (shots(path) if path.endswith("summary.md") or path == "regress.md" else [])
 
 
 def main():
@@ -57,11 +72,25 @@ def main():
     out += section("coverage/summary.md", "11. Coverage")
     out += section("coverage/functional.md", "12. Functional coverage")
     out += ["## 13. Hình waveform", "",
-            "Sinh tự động từ VCD bằng `scripts/make_waves.py` (thư mục `results/waves/`): "
+            "Ảnh chụp cửa sổ GTKWave mở VCD của mô phỏng RTL, khung thời gian và marker do "
+            "`scripts/make_waves.py` chọn (thư mục `results/waves/`): "
             "`load_use_forwarding.png`, `compressed.png`, `mispredict_flush.png`, `trap_entry_exit.png`, "
             "`apb_transaction.png` (Wishbone → APB4), `uart_frame.png`, `spi_mode0.png`, `spi_mode3.png`, "
             "`walkthrough_pipeline.png`; lock-step RTL/Spike: `results/cosim/lockstep.png`; "
             "bảng pipeline theo chu kỳ: `results/waves/walkthrough_table.md`.", ""]
+    for name in ("waves/apb_transaction.png", "waves/load_use_forwarding.png",
+                 "waves/mispredict_flush.png", "waves/trap_entry_exit.png"):
+        if (R / name).exists():
+            out += [f"![`{name}`](../results/{name})", ""]
+    if (R / "fpga").exists():
+        out += ["## 14. Board DE2 (FPGA)", "",
+                "Ảnh chụp terminal `make fpga` (mô phỏng 16 firmware với cấu hình của board) và ảnh Quartus II "
+                "(thư mục `results/fpga/`); ảnh board thật: `results/board/`; log chạy trên board: "
+                "`fpga/board_results.md`.", ""]
+        for png in sorted((R / "fpga").glob("*.png")):
+            out += [f"![`{png.name}`](../results/fpga/{png.name})", ""]
+        for img in sorted((R / "board").glob("*.jpg")) if (R / "board").exists() else []:
+            out += [f"![`{img.name}`](../results/board/{img.name})", ""]
     write_md(ROOT / "docs/results.md", "\n".join(out))
     print("[results] docs/results.md written")
 

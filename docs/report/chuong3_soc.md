@@ -2,7 +2,7 @@
 
 ## 3.1. Sơ đồ khối và bản đồ bộ nhớ
 
-![Hình 3.1. Sơ đồ khối SoC](../diagrams/soc.png)
+![Hình 3.1. Sơ đồ khối SoC](hinh/soc.png)
 
 SoC (Hình 3.1) gồm lõi `rv_core` (hoặc `rv_core_sc` khi `CORE_SC = 1`), RAM hợp nhất `ram_dp` 128 KB hai cổng,
 interconnect Wishbone `dbus_xbar`, cầu Wishbone → APB4 `apb_bridge` và sáu slave APB. Bản đồ bộ nhớ ở Bảng 3.1.
@@ -65,7 +65,7 @@ mô phỏng RAM được nạp bằng `$readmemh`; khi tổng hợp bằng Yosys
 slave được chọn nhận `CYC/STB`, và `ACK/ERR/DAT` của nó được đưa về lõi. Vùng RAM tới cổng dữ liệu RAM, vùng
 `0x1000_0000–0x1000_FFFF` tới cầu APB, địa chỉ còn lại nhận `ERR` ngay trong chu kỳ yêu cầu.
 
-![Hình 3.2. FSM của apb_bridge](../diagrams/apb_fsm.png)
+![Hình 3.2. FSM của apb_bridge](hinh/apb_fsm.png)
 
 `apb_bridge` (Hình 3.2) là slave Wishbone có FSM `IDLE → SETUP → ACCESS`: khi thấy `CYC & STB`, chốt
 `PADDR/PWRITE/PWDATA/PSTRB` (`PSTRB = 0` khi đọc), bật `PSEL` theo slot `addr[15:12]` ở SETUP, bật `PENABLE` ở ACCESS
@@ -91,7 +91,7 @@ Kiến trúc: TX FIFO → `uart_tx` → chân `uart_tx`; chân `uart_rx` → đ�
 dữ liệu, LSB trước, parity chẵn/lẻ tùy chọn, 1 hoặc 2 stop bit; 1 bit = 16 × (BAUD_DIV + 1) chu kỳ clock (BAUD_DIV
 reset 26 ≈ 115 200 baud ở 50 MHz).
 
-![Hình 3.4. FSM bộ thu UART](../diagrams/uart_rx_fsm.png)
+![Hình 3.4. FSM bộ thu UART](hinh/uart_rx_fsm.png)
 
 Bộ phát dùng bộ chia riêng khởi động lại ở đầu khung để độ dài bit chính xác. Bộ thu (Hình 3.4) phát hiện cạnh xuống,
 khởi động lại bộ chia, kiểm tra lại start bit sau 8 tick (lọc xung nhiễu ngắn hơn nửa bit), rồi lấy mẫu mỗi 16 tick
@@ -120,7 +120,7 @@ Hình 3.5 là một khung UART 8N1 trích từ mô phỏng.
 SPI master full-duplex 8 bit/khung, đủ 4 mode (CPOL, CPHA), MSB hoặc LSB trước, CS điều khiển bằng phần mềm, tần số
 `f_SCLK = f_clk / (2 × (CLK_DIV + 1))`.
 
-![Hình 3.6. FSM của SPI master](../diagrams/spi_fsm.png)
+![Hình 3.6. FSM của SPI master](hinh/spi_fsm.png)
 
 FSM (Hình 3.6): ở IDLE, khi được bật và TX FIFO có byte thì lấy byte, chuyển XFER (với CPHA = 0 đặt bit đầu lên MOSI
 ngay). Trong XFER, mỗi nửa chu kỳ SCLK đảo một lần; cạnh chẵn là leading, cạnh lẻ là trailing; tùy CPHA, MISO được lấy

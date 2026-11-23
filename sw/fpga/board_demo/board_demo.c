@@ -3,7 +3,10 @@
 //   LEDR[15:8] seconds counter, updated by the machine-timer interrupt
 //   UART commands (one per line, RX interrupt + ring buffer):
 //     h help, i info, s switches, b benchmark (perf counters),
+//     t self-test (prints RESULT selftest: PASS/FAIL),
 //     f SPI flash JEDEC ID (W25Q module on GPIO_0), q quit
+//   On the board KEY1 / KEY2 / KEY3 type "b", "t", "f" (fpga/board/key_cmd.sv)
+//   and the 7-segment display shows the result (fpga/board/board_display.sv).
 //   The benchmark runs twice with interrupts disabled; the second run starts
 //   from a deterministic predictor state, so its cycle count must equal the
 //   one obtained in RTL simulation of the same binary.
@@ -19,6 +22,7 @@
 #include "spi_flash.h"
 #include "perf.h"
 #include "xprintf.h"
+#include "testlib.h"
 
 #ifndef CPU_HZ
 #define CPU_HZ 24000000u
@@ -83,6 +87,57 @@ static void cmd_bench(void) {
   xprintf("result = 0x%08x\n", r);
 }
 
+// ---- self-test: every check has a fixed expected value -------------------
+#define RTYPE(name)                                                       \
+  static uint32_t i_##name(uint32_t a, uint32_t b) {                      \
+    uint32_t r;                                                           \
+    __asm__ volatile (#name " %0, %1, %2" : "=r"(r) : "r"(a), "r"(b));    \
+    return r;                                                             \
+  }
+RTYPE(mul) RTYPE(mulh) RTYPE(mulhsu) RTYPE(mulhu)
+RTYPE(div) RTYPE(divu) RTYPE(rem) RTYPE(remu)
+
+static volatile uint32_t va = 0x12345678u, vb = 0x9ABCDEF0u, vc = 0x87654321u, vd = 0x00012345u;
+static volatile uint64_t vn = 7593366ull * 1000u, vq = 6753600u;
+
+static void cmd_selftest(void) {
+  tl_errors = 0;
+  tl_checks = 0;
+  // RV32M: expected values computed independently (Python big integers)
+  T_CHECK(i_mul(va, vb) == 0x242D2080u, "mul");
+  T_CHECK(i_mulh(va, vb) == 0xF8CC93D6u, "mulh");
+  T_CHECK(i_mulhsu(va, vb) == 0x0B00EA4Eu, "mulhsu");
+  T_CHECK(i_mulhu(va, vb) == 0x0B00EA4Eu, "mulhu");
+  T_CHECK(i_div(vc, vd) == 0xFFFF9600u, "div");
+  T_CHECK(i_rem(vc, vd) == 0xFFFFD521u, "rem");
+  T_CHECK(i_divu(vc, vd) == 0x00007700u, "divu");
+  T_CHECK(i_remu(vc, vd) == 0x00003021u, "remu");
+  T_CHECK(vn / vq == 1124u && vn % vq == 2319600u, "64-bit division");
+  xprintf("RV32M    : %s\n", tl_errors ? "FAIL" : "ok");
+  // RAM: two complementary patterns over a 4 KB buffer
+  int e0 = tl_errors;
+  for (int pass = 0; pass < 2; pass++) {
+    uint32_t inv = pass ? 0xFFFFFFFFu : 0u;
+    for (int i = 0; i < N_WORDS; i++) buf[i] = ((uint32_t)i * 0x9E3779B9u) ^ inv;
+    int bad = 0;
+    for (int i = 0; i < N_WORDS; i++) bad += buf[i] != (((uint32_t)i * 0x9E3779B9u) ^ inv);
+    T_CHECK(bad == 0, "RAM pattern %d: %d words wrong", pass, bad);
+  }
+  xprintf("RAM      : %s\n", tl_errors != e0 ? "FAIL" : "ok");
+  // CSR, timer against the cycle counter. (The benchmark workload is not
+  // called here: a second caller would stop it being inlined into cmd_bench
+  // and change the benchmark's code and cycle count.)
+  e0 = tl_errors;
+  T_CHECK(csr_read(misa) == 0x40001104u, "misa");
+  uint64_t t0 = timer_mtime();
+  uint32_t c0 = (uint32_t)rd_mcycle();
+  while ((uint32_t)rd_mcycle() - c0 < 48000u) ;      // 2 ms at 24 MHz
+  uint32_t dt = (uint32_t)(timer_mtime() - t0);       // microseconds
+  T_CHECK(dt >= 1990u && dt <= 2010u, "timer: %u us in 2 ms", dt);
+  xprintf("CSR/timer: %s\n", tl_errors != e0 ? "FAIL" : "ok");
+  (void)t_result("selftest");
+}
+
 static void cmd_info(void) {
   uint32_t cyc = (uint32_t)rd_mcycle(), ins = (uint32_t)rd_minstret();
   xprintf("CPU      : rv_core RV32IMC, %u Hz, misa = 0x%08x\n", (uint32_t)CPU_HZ,
@@ -104,7 +159,8 @@ static void cmd_flash(void) {
 }
 
 static void help(void) {
-  xprintf("commands: h help | i info | s switches | b benchmark | f flash ID | q quit\n");
+  xprintf("commands: h help | i info | s switches | b benchmark | t self-test | f flash ID | "
+          "q quit\n");
 }
 
 // Returns the first printable character of the next non-empty line (echoed).
@@ -147,6 +203,7 @@ int main(void) {
       case 'i': cmd_info(); break;
       case 's': xprintf("SW[15:0] = 0x%04x\n", gpio_read() & 0xFFFFu); break;
       case 'b': cmd_bench(); break;
+      case 't': cmd_selftest(); break;
       case 'f': cmd_flash(); break;
       case 'q': xprintf("bye\n"); uart_flush(); exit(0);
       default:  xprintf("?\n"); help(); break;

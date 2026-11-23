@@ -134,3 +134,32 @@ module altpll #(
     locked <= (n >= 7);
   end
 endmodule
+
+// sld_virtual_jtag: no JTAG host in simulation - TCK never toggles, so the
+// JTAG console of de2_top stays idle (uart_rx high, no host reset). The
+// bridge itself is simulated by tb/fpga/tb_jtag_bridge.sv.
+module sld_virtual_jtag #(
+  parameter sld_auto_instance_index = "YES",
+  parameter integer sld_instance_index = 0,
+  parameter integer sld_ir_width = 1,
+  parameter sld_sim_action = "",
+  parameter integer sld_sim_n_scan = 0,
+  parameter integer sld_sim_total_length = 0,
+  parameter lpm_type = "sld_virtual_jtag"
+) (
+  output logic                    tck,
+  output logic                    tdi,
+  input  logic                    tdo,
+  output logic [sld_ir_width-1:0] ir_in,
+  input  logic [sld_ir_width-1:0] ir_out,
+  output logic                    virtual_state_cdr,
+  output logic                    virtual_state_sdr,
+  output logic                    virtual_state_udr
+);
+  assign tck = 1'b0;
+  assign tdi = 1'b0;
+  assign ir_in = '0;
+  assign virtual_state_cdr = 1'b0;
+  assign virtual_state_sdr = 1'b0;
+  assign virtual_state_udr = 1'b0;
+endmodule

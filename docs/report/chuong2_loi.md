@@ -24,7 +24,7 @@ căn 2 byte, `ibus_dat_i` 32 bit, kết thúc bằng `ibus_ack_i` hoặc `ibus_e
 
 ## 2.2. Datapath
 
-![Hình 2.1. Sơ đồ khối pipeline 5 tầng](../diagrams/pipeline.png)
+![Hình 2.1. Sơ đồ khối pipeline 5 tầng](hinh/pipeline.png)
 
 Hình 2.1 thể hiện datapath. Bốn thanh ghi pipeline `if_id`, `id_ex`, `ex_mem`, `mem_wb` đều có bit `valid`; ngoài
 các trường điều khiển, mỗi lệnh mang theo `pc`, mã lệnh gốc (16 bit với lệnh nén – dùng cho `mtval` và commit log),
@@ -127,7 +127,7 @@ và trừ thử số chia), cuối cùng đổi dấu thương và phần dư. M
 kết quả tới khi lệnh rời EX (EX có thể đang bị stall bởi MEM); tín hiệu `kill` (flush do trap ở MEM) đưa bộ chia về
 IDLE. Chia cho 0 và tràn trả kết quả ngay theo đặc tả.
 
-![Hình 2.2. FSM bộ chia](../diagrams/divider_fsm.png)
+![Hình 2.2. FSM bộ chia](hinh/divider_fsm.png)
 
 Bảng 2.5. Hành vi của bộ chia theo trạng thái (nguồn: `rtl/core/muldiv.sv`).
 
