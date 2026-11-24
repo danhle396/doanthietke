@@ -6,7 +6,7 @@
 | unit    | PASS    |             0 |
 | sw      | PASS    |             0 |
 | isa     | PASS    |             1 |
-| spike   | PASS    |            67 |
-| systest | PASS    |             9 |
+| spike   | PASS    |            71 |
+| systest | PASS    |            10 |
 
 Tổng: PASS. Tái tạo: `make regress`.

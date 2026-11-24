@@ -1,7 +1,0 @@
-stateDiagram-v2
-  [*] --> IDLE
-  IDLE --> XFER: EN && TX not empty
-  XFER --> XFER: half period, toggle SCLK
-  XFER --> GAP: 16th edge
-  GAP --> XFER: more bytes
-  GAP --> IDLE: TX empty (DONE)

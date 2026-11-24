@@ -68,7 +68,7 @@ Hoàn thành – Phase 0–8 xong, nghiệm thu mục 17 đạt
 - [x] Commit final
 
 ### Bổ sung sau nghiệm thu (yêu cầu đề cương)
-- [x] Sơ đồ draw.io: `docs/diagrams/so_do_khoi.drawio` (7 trang: SoC, pipeline, dự đoán rẽ nhánh, UART/SPI, board DE2, quy trình thiết kế, luồng xác minh), sinh cùng ảnh PNG bằng `scripts/draw_simple_diagrams.py`; hình matplotlib/Mermaid/WaveDrom cũ nằm ở `docs/report/hinh/`
+- [x] Sơ đồ draw.io: `docs/diagrams/so_do_khoi.drawio` (7 trang: SoC, pipeline, dự đoán rẽ nhánh, UART/SPI, board DE2, quy trình thiết kế, luồng xác minh), sinh cùng ảnh PNG bằng `scripts/draw_simple_diagrams.py`; hình FSM matplotlib cũ (dùng trong `docs/report/chuong2-3`) nằm ở `docs/report/hinh/`
 - [x] RAM đồng bộ cho FPGA (`RAM_SYNC`, D27) – số chu kỳ trùng khớp
 - [x] Thư mục `fpga/` cho board DE2 (Quartus II 13.0sp1, PLL 24 MHz, 16 firmware `.mif`, `make fpga`)
 - [x] Bus Wishbone B4 classic (D28), `wb_checker`, `tb_dbus_xbar` – số chu kỳ trùng khớp

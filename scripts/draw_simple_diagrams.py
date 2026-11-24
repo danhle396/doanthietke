@@ -253,23 +253,39 @@ def pipeline():
 
 
 def predictor():
-    d = Diagram("3. Dự đoán rẽ nhánh", 980, 380)
-    o = 40
-    d.box(15, 120 + o, 120, 60, "PC hiện tại", "", "cpu")
-    d.box(180, 5 + o, 280, 285, "Bộ dự đoán (tra ở tầng IF)", "", "box", group=True, fs=12)
-    d.box(200, 50 + o, 240, 75, "BTB (32 mục)", "lệnh là nhánh/nhảy?\nđịa chỉ đích", "tim")
-    d.box(200, 195 + o, 240, 75, "BHT", "256 bộ đếm 2 bit\nnhảy hay không nhảy?", "tim")
-    d.box(510, 110 + o, 210, 80, "Chọn PC kế tiếp", "đích (nếu đoán nhảy)\nhoặc PC + 2 / PC + 4", "ctl")
-    d.box(780, 110 + o, 190, 80, "Tầng EX kiểm tra", "PC đúng ≠ PC đoán?", "wht")
-    d.line([(135, 150 + o), (165, 150 + o), (165, 87 + o), (200, 87 + o)])
-    d.line([(165, 150 + o), (165, 232 + o), (200, 232 + o)])
-    d.line([(440, 87 + o), (475, 87 + o), (475, 135 + o), (510, 135 + o)])
-    d.line([(440, 232 + o), (475, 232 + o), (475, 165 + o), (510, 165 + o)])
-    d.line([(720, 150 + o), (780, 150 + o)])
-    d.line([(875, 190 + o), (875, 320 + o), (75, 320 + o), (75, 180 + o)], kind="ctl",
-           label="sai: hủy 2 lệnh phía sau, nạp lại PC đúng", lpos=(470, 320 + o))
-    d.line([(875, 110 + o), (875, 15), (320, 15), (320, 5 + o)], kind="upd", dashed=True,
-           label="cập nhật BTB và BHT khi biết kết quả", lpos=(600, 15))
+    # BP_MODE 2 (rtl/core/bp/branch_predictor.sv, if_stage.sv, id_stage.sv, ex_stage.sv)
+    d = Diagram("3. Dự đoán rẽ nhánh", 1000, 610)
+    # hàng trên: tầng IF
+    d.box(15, 200, 120, 70, "Thanh ghi\nPC", "", "cpu")
+    d.box(175, 95, 330, 305, "Bộ dự đoán (BP_MODE 2, tra ở tầng IF)", "", "box", group=True, fs=12)
+    d.box(195, 140, 280, 95, "BTB – 32 mục", "mỗi mục: hợp lệ, tag, đích, loại\nhit khi hợp lệ và tag khớp PC",
+          "tim")
+    d.box(195, 280, 280, 95, "BHT – 256 bộ đếm 2 bit", "00, 01: đoán không nhảy\n10, 11: đoán nhảy", "tim")
+    d.box(535, 195, 180, 100, "Đoán nhảy?", "BTB hit VÀ\n(loại JAL/JALR\nHOẶC BHT đoán nhảy)", "ctl")
+    d.box(760, 195, 215, 100, "Chọn PC kế tiếp", "đoán nhảy: đích từ BTB\nkhông: PC + 2 / PC + 4", "ctl")
+    d.line([(135, 235), (160, 235), (160, 187), (195, 187)])
+    d.line([(160, 235), (160, 327), (195, 327)])
+    d.line([(475, 155), (737, 155), (737, 215), (760, 215)], label="đích", lpos=(610, 155))
+    d.line([(475, 215), (535, 215)], label="hit, loại", lpos=(505, 200))
+    d.line([(475, 327), (505, 327), (505, 270), (535, 270)], label="bit cao", lpos=(505, 345))
+    d.line([(715, 260), (760, 260)])
+    # đường chính: PC đoán được nạp vào PC ở chu kỳ sau
+    d.line([(867, 195), (867, 40), (75, 40), (75, 200)],
+           label="PC đoán nạp vào PC ở chu kỳ sau – đoán đúng thì không mất chu kỳ nào", lpos=(470, 40))
+    # hàng dưới: tầng ID, EX và cập nhật
+    d.box(175, 455, 330, 90, "Quy tắc cập nhật (ở EX)",
+          "BHT: mọi lệnh nhánh có điều kiện\nBTB ghi: khi lệnh nhảy thật\nBTB xóa: lệnh thường bị đoán nhảy", "gry")
+    d.box(530, 460, 190, 80, "Tầng ID", "JAL chưa có trong BTB?", "wht")
+    d.box(760, 460, 215, 80, "Tầng EX kiểm tra", "PC kế tiếp thật ≠ PC đoán?", "wht")
+    d.line([(720, 500), (760, 500)])
+    d.line([(867, 295), (867, 460)], label="PC đoán đi kèm lệnh", lpos=(867, 375))
+    d.line([(790, 460), (790, 425), (340, 425), (340, 400)], kind="upd", dashed=True,
+           label="cập nhật BHT, BTB khi lệnh rời EX", lpos=(565, 425))
+    # sửa sai
+    d.line([(625, 540), (625, 562), (95, 562), (95, 270)], kind="ctl",
+           label="ID: nạp PC + imm, mất 1 chu kỳ", lpos=(360, 562))
+    d.line([(867, 540), (867, 590), (55, 590), (55, 270)], kind="ctl",
+           label="EX đoán sai: hủy 2 lệnh ở IF, ID, nạp PC đúng – mất 2 chu kỳ", lpos=(470, 590))
     return d
 
 

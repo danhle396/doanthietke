@@ -7,7 +7,7 @@ Mở `so_do_khoi.drawio` bằng [diagrams.net / draw.io](https://app.diagrams.ne
 | ---------------------- | ----------------------------------------------------------------------- | --------------------------------------- |
 | 1. Kiến trúc SoC       | lõi, RAM, bộ giải mã địa chỉ, cầu APB, 5 ngoại vi, đường ngắt           | `png/so_do_khoi_1_soc.png`              |
 | 2. Lõi pipeline 5 tầng | các khối trong từng tầng, đổi hướng PC, forwarding, khối xử lý xung đột | `png/so_do_khoi_2_pipeline.png`         |
-| 3. Dự đoán rẽ nhánh    | PC → BTB, BHT → chọn PC kế; kiểm tra ở EX, hủy lệnh, cập nhật           | `png/so_do_khoi_3_du_doan_re_nhanh.png` |
+| 3. Dự đoán rẽ nhánh    | BTB, BHT → đoán nhảy → PC kế; sửa sai ở ID / EX; quy tắc cập nhật       | `png/so_do_khoi_3_du_doan_re_nhanh.png` |
 | 4. Ngoại vi UART, SPI  | thanh ghi, TX/RX FIFO, bộ phát/thu, bộ dịch SPI, bộ chia, ngắt          | `png/so_do_khoi_4_uart_spi.png`         |
 | 5. Board DE2           | thạch anh, PLL, SoC, công tắc, LED, JP1 – flash SPI, RS-232, nạp JTAG   | `png/so_do_khoi_5_board_de2.png`        |
 | 6. Quy trình thiết kế  | đặc tả → kiến trúc → RTL → xác minh → hiệu năng → tổng hợp → hiện thực  | `png/so_do_khoi_6_quy_trinh.png`        |

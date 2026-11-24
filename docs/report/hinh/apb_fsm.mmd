@@ -1,6 +1,0 @@
-stateDiagram-v2
-  [*] --> IDLE
-  IDLE --> SETUP: CYC & STB
-  SETUP --> ACCESS
-  ACCESS --> ACCESS: !PREADY
-  ACCESS --> IDLE: PREADY / ACK or ERR

@@ -280,8 +280,8 @@ Bảng 4.13. Co-simulation trên ma trận cấu hình (nguồn: `results/cosim/
 | ---------- | ----- | ---- | ------------ | ------------- |
 | `m1c1_bp2` |    73 |   73 |      1639070 |           8.8 |
 | `m1c0_bp2` |    72 |   72 |      1638940 |           9.0 |
-| `m0c0_bp2` |    64 |   64 |      2516910 |          11.6 |
-| `sc`       |    50 |   50 |      2528472 |          13.6 |
+| `m0c0_bp2` |    64 |   64 |      2516910 |          11.9 |
+| `sc`       |    50 |   50 |      2528472 |          12.9 |
 
 Để kiểm chứng chính harness, RTL được build thêm với `-DCOSIM_MUTANT`: SLTU/SLTIU lấy bit 31 của hiệu thay cho bit mượn – một lỗi thực tế, sai khi hai toán hạng khác nhau ở bit 31. Co-simulation phát hiện lỗi ngay tại lệnh sai đầu tiên (Bảng 4.14). Các benchmark không lộ lỗi này vì không gặp tổ hợp toán hạng gây sai – lý do cần bộ test có hướng như riscv-tests bên cạnh benchmark.
 

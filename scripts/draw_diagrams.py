@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""Block diagrams and FSMs for the report (matplotlib, because mmdc /
-wavedrom-cli are not installed). The Mermaid sources of the same diagrams are
-written next to the PNGs in docs/report/hinh/*.mmd.
+"""Block diagrams and FSMs for the report (matplotlib) -> docs/report/hinh/*.png.
 
 Usage: draw_diagrams.py
 """
@@ -50,7 +48,6 @@ def save(fig, name, mermaid):
     fig.tight_layout()
     fig.savefig(OUT / f"{name}.png", dpi=150)
     plt.close(fig)
-    (OUT / f"{name}.mmd").write_text(mermaid.strip() + "\n")
 
 
 def pipeline():
