@@ -1,16 +1,3 @@
-// ============================================================================
-// sim_ctrl.sv - Simulation control APB slave (0x1000_F000).
-//   0x00 PUTCHAR (W): print [7:0] to stdout and to +console=<file>
-//   0x04 EXIT    (W): end of simulation; 0 -> "PASS" + $finish,
-//                     otherwise "FAIL: exit code N" + $fatal(1)
-//   The testbench may react to exit_req_q first (it waits EXIT_DELAY cycles
-//   before acting itself) so it can run its own end-of-test checks.
-//   In synthesis the module is a pair of dummy registers.
-//
-// Ports: APB4 slave (paddr[11:0]).
-// Parameters:
-//   EXIT_DELAY : cycles between the EXIT write and the module's own $finish
-// ============================================================================
 module sim_ctrl #(
   parameter int EXIT_DELAY = 1000
 ) (

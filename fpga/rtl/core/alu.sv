@@ -1,12 +1,3 @@
-// ============================================================================
-// alu.sv - RV32I integer ALU (purely combinational).
-//
-// Ports:
-//   op     : ALU_* encoding (rv_pkg)
-//   a, b   : operands
-//   result : a <op> b
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

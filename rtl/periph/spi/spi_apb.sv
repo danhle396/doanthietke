@@ -1,11 +1,3 @@
-// ============================================================================
-// spi_apb.sv - SPI master with 16-entry TX/RX FIFOs, software chip selects
-//   and interrupts (APB slave, 0x1000_1000). Register map: docs/register_map.md.
-//
-// Ports: APB4 slave (paddr[11:0]), spi_sclk/spi_mosi/spi_miso/spi_cs_n[3:0],
-//        irq (level).
-// Parameters: FIFO_DEPTH (16)
-// ============================================================================
 module spi_apb #(
   parameter int FIFO_DEPTH = 16
 ) (

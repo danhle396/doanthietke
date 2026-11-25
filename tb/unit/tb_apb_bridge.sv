@@ -1,11 +1,3 @@
-// tb_apb_bridge.sv - Wishbone -> APB4 bridge.
-//   Two slave models with random wait states (slots 0 and 2, SLOT_MASK
-//   16'h0005), error offset 0xFFC (PSLVERR), empty slots (bridge answers
-//   err without PSEL). Checks read data / byte-enable writes against a
-//   model, minimum latency (3 cycles), protocol (monitored by the slaves and
-//   by this TB: one-hot PSEL, PENABLE only in ACCESS), request held until
-//   ACK/ERR, Wishbone rules on the slave port (wb_checker).
-//   s_req drives CYC and STB; s_ready = ACK | ERR, s_err = ERR.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

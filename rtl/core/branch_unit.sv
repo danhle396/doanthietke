@@ -1,17 +1,3 @@
-// ============================================================================
-// branch_unit.sv - Branch condition + next-PC computation (EX stage).
-//
-// Ports:
-//   pc, imm, rs1, rs2 : operands (rs1/rs2 already forwarded)
-//   is_branch/jal/jalr: control-transfer class
-//   funct3            : branch condition
-//   is_c              : instruction is 16-bit (length 2)
-//   taken             : control transfer is taken
-//   target            : taken target (pc+imm or (rs1+imm)&~1)
-//   link              : pc + length (JAL/JALR link value, fall-through)
-//   actual_npc        : architecturally correct next PC
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

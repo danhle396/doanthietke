@@ -1,12 +1,3 @@
-// ============================================================================
-// sync_fifo.sv - Synchronous first-word-fall-through FIFO.
-//   rdata always shows the oldest entry (valid when !empty).
-//   push when full is ignored unless a pop happens in the same cycle;
-//   pop when empty is ignored; simultaneous push and pop are allowed.
-//
-// Ports: push/wdata, pop/rdata, full, empty, level (0..DEPTH)
-// Parameters: WIDTH, DEPTH (power of two, >= 2)
-// ============================================================================
 module sync_fifo #(
   parameter int WIDTH = 8,
   parameter int DEPTH = 16

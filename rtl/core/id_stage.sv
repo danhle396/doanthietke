@@ -1,24 +1,3 @@
-// ============================================================================
-// id_stage.sv - Decode stage + id_ex pipeline register.
-//   Expands RV32C, decodes, generates the immediate, reads the register file
-//   (through rs1_addr/rs2_addr), detects ID exceptions (instruction access
-//   fault, illegal, ECALL, EBREAK), and requests an ID redirect:
-//     BP_MODE >= 1 : JAL -> pc + imm
-//     BP_MODE == 1 : conditional branch predicted taken by the BHT
-//   An instruction carrying an exception is turned into a NOP (all side-
-//   effect flags cleared) for the following stages.
-//
-// Ports:
-//   id_*            : if_id register contents
-//   rs1_addr/rs2_addr, rs1_data/rs2_data : register file read port
-//   bht_taken       : BHT prediction for id_pc (BP_MODE 1)
-//   redirect_req/target : ID redirect request (arbitrated by hazard_unit)
-//   use_rs1/use_rs2 : for load-use detection
-//   stall_ex/flush_id_ex : pipeline control for the id_ex register
-//   fwd_rs1/fwd_rs2 : forwarded EX operands, captured while EX is stalled
-//   ex_*            : id_ex register outputs
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

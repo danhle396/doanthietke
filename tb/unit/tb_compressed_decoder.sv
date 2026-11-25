@@ -1,8 +1,3 @@
-// tb_compressed_decoder.sv - RV32C expander vs. assembler-generated table.
-//   build/gen/rvc_vectors.hex : {cinsn, expected 32-bit insn} pairs produced by
-//   scripts/gen_rvc_vectors.py (.option rvc vs .option norvc, read via objdump),
-//   including seeded random operands; build/gen/rvc_illegal.hex : encodings
-//   that must be illegal. Vectors are applied in a seeded random order.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

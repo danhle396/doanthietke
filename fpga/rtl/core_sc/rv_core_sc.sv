@@ -1,17 +1,3 @@
-// ============================================================================
-// rv_core_sc.sv - Single-cycle RV32I + Zicsr + Zifencei reference core.
-//   Same port list as rv_core (Wishbone instruction and data masters).
-//   Every instruction completes in one cycle (fetch -> decode -> execute ->
-//   memory -> write-back are combinational); the whole core stalls while the
-//   fetch or the data access is not terminated by ACK/ERR. Reuses decoder, imm_gen, alu,
-//   branch_unit, lsu, regfile, csr_file and wb_stage (commit log) of rv_core.
-//   ENABLE_M / ENABLE_C are fixed to 0 (M and 16-bit encodings are illegal).
-//
-// Ports: see rv_core (section 4.2 of the spec).
-// Parameters:
-//   RESET_PC : reset program counter
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

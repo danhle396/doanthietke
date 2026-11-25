@@ -1,11 +1,3 @@
-// tb_bp.sv - branch predictor tables.
-//   BHT : reset weakly-not-taken, 2-bit saturation in both directions,
-//         independent entries, random updates vs. model.
-//   BTB : miss on reset, hit after allocation, alias (same index, different
-//         tag) is a miss, replacement by the aliasing PC, invalidation,
-//         random allocate/invalidate vs. model.
-//   branch_predictor (mode 2): if_pred_taken = hit && (JAL/JALR || BHT taken);
-//   branch_predictor (mode 1): ID lookup uses the BHT only.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

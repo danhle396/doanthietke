@@ -1,24 +1,3 @@
-// ============================================================================
-// ex_stage.sv - Execute stage + ex_mem pipeline register.
-//   Operand forwarding, ALU, branch resolution, MulDiv, misprediction
-//   detection (actual_npc != pred_npc, uniform for all BP_MODEs) and
-//   predictor update.
-//
-// Ports:
-//   ex_*            : id_ex register contents
-//   fwd_a/fwd_b     : forward selects (forward_unit)
-//   mem_fwd_data    : ex_mem result (ALU/MulDiv/link)
-//   wb_fwd_data     : mem_wb result
-//   fwd_rs1/fwd_rs2 : forwarded operand values (also refresh id_ex on stall)
-//   mispredict, redirect_target : misprediction request (hazard_unit arbitrates)
-//   ex_redirect     : redirect fires this cycle (from hazard_unit)
-//   md_stall        : MulDiv result not ready
-//   mem_redirect    : older trap/mret/fence.i (kills this instruction)
-//   bp_upd_*        : predictor update
-//   stall_ex/stall_mem/flush_ex_mem : pipeline control
-//   mem_*           : ex_mem register outputs
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

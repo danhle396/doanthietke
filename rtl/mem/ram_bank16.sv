@@ -1,20 +1,3 @@
-// ============================================================================
-// ram_bank16.sv - 16-bit true dual-port RAM bank, clocked on the FALLING edge
-//   (behavioural model for simulation / Yosys; the FPGA build replaces this
-//   file with an altsyncram (M4K) wrapper of the same name and ports).
-//   Port A: read/write with byte enables (data side).
-//   Port B: read only (instruction side).
-//   Address and write data are sampled at negedge clk; read data is valid
-//   from that edge until the next falling edge, i.e. before the next rising
-//   edge where the pipeline samples it. A read at the address being written
-//   returns the old data on both ports.
-//   Simulation: preloaded from +hex=<file> (32-bit words); the bank keeps
-//   halfword HALF of every word.
-//
-// Parameters:
-//   DEPTH : number of 16-bit entries (= number of 32-bit RAM words)
-//   HALF  : 0 = bits [15:0] of each word, 1 = bits [31:16]
-// ============================================================================
 module ram_bank16 #(
   parameter int DEPTH = 32768,
   parameter int HALF  = 0

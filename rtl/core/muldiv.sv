@@ -1,21 +1,3 @@
-// ============================================================================
-// muldiv.sv - RV32M unit.
-//   MUL/MULH/MULHSU/MULHU : single-cycle 33x33 signed combinational multiplier
-//   DIV/DIVU/REM/REMU     : radix-2 restoring divider, 32 iterations
-//                           (operands latched at start); divide-by-zero and
-//                           signed overflow return immediately.
-//
-// Ports:
-//   valid   : EX holds a valid M instruction (no pending exception)
-//   op      : funct3 (rv_pkg MD_*)
-//   a, b    : rs1, rs2 values
-//   kill    : pipeline flush -> abort divider
-//   advance : EX stage hands its result to MEM this cycle (releases DONE)
-//   ready   : result valid in this cycle
-//   result  : 32-bit result
-//   busy    : divider is iterating
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

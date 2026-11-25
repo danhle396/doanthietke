@@ -1,10 +1,3 @@
-// ============================================================================
-// uart_apb.sv - UART with 16-entry TX/RX FIFOs and interrupts (APB slave,
-//   0x1000_0000). Register map: docs/register_map.md.
-//
-// Ports: APB4 slave (paddr[11:0]), uart_tx/uart_rx pins, irq (level).
-// Parameters: FIFO_DEPTH (16)
-// ============================================================================
 module uart_apb #(
   parameter int FIFO_DEPTH = 16
 ) (

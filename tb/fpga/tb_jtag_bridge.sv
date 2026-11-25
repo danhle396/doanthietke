@@ -1,16 +1,3 @@
-// ============================================================================
-// tb_jtag_bridge.sv - Unit test of fpga/board/jtag_uart_bridge.sv: a model of
-//   the host (the same DR protocol as fpga/tools/jtag_uart.tcl) on an
-//   asynchronous TCK, a SoC-side UART transmitter and a receiver on uart_rx.
-//   1. SoC sends 300 bytes back-to-back while the host polls: every byte
-//      arrives once, in order.
-//   2. Host sends 40 bytes: they appear on uart_rx as 8N1 frames, in order.
-//   3. Both directions at the same time.
-//   4. Host reset bit -> cpu_rst_req.
-//   5. FIFO overflow (small FIFO): the first 2^FIFO_AW + 1 bytes are kept
-//      (FIFO + the byte waiting for the host), the sticky flag is set.
-//   6. Host reset empties the FIFO and clears the overflow flag.
-// ============================================================================
 `timescale 1ns/1ps
 
 module tb_jtag_bridge;

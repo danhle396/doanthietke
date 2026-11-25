@@ -1,11 +1,3 @@
-// tb_spi.sv - SPI master peripheral.
-//   * register reset values, PSLVERR
-//   * 4 modes x MSB/LSB first x CLK_DIV {0, 1, 5}: random bytes exchanged
-//     with spi_slave_bfm (MOSI checked at the slave, MISO checked through
-//     the RX FIFO), SCLK half period = CLK_DIV + 1, idle level = CPOL
-//   * DONE interrupt (sticky, W1C), RX_NOT_EMPTY / TX_EMPTY levels, BUSY
-//   * RX overrun (17 bytes, no reads) and W1C clear
-//   * spi_flash_bfm on CS0: JEDEC ID in mode 0 and mode 3, READ
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

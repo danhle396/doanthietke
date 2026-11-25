@@ -1,15 +1,3 @@
-// ============================================================================
-// timer64_apb.sv - 64-bit machine timer (APB slave, 0x1000_2000).
-//   0x00 MTIME_LO, 0x04 MTIME_HI (RW)
-//   0x08 MTIMECMP_LO, 0x0C MTIMECMP_HI (RW, reset 0xFFFF_FFFF)
-//   0x10 CTRL: [0] EN (reset 1), [15:8] PRESCALE (reset 0) - mtime += 1
-//        every PRESCALE + 1 clocks
-//   0x14 MSIP: [0] -> msip
-//   mtip = (mtime >= mtimecmp) (level). A register write takes precedence
-//   over the increment in the same cycle.
-//
-// Ports: APB4 slave (paddr[11:0]), mtime[63:0], mtip, msip.
-// ============================================================================
 module timer64_apb (
   input  logic        clk,
   input  logic        rst_n,

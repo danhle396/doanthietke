@@ -1,11 +1,3 @@
-// spi_slave_bfm.sv - SPI slave BFM, all four modes, MSB or LSB first.
-//   Returns bytes from tx_pattern (queue) or, when it is empty, the
-//   predefined sequence pattern_byte(n) = 8'hA5 ^ (n * 8'd29), n restarting
-//   at 0 for every CS assertion. With echo_mode = 1 the slave instead returns
-//   8'hA5 for the first byte and (previous received byte ^ 8'h5A) afterwards,
-//   so the master can check both directions. Every byte received from MOSI
-//   is stored in rx_q. Configure cpol/cpha/lsb_first before asserting CS.
-//   MISO is driven only while cs_n = 0 (else 0).
 `timescale 1ns/1ps
 
 module spi_slave_bfm (

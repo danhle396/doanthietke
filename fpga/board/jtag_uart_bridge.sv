@@ -1,36 +1,3 @@
-// ============================================================================
-// jtag_uart_bridge.sv - UART console of the SoC carried over the USB-Blaster
-//   (JTAG) cable, so the board can be tested without an RS-232 cable.
-//   Board-only logic around the unchanged SoC:
-//   * SoC -> host: the SoC's uart_tx line is decoded here (8N1, BIT_CYCLES
-//     clocks per bit, the same clock as the SoC) into an 8 KB FIFO; the host
-//     reads one byte per DR scan.
-//   * host -> SoC: one byte per DR scan is re-serialized onto uart_rx
-//     (AND-ed with the RS-232 input in de2_top, both idle high).
-//   * host reset: a DR bit holds the SoC in reset (replaces pressing KEY0);
-//     while it is held the FIFO is emptied and the overflow flag cleared.
-//   The JTAG side comes from an sld_virtual_jtag instance in de2_top (tck
-//   domain); this module only sees its tck/tdi/tdo and state signals.
-//
-//   DR (W = 24 bits, bit 0 shifted first), selected by virtual IR = 1:
-//     captured (to host)            shifted in (from host, applied at UDR)
-//     [7:0]   out_data              [7:0] in_data
-//     [8]     out_seq               [8]   in_seq   (toggle = new byte)
-//     [9]     cap_seq (prev. seq)   [9]   rst_req  (1 = hold SoC in reset)
-//     [10]    in_ack                [23:10] ignored
-//     [11]    FIFO overflow (sticky until host reset)
-//     [12]    rst_req echo
-//     [15:13] 0
-//     [23:16] 8'hA5 (magic)
-//   out_data is a new byte iff out_seq != cap_seq. The captured out_seq is
-//   remembered as cap_seq (the acknowledge), so the next byte is loaded
-//   before the next scan: one byte per scan. Host -> SoC: the host toggles
-//   in_seq with a new in_data only when the captured in_ack equals its
-//   current in_seq (previous byte consumed).
-//   Clock-domain crossing: every tck -> clk signal is a single bit through
-//   two flip-flops; multi-bit data (out_data / in_data) is stable whenever
-//   the matching sequence bit says it is valid.
-// ============================================================================
 module jtag_uart_bridge #(
   parameter int BIT_CYCLES = 208,      // 16 x (BAUD_DIV + 1), BAUD_DIV = 12
   parameter int FIFO_AW    = 13        // 8 KB FIFO (M4K)

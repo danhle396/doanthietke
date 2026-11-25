@@ -1,8 +1,3 @@
-// tb_csr.sv - csr_file: reset values, CSRRW/RS/RC on every writable CSR with
-// WARL masks, read-only/non-existent CSR -> illegal, trap entry / MRET,
-// direct and vectored trap targets, interrupt priority, counters
-// (mcycle, minstret with bypass + write precedence, mcountinhibit, mhpm,
-// time). A second instance checks ENABLE_M = ENABLE_C = 0 (misa, mepc mask).
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

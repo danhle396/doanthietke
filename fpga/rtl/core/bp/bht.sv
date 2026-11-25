@@ -1,14 +1,3 @@
-// ============================================================================
-// bht.sv - Branch History Table: 2-bit saturating counters.
-//   Reset value 2'b01 (weakly not-taken). Index = pc[log2(ENTRIES):1].
-//
-// Ports:
-//   rd_pc    : lookup PC (combinational read)
-//   rd_taken : prediction (counter[1])
-//   upd_en   : update counter of upd_pc with outcome upd_taken
-// Parameters:
-//   ENTRIES  : power of two, >= 16
-// ============================================================================
 module bht #(
   parameter int ENTRIES = 256
 ) (

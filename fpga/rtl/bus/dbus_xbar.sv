@@ -1,19 +1,3 @@
-// ============================================================================
-// dbus_xbar.sv - Wishbone B4 (classic) data-bus interconnect: one master
-//   (core data port), two slaves, shared-bus address decoder.
-//   RAM window          -> ram_dp data port   (STB gated by the decoder)
-//   0x1000_0000-0xFFFF  -> apb_bridge         (Wishbone -> APB4)
-//   anything else       -> ERR in the cycle of the request (access fault)
-//   Address, data, WE and SEL are broadcast; only the selected slave sees
-//   CYC/STB, and its ACK/ERR/DAT are returned to the master.
-//
-// Ports:
-//   m_*   : master side (from the core)
-//   ram_* : RAM data port (zero wait states, no ERR)
-//   apb_* : APB bridge (wait states, ERR on PSLVERR / empty slot)
-// Parameters:
-//   RAM_BASE, RAM_SIZE (bytes), APB_BASE, APB_SIZE (bytes)
-// ============================================================================
 module dbus_xbar #(
   parameter logic [31:0] RAM_BASE = 32'h8000_0000,
   parameter logic [31:0] RAM_SIZE = 32'h0002_0000,

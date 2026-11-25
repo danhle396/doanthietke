@@ -1,17 +1,3 @@
-// ============================================================================
-// uart_tx.sv - UART transmitter (8 data bits, LSB first, optional parity,
-//   1 or 2 stop bits). Bit time = 16 x (baud_div + 1) clocks, counted by a
-//   private prescaler that restarts with every frame (exact bit lengths).
-//
-// Ports:
-//   baud_div     : BAUD_DIV register
-//   en           : CTRL.TX_EN - start new frames only when set
-//   parity_en/odd, stop2 : frame format (sampled at frame start)
-//   data_valid/data : next byte available (TX FIFO not empty)
-//   data_pop     : byte taken from the FIFO (one clk)
-//   tx           : serial output (idle = 1)
-//   busy         : frame in progress
-// ============================================================================
 module uart_tx (
   input  logic       clk,
   input  logic       rst_n,

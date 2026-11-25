@@ -1,15 +1,3 @@
-// ============================================================================
-// altera_stubs.sv - Behavioural stand-ins for the Intel/Altera megafunctions
-//   used by fpga/board (altsyncram, altpll), so that de2_top can be simulated
-//   with Verilator. They model only the configuration used there and stop
-//   the simulation if the parameters differ from it.
-//   altsyncram: BIDIR_DUAL_PORT, unregistered outputs, inputs registered at
-//               the rising edge of clock0, byte enables on port A, contents
-//               read from the MIF file named by init_file (path relative to
-//               the working directory, as in the Quartus project).
-//   altpll    : clk[0] = inclk[0] (the testbench drives the 24 MHz CPU clock
-//               directly), locked rises after 8 input clocks.
-// ============================================================================
 `timescale 1ns/1ps
 
 module altsyncram #(

@@ -1,14 +1,3 @@
-// ============================================================================
-// compressed_decoder.sv - RV32C -> RV32I expander (ID stage).
-//   Floating-point compressed loads/stores and all reserved encodings are
-//   flagged illegal. HINT encodings (e.g. C.ADDI with rd=0) are legal.
-//
-// Ports:
-//   cinsn   : 16-bit compressed instruction (cinsn[1:0] != 2'b11)
-//   insn    : equivalent 32-bit instruction
-//   illegal : encoding is illegal/reserved on RV32C (no F/D)
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

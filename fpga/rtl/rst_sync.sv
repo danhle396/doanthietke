@@ -1,11 +1,3 @@
-// ============================================================================
-// rst_sync.sv - Reset synchronizer: asynchronous assert, synchronous
-//   de-assert through a 2-flip-flop chain.
-//
-// Ports:
-//   rst_n_in  : external asynchronous active-low reset
-//   rst_n_out : synchronized active-low reset for the SoC
-// ============================================================================
 module rst_sync (
   input  logic clk,
   input  logic rst_n_in,

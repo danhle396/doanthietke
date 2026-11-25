@@ -1,12 +1,3 @@
-// tb_dbus_xbar.sv - Wishbone data-bus interconnect (dbus_xbar).
-//   Master: this TB (B4 classic, request held until ACK/ERR). Slaves:
-//   RAM model (zero wait states, ACK in the request cycle) and an APB-side
-//   model (0..3 random wait states, ERR for offsets 0xFFC). Directed and
-//   random accesses to the RAM window, the APB window, both window borders
-//   and unmapped addresses. Checks: only the decoded slave sees CYC/STB,
-//   ADR/DAT/WE/SEL broadcast, response mux (ACK/ERR/DAT), unmapped -> ERR
-//   in the same cycle, read data against a memory model, Wishbone rules on
-//   the three links (wb_checker).
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

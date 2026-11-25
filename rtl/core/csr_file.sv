@@ -1,25 +1,3 @@
-// ============================================================================
-// csr_file.sv - Machine-mode CSRs, trap entry/return, counters.
-//
-// Implemented: mstatus(h), misa, mie, mip, mtvec (direct/vectored), mepc,
-// mcause, mtval, mscratch, mvendorid/marchid/mimpid/mhartid/mconfigptr,
-// mcycle(h), minstret(h), cycle(h)/instret(h)/time(h), mcountinhibit,
-// mhpmcounter3..10(h) (fixed events, writes ignored), mhpmevent3..10 (RO 0).
-//
-// Ports (grouped):
-//   CSR access  : csr_access/addr/op/wr/operand -> csr_rdata, csr_illegal;
-//                 csr_commit performs the write (caller gates with !trap)
-//   Trap        : trap/trap_irq/trap_cause/trap_pc/trap_tval -> trap_target;
-//                 mret restores MIE; mepc output for MRET target
-//   Interrupts  : irq_* inputs -> irq_req, irq_cause (MEI > MSI > MTI)
-//   Counters    : mtime (for time CSR), instret_inc (retiring instruction
-//                 increments minstret), instret_rd_bypass (add the retiring
-//                 instruction when reading minstret), hpm_inc[7:0] for
-//                 mhpmcounter3..10
-//
-// Parameters: ENABLE_M, ENABLE_C (misa bits and mepc masking)
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

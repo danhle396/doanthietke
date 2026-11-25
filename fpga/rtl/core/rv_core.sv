@@ -1,24 +1,3 @@
-// ============================================================================
-// rv_core.sv - RV32IMC 5-stage pipelined core (IF ID EX MEM WB).
-//   Machine mode only. Zicsr, Zifencei, Zicntr. Configurable branch
-//   predictor (BP_MODE 0/1/2). Traps, CSR RMW, MRET and FENCE.I are handled
-//   at MEM (commit point).
-//
-// Ports:
-//   ibus_*  : instruction bus, Wishbone B4 classic master, read only. ADR is
-//             the halfword-aligned PC; the slave returns the 32 bits starting
-//             there (instruction straddling a word boundary in one transfer).
-//             CYC/STB stay asserted out of reset: one fetch per cycle.
-//   dbus_*  : data bus, Wishbone B4 classic master (SEL = byte enables);
-//             CYC/STB and the request are held until ACK or ERR
-//             (ERR -> load/store access fault).
-//   irq_*   : machine timer / software / external interrupt lines
-//   mtime   : value for the time/timeh CSRs
-//
-// Parameters:
-//   RESET_PC, ENABLE_M, ENABLE_C, BP_MODE, BHT_ENTRIES, BTB_ENTRIES
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

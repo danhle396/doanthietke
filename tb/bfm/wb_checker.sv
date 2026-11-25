@@ -1,18 +1,3 @@
-// ============================================================================
-// wb_checker.sv - Wishbone B4 classic protocol checker (passive monitor).
-//   Sampled at every rising clock edge:
-//     - CYC and STB negated while reset is asserted (B4 rule 3.20)
-//     - STB only together with CYC
-//     - ACK and ERR never together, and only during CYC & STB
-//     - a request that was not terminated (no ACK/ERR) stays asserted with
-//       the same ADR, WE, SEL and (for writes) DAT in the next cycle; the SoC
-//       masters never abort a cycle, so withdrawing it is reported as well
-//   Counts terminated transfers, error terminations and wait cycles.
-//
-// Ports: the master-side view of one Wishbone link (dat_w = master DAT_O).
-// Parameters:
-//   NAME : label used in messages
-// ============================================================================
 `timescale 1ns/1ps
 
 module wb_checker #(

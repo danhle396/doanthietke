@@ -1,18 +1,3 @@
-// ============================================================================
-// branch_predictor.sv - BHT/BTB wrapper selected by BP_MODE.
-//   BP_MODE 0 : static not-taken (no tables)
-//   BP_MODE 1 : BHT looked up at ID with id_pc (JAL redirect done in ID)
-//   BP_MODE 2 : BHT + BTB looked up at IF with if_pc
-//
-// Ports:
-//   if_pc  -> if_pred_taken, if_pred_target, if_btb_hit (mode 2)
-//   id_pc  -> id_bht_taken                               (mode 1)
-//   upd_*  : updates from EX (only for valid, non-flushed instructions)
-//     upd_bht     : conditional branch resolved, outcome upd_taken
-//     upd_btb_wr  : taken control transfer, allocate {upd_target, upd_type}
-//     upd_btb_inv : BTB predicted a non-CTI as taken (alias) -> invalidate
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

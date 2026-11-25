@@ -1,18 +1,3 @@
-// ============================================================================
-// tb_soc_bfms.svh - BFM hookup for tb_soc (included inside module tb_soc).
-//   UART  : uart_bfm on uart_tx/uart_rx; frame format follows the DUT's
-//           BAUD_DIV/CTRL registers. +uart_rx_file=<f> bytes are sent after
-//           a prompt ('>') is seen: line mode (default) sends line k after the
-//           k-th prompt, +uart_rx_mode=all sends the whole file after the
-//           first prompt. +uart_expect=<f> is checked at the end ('*' = any
-//           text in a line). +uart_log=<f> stores the raw UART output.
-//   SPI   : spi_flash_bfm on cs_n[0], spi_slave_bfm (echo mode, follows the
-//           DUT's CTRL mode bits) on cs_n[1]; MISO multiplexed by CS.
-//   GPIO  : gpio_i[15:8] = gpio_o[7:0] (loopback); gpio_i[3:0] = TB stimulus:
-//           when gpio_o[15] rises the TB toggles gpio_i[3:0] 4 times,
-//           STIM_GAP clocks apart (initial value 4'b1010).
-// ============================================================================
-
   // ---------------- UART ----------------
   uart_bfm u_uart_bfm (.clk, .tx(uart_tx), .rx(uart_rx));
 

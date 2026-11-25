@@ -1,7 +1,3 @@
-// ============================================================================
-// rv_pkg.sv - RISC-V ISA constants shared by the cores.
-// Only localparams, typedefs and pure functions (Yosys friendly).
-// ============================================================================
 /* verilator lint_off UNUSEDPARAM */
 // Shared constant library: not every constant is used by every module.
 package rv_pkg;

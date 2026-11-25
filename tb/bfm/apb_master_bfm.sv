@@ -1,6 +1,3 @@
-// apb_master_bfm.sv - APB4 master BFM for peripheral unit testbenches.
-//   apb_write(addr, data, strb) / apb_read(addr, data, err) follow the
-//   SETUP -> ACCESS sequence and wait for PREADY. Signals change on negedge.
 `timescale 1ns/1ps
 
 module apb_master_bfm (

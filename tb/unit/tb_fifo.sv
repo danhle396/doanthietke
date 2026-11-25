@@ -1,6 +1,3 @@
-// tb_fifo.sv - sync_fifo: empty/full/level, FWFT data, push when full and pop
-// when empty ignored, simultaneous push+pop (also when full and when empty),
-// random traffic vs. a queue model. Two depths (4 and 16).
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

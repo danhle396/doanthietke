@@ -1,15 +1,3 @@
-// ============================================================================
-// soc_top.sv - RISC-V RV32IMC SoC top level.
-//   rv_core (or rv_core_sc when CORE_SC = 1), 128 KB ram_dp, dbus_xbar,
-//   apb_bridge and APB slaves:
-//     slot 0 UART, 1 SPI, 2 TIMER64, 3 GPIO, 4 INTC, 15 SIM_CTRL
-//   Buses: Wishbone B4 classic between the core, the RAM ports, dbus_xbar
-//   and apb_bridge; AMBA APB4 between apb_bridge and the peripherals.
-//
-// Ports: clock/reset, UART, SPI master, 16-bit GPIO (tri-state outside).
-// Parameters: ENABLE_M, ENABLE_C, BP_MODE, BHT_ENTRIES, BTB_ENTRIES, CORE_SC,
-//             RAM_DEPTH (32-bit words, default 32768 = 128 KB), RAM_SYNC
-// ============================================================================
 module soc_top #(
   parameter bit ENABLE_M    = 1'b1,
   parameter bit ENABLE_C    = 1'b1,

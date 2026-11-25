@@ -1,17 +1,3 @@
-// ============================================================================
-// lsu.sv - Load/store unit (MEM stage, combinational).
-//   Computes byte enables, checks alignment, drives the data bus and
-//   aligns/sign-extends load data in the same stage.
-//
-// Ports:
-//   valid       : MEM instruction may access the bus (no exception, no irq)
-//   is_load/is_store, funct3 : access type and size (funct3[2] = unsigned)
-//   addr, wdata : effective address and store data (rs2)
-//   misaligned  : address not naturally aligned (-> trap, no request)
-//   dbus_*      : data-bus request (wdata on correct byte lanes)
-//   load_data   : aligned, extended load result
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

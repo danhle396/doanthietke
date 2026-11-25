@@ -1,20 +1,3 @@
-// ============================================================================
-// apb_bridge.sv - Wishbone B4 (classic) slave -> AMBA APB4 bridge
-//   (single master, 16 slots).
-//   FSM: IDLE -> SETUP (PSEL=1, PENABLE=0) -> ACCESS (PENABLE=1, wait PREADY)
-//   A Wishbone cycle (CYC & STB) seen in IDLE latches ADR/WE/DAT/SEL into
-//   PADDR/PWRITE/PWDATA/PSTRB (PSTRB = 0 for reads). The cycle is terminated
-//   in ACCESS when PREADY = 1: ACK, or ERR if PSLVERR = 1. Slot = PADDR[15:12].
-//   A slot without a slave (SLOT_MASK bit = 0) gets no PSEL; the bridge
-//   terminates the cycle with ERR itself. Minimum 3 cycles per access.
-//
-// Ports:
-//   wb_*     : Wishbone slave (from dbus_xbar)
-//   paddr..pprot, psel[15:0], penable : APB4 master signals
-//   prdata/pready/pslverr : response of the selected slave (muxed outside)
-// Parameters:
-//   SLOT_MASK : bit i = 1 if slot i has a slave
-// ============================================================================
 module apb_bridge #(
   parameter logic [15:0] SLOT_MASK = 16'h801F
 ) (

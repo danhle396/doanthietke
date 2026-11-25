@@ -1,26 +1,3 @@
-// ============================================================================
-// board_display.sv - What the DE2 shows of the running SoC (for demos/video):
-//   eight 7-segment digits and status LEDs. Board-only logic; it only looks at
-//   the SoC (UART bytes the CPU transmits, instruction fetches, interrupt
-//   lines, SPI chip selects), so the SoC behaves exactly as without it.
-//
-//   mode = SW[17:16]  HEX7 .. HEX0
-//     00  result   whichever the firmware printed last: "tESt PASS" /
-//                  "tESt FAIL" for "RESULT <name>: PASS|FAIL", or the number
-//                  after "cycles=" (benchmarks, board_demo command b) in
-//                  decimal; "--------" before either was printed
-//     01  PC       instruction fetch address, hex, refreshed 8 times a second
-//     10  fetch/s  instruction fetches in the last second, decimal
-//                  (about 2 x 10^7 at 24 MHz: the CPU is executing)
-//     11  UART     number of characters the CPU has sent since reset, decimal
-//   Results, counters and the UART count restart when the SoC is reset.
-//
-//   LED outputs (stretched to ~90 ms so short events are visible):
-//     led_tx (UART transmitting), led_host (JTAG console active),
-//     led_mtip (timer interrupt), led_meip (external interrupt through the
-//     INTC: GPIO, UART, SPI, timer compare B), led_spi (SPI chip select),
-//     led_pass / led_fail (steady, from the RESULT line).
-// ============================================================================
 module board_display #(
   parameter int CLK_HZ = 24_000_000
 ) (

@@ -1,18 +1,3 @@
-// ============================================================================
-// uart_rx.sv - UART receiver: 2-FF synchronizer, 16x oversampling.
-//   A falling edge in IDLE restarts the prescaler; the start bit is checked
-//   again at its middle (8 ticks) - a glitch returns to IDLE (false start).
-//   Data, parity and the (first) stop bit are sampled in the middle of the
-//   bit (every 16 ticks). The byte is delivered with its error flags when
-//   the stop bit is sampled.
-//
-// Ports:
-//   baud_div  : BAUD_DIV register (tick every baud_div + 1 clocks)
-//   en        : CTRL.RX_EN
-//   parity_en/odd : frame format (sampled at the start bit)
-//   rx        : serial input (asynchronous)
-//   valid     : one-clk pulse, data/frame_err/parity_err valid
-// ============================================================================
 module uart_rx (
   input  logic        clk,
   input  logic        rst_n,

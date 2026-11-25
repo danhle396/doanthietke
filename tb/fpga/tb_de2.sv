@@ -1,18 +1,3 @@
-// ============================================================================
-// tb_de2.sv - Simulation of the DE2 board top level (fpga/board/de2_top.sv)
-//   with the megafunction stand-ins of altera_stubs.sv. Run from the fpga/
-//   directory so that mem/bank0.mif and mem/bank1.mif (board_demo) are found.
-//   Checks: reset from KEY[0], PLL locked LED, switches -> gpio_i, LEDR <-
-//   gpio_o, UART at the firmware baud rate, firmware loaded from the MIFs.
-//   Sequence (one step after each '>' prompt): "s" over the UART, KEY2 pressed
-//   (key_cmd types "t": self-test), KEY1 pressed ("b": benchmark), "q" over the
-//   UART. PASS when the program exits with code 0, SW = 0x00a5 was reported
-//   and mirrored on LEDR[7:0], the self-test printed PASS (shown as "tESt PASS",
-//   LEDG7 on) and the second benchmark run printed its cycle count.
-//   Display (board_display.sv): after the program, mode 00 shows the cycle
-//   count of the last "cycles=" (benchmark run 2) and mode 11 the number of
-//   characters sent over the UART.
-// ============================================================================
 `timescale 1ns/1ps
 
 module tb_de2;

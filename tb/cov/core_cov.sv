@@ -1,6 +1,3 @@
-// core_cov.sv - functional coverage points for rv_core, attached with `bind`
-// (coverage builds only: --coverage-user). Each `cover property` becomes a
-// named point in coverage.dat; scripts/cov_report.py prints hit / not hit.
 `timescale 1ns/1ps
 
 module core_cov (

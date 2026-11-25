@@ -1,13 +1,3 @@
-// ============================================================================
-// intc_apb.sv - Interrupt controller (APB slave, 0x1000_4000).
-//   0x00 PENDING (RO) : raw level of the sources (bit 0 UART, 1 SPI, 2 GPIO)
-//   0x04 ENABLE  (RW) : reset 0
-//   0x08 ACTIVE  (RO) : PENDING & ENABLE
-//   irq (-> core meip) = |(PENDING & ENABLE)
-//
-// Ports: APB4 slave (paddr[11:0]), src[N_SRC-1:0] level inputs, irq output.
-// Parameters: N_SRC (number of sources, <= 32)
-// ============================================================================
 module intc_apb #(
   parameter int N_SRC = 3
 ) (

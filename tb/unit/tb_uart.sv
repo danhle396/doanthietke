@@ -1,11 +1,3 @@
-// tb_uart.sv - UART peripheral.
-//   * register reset values, R/W, PSLVERR on undefined offsets
-//   * loopback (TX -> RX) for every parity (none/even/odd) x stop (1/2)
-//     combination and three BAUD_DIV values, data checked at the BFM (TX
-//     line decoder) and through the RX FIFO
-//   * BFM -> RX: frame error, parity error, ERR interrupt and W1C clear
-//   * RX overrun (17 bytes into a 16-entry FIFO), false start bit
-//   * TX/RX watermark interrupts, TX_IDLE, DATA read when empty
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

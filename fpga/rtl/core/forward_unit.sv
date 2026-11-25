@@ -1,16 +1,3 @@
-// ============================================================================
-// forward_unit.sv - Operand forwarding selects for the EX stage.
-//   Sources: ex_mem (ALU / MulDiv / link only - not load/CSR, whose data is
-//   produced in MEM) and mem_wb (any result). ex_mem has priority because it
-//   holds the younger (more recent) write to the same register.
-//
-// Ports:
-//   ex_rs1/ex_rs2           : source registers of the instruction in EX
-//   mem_valid/rd_we/rd      : producer in MEM
-//   mem_no_fwd              : MEM producer is a load/CSR (value not ready)
-//   wb_valid/rd_we/rd       : producer in WB
-//   fwd_a/fwd_b             : 0 = register value, 1 = ex_mem, 2 = mem_wb
-// ============================================================================
 module forward_unit (
   input  logic [4:0] ex_rs1,
   input  logic [4:0] ex_rs2,

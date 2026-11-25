@@ -1,20 +1,3 @@
-// ============================================================================
-// decoder.sv - RV32I/M + Zicsr + Zifencei instruction decoder (32-bit insns).
-//
-// Ports:
-//   insn       : 32-bit (already decompressed) instruction
-//   illegal    : encoding not supported by this configuration
-//   rs1/rs2/rd : register indices; use_rs1/use_rs2 tell the hazard unit which
-//                source registers are really read
-//   rd_we      : instruction writes rd (forced 0 when rd == x0)
-//   alu_op, opa_sel, opb_imm, imm_type : datapath control
-//   is_*       : instruction class flags
-//   funct3     : insn[14:12] (branch cond / mem size / M op / CSR op)
-//
-// Parameters:
-//   ENABLE_M : 0 -> M-extension encodings are illegal
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

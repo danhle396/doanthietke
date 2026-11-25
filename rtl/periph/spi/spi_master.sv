@@ -1,21 +1,3 @@
-// ============================================================================
-// spi_master.sv - SPI master shift engine (8-bit frames, modes 0-3,
-//   MSB or LSB first). SCLK half period = clk_div + 1 clocks.
-//   Edges are numbered 0..15 per byte; even = leading, odd = trailing.
-//     CPHA = 0: first bit on MOSI before the first edge, sample MISO on the
-//               leading edge, shift MOSI on the trailing edge.
-//     CPHA = 1: shift MOSI on the leading edge, sample on the trailing edge.
-//   After the 16th edge one more half period elapses (gap), then the byte
-//   is delivered and the next TX byte (if any) starts.
-//
-// Ports:
-//   en, cpol, cpha, lsb_first, clk_div : configuration (CTRL / CLK_DIV)
-//   tx_valid/tx_data/tx_pop : TX FIFO side
-//   rx_valid/rx_data        : received byte (one-clk pulse)
-//   busy                    : transfer in progress
-//   last                    : with rx_valid: TX FIFO was empty (end of a burst)
-//   sclk, mosi, miso        : SPI pins
-// ============================================================================
 module spi_master (
   input  logic        clk,
   input  logic        rst_n,

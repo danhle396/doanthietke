@@ -1,25 +1,3 @@
-// ============================================================================
-// mem_stage.sv - Memory / commit stage + mem_wb pipeline register.
-//   * LSU access on dbus (request held until dbus_ready)
-//   * CSR read-modify-write (through csr_file)
-//   * Precise traps: synchronous exceptions of the MEM instruction or an
-//     interrupt (take_irq). MRET and FENCE.I redirect the front-end here.
-//   Exception priority on one instruction:
-//     carried (IF/ID/EX) > CSR illegal > load/store misaligned > access fault
-//
-// Ports:
-//   mem_*           : ex_mem register contents
-//   dbus_*          : data bus
-//   csr_*           : csr_file access; csr_rdata/csr_illegal returned
-//   irq_req/irq_cause, trap_target, mepc : from csr_file
-//   trap_*, mret    : to csr_file
-//   redirect/redirect_target : front-end redirect (trap, MRET, FENCE.I)
-//   trap            : MEM instruction trapped (does not retire)
-//   bus_wait        : request issued but not yet acknowledged
-//   flush_mem_wb    : pipeline control
-//   wb_*            : mem_wb register outputs
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

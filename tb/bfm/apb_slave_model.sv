@@ -1,10 +1,3 @@
-// apb_slave_model.sv - APB4 slave model with random wait states.
-//   1 KB register space (paddr[11:2]), byte writes by PSTRB, PSLVERR at
-//   offset ERR_OFF, 0..MAX_WAIT wait states per access (random). Checks the
-//   master's protocol and counts violations in `violations`:
-//     - PENABLE only after a SETUP cycle (PSEL=1, PENABLE=0)
-//     - PADDR/PWRITE/PWDATA/PSTRB stable from SETUP to the end of ACCESS
-//     - PSTRB = 0 for reads
 `timescale 1ns/1ps
 
 module apb_slave_model #(

@@ -1,35 +1,3 @@
-// ============================================================================
-// ram_dp.sv - Unified dual-port RAM (instructions + data).
-//   The I-port returns 32 bits starting at any halfword address:
-//     addr[1] = 0 -> word[i]
-//     addr[1] = 1 -> {word[i+1][15:0], word[i][31:16]} (0 beyond the end)
-//   so a 32-bit instruction straddling a word boundary is fetched in one
-//   cycle. Two implementations with identical cycle behaviour:
-//   SYNC = 0 : combinational read on both ports, byte-enable write at the
-//              rising edge (LUTRAM; default for simulation and the reports).
-//   SYNC = 1 : two 16-bit banks (ram_bank16) clocked on the falling edge,
-//              for FPGAs whose block RAM only reads synchronously (M4K on
-//              Cyclone II). Bank 0 holds the even halfwords, bank 1 the odd
-//              ones, so the two halfwords of any fetch come from different
-//              banks. Addresses come from registers (pc_q, ex_mem), so they
-//              are stable by the falling edge; read data is ready before the
-//              next rising edge. A store is written at the falling edge of
-//              its own cycle; reads in that cycle return the old data, as in
-//              the combinational model.
-//   Simulation: preloaded with $readmemh from +hex=<file>.
-//   Synthesis (Yosys reports): treated as a black box.
-//
-// Ports (Wishbone B4 classic slaves, zero wait states: ACK in the cycle of
-// the request):
-//   wbi_* : instruction port, read only; ADR may be halfword aligned (see
-//           above); ERR instead of ACK outside the RAM (fetch access fault)
-//   wbd_* : data port, SEL = byte enables (the interconnect only selects it
-//           for addresses inside the RAM)
-// Parameters:
-//   BASE  : byte address of word 0
-//   DEPTH : number of 32-bit words (32768 = 128 KB)
-//   SYNC  : 0 = combinational read, 1 = falling-edge banked RAM
-// ============================================================================
 module ram_dp #(
   parameter logic [31:0] BASE  = 32'h8000_0000,
   parameter int          DEPTH = 32768,

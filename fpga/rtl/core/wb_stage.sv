@@ -1,17 +1,3 @@
-// ============================================================================
-// wb_stage.sv - Write-back stage.
-//   Writes the register file, signals retirement (minstret), produces the
-//   per-instruction performance events and (simulation only) prints the
-//   commit log selected with +commitlog=<file> (format close to
-//   `spike --log-commits`).
-//
-// Ports:
-//   wb_*        : mem_wb register contents
-//   rf_*        : register file write port
-//   retire      : an instruction retires this cycle
-//   instret_inc : retire and the instruction did not write minstret
-//   ev_*        : retired-instruction events for mhpmcounter3..6, 10
-// ============================================================================
 module wb_stage (
   input  logic        clk,
   input  logic        wb_valid,

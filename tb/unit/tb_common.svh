@@ -1,10 +1,3 @@
-// tb_common.svh - shared helpers for self-checking unit testbenches.
-//   `TB_INIT       : reads +seed=<n> (default 1), prints it
-//   `CHECK(c, msg) : counts an error and prints msg when c is false
-//   tb_finish()    : prints PASS and $finish, or FAIL and $fatal(1)
-//   `TB_TIMEOUT(n) : fails after n time units
-// Use inside a module that declares `int unsigned seed;` via `TB_DECLS.
-
 `define TB_DECLS \
   int unsigned seed; \
   int errors = 0; \

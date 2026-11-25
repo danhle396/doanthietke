@@ -1,13 +1,3 @@
-// ============================================================================
-// ram_bank16_m4k.sv - FPGA implementation of ram_bank16 (same module name and
-//   ports as rtl/mem/ram_bank16.sv, which is the simulation model).
-//   One altsyncram in BIDIR_DUAL_PORT mode on Cyclone II M4K blocks, clocked
-//   by the inverted CPU clock (= falling edge), unregistered outputs:
-//   port A = data side (read/write, 2 byte enables), port B = fetch (read).
-//   Contents come from mem/bank0.mif (HALF = 0, bits [15:0] of each word)
-//   or mem/bank1.mif (HALF = 1, bits [31:16]); paths are relative to the
-//   Quartus project directory.
-// ============================================================================
 module ram_bank16 #(
   parameter int DEPTH = 8192,
   parameter int HALF  = 0

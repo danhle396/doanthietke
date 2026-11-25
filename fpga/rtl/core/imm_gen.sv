@@ -1,12 +1,3 @@
-// ============================================================================
-// imm_gen.sv - Immediate generator for 32-bit RISC-V encodings.
-//
-// Ports:
-//   insn     : 32-bit instruction
-//   imm_type : IMM_I/S/B/U/J/Z (rv_pkg)
-//   imm      : sign-extended immediate (IMM_Z: zero-extended CSR address)
-// ============================================================================
-// File-scope import: Yosys read_verilog -sv rejects imports in module headers.
 /* verilator lint_off IMPORTSTAR */
 import rv_pkg::*;
 /* verilator lint_on IMPORTSTAR */

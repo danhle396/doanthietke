@@ -1,23 +1,3 @@
-// ============================================================================
-// if_stage.sv - Instruction fetch + if_id pipeline register.
-//   Fetches 32 bits at pc_q (halfword aligned, RAM merges across words),
-//   detects 16-bit instructions, makes the IF-stage prediction (BP_MODE 2)
-//   and selects the next PC:
-//     MEM (trap/mret/fence.i) > EX mispredict > ID redirect > hold (stall
-//     or fetch not terminated) > IF prediction > sequential.
-//   The fetched word is used only in a cycle terminated by ibus_ack or
-//   ibus_err (Wishbone); otherwise the PC is held and a bubble enters ID.
-//   The SoC instruction slave answers in the same cycle, so this never
-//   happens there.
-//
-// Ports:
-//   ibus_*          : instruction bus (Wishbone read, wired in rv_core)
-//   bp_taken/target : IF prediction from branch_predictor (mode 2)
-//   *_redirect/target : redirect requests (already arbitrated)
-//   stall_if/stall_id/flush_if_id : from hazard_unit
-//   id_*            : if_id register outputs
-//   pc              : current fetch PC (for predictor lookup)
-// ============================================================================
 module if_stage #(
   parameter logic [31:0] RESET_PC = 32'h8000_0000,
   parameter bit          ENABLE_C = 1'b1
@@ -53,7 +33,7 @@ module if_stage #(
   output logic        id_fault
 );
 
-  logic [31:0] pc_q, pc_d;
+    logic [31:0] pc_q, pc_d;
   logic        is_c, fetch_ok;
   logic [31:0] seq_npc, pred_npc;
 

@@ -1,19 +1,3 @@
-// ============================================================================
-// tb_soc.sv - Single top-level testbench for riscv-tests, benchmarks and
-//   system tests. All soc_top parameters are exposed (change with -G).
-//
-// Plusargs:
-//   +hex=<file>          program image (read by ram_dp)
-//   +tohost=<hex addr>   stop when the core stores to this address
-//   +max_cycles=<n>      timeout (default 2,000,000) -> FAIL
-//   +trace               dump FST waveform (+trace_file=<f>, default tb_soc.fst)
-//   +commitlog=<file>    commit log (printed by wb_stage)
-//   +console=<file>      SIM_CTRL PUTCHAR output copy
-//   +uart_expect=<file>  expected UART TX text (checked at the end)
-//   +uart_rx_file=<file> bytes the UART BFM sends into uart_rx
-//   +seed=<n>            seed for randomized stimulus
-// End of test: SIM_CTRL EXIT, tohost write, or timeout.
-// ============================================================================
 `timescale 1ns/1ps
 
 module tb_soc #(

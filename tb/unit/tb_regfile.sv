@@ -1,5 +1,3 @@
-// tb_regfile.sv - register file: x0 hard-wired to 0, same-cycle write-through
-// on both read ports, random write/read sequence vs. a model.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

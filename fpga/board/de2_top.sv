@@ -1,28 +1,3 @@
-// ============================================================================
-// de2_top.sv - Top level for the Terasic DE2 board (Cyclone II EP2C35F672C6).
-//   CLOCK_50 -> PLL -> 24 MHz CPU clock (UART 115200 baud: BAUD_DIV = 12).
-//   KEY[0]     : reset (active low; the board debounces the keys)
-//   KEY[3:1]   : console commands for a demo without PC (key_cmd.sv):
-//                KEY1 "b" benchmark, KEY2 "t" self-test, KEY3 "f" flash ID
-//   SW[15:0]   : gpio_i[15:0]
-//   SW[17:16]  : display mode of HEX7..HEX0 (board_display.sv):
-//                00 result (PASS/FAIL, benchmark cycles)  01 PC
-//                10 instruction fetches per second        11 UART characters
-//   LEDR[15:0] : gpio_o[15:0] (bits configured as outputs)
-//   LEDR[16]   : SPI chip select active    LEDR[17] : test printed FAIL
-//   LEDG[0]    : PLL locked                LEDG[1]  : SoC running (reset released)
-//   LEDG[2]    : UART transmitting         LEDG[3]  : SoC held in reset by the host
-//   LEDG[4]    : JTAG console active       LEDG[5]  : timer interrupt
-//   LEDG[6]    : external interrupt (INTC) LEDG[7]  : test printed PASS
-//   LEDG[8]    : heartbeat (CPU clock / 2^24, ~1.4 Hz)
-//   HEX7..HEX0 : see SW[17:16]
-//   UART_TXD/RXD : RS-232 connector (through the board's level shifter)
-//   JTAG console : the same UART also goes over the USB-Blaster cable through
-//                  jtag_uart_bridge (sld_virtual_jtag); host side
-//                  fpga/tools/jtag_uart.py (terminal and automatic board tests)
-//   GPIO_0[0..6] (header JP1 pins 1..7): SPI SCLK, MOSI, MISO, CS0_n..CS3_n
-//   SoC: rv_core RV32IMC, BP_MODE 2, 32 KB RAM in M4K blocks (RAM_SYNC = 1).
-// ============================================================================
 module de2_top (
   input  logic        CLOCK_50,
   input  logic [3:0]  KEY,

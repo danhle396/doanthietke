@@ -1,31 +1,3 @@
-// ============================================================================
-// cosim_main.cpp - Verilator C++ co-simulation of soc_top with Spike in
-//   lock-step.
-//   The RTL (built with -DCOSIM) runs the program image; Spike, the RISC-V
-//   reference ISA simulator, runs the same ELF as a child process and writes
-//   its commit log (--log-commits) into a pipe. Every instruction retired by
-//   the RTL (DPI call cosim_commit() from wb_stage) is compared at once with
-//   the next instruction committed by Spike: pc, encoding, destination
-//   register and value, load address, store address and data. The run stops
-//   at the first difference and prints the last matching instructions.
-//   Values read from cycle/time/instret/mhpmcounter CSRs depend on timing:
-//   they are "tainted" and followed through registers and memory (rules of
-//   scripts/compare_spike.py). If the control flow diverges right after a
-//   branch on tainted data (e.g. printing a cycle count), the lock-step ends
-//   and only the exit codes written to tohost are compared. Reads of
-//   misa/marchid/mimpid are implementation defined (KNOWN).
-//
-// Plusargs:
-//   +elf=<file> +hex=<file>      program (ELF for Spike, hex for the RTL RAM)
-//   +tohost=<hex>                address of tohost (end of program)
-//   +isa=<string>                Spike --isa (default rv32imc_zicsr_zifencei_zicntr)
-//   +spike=<path>                Spike executable (default "spike")
-//   +max_cycles=<n>              timeout (default 50,000,000)
-//   +trace_csv=<file> +trace_from=<n> +trace_n=<n>
-//                                write compared instructions n..n+N-1 as CSV
-// Output: one line "COSIM <MATCH|KNOWN|DIFF> <detail> | commits=... masked=... cycles=..."
-// Exit code: 0 = MATCH or KNOWN, 1 = DIFF / error / timeout.
-// ============================================================================
 #include <verilated.h>
 
 #include "Vsoc_top.h"

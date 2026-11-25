@@ -1,6 +1,3 @@
-// tb_timer.sv - TIMER64: reset values, mtime counting with PRESCALE and EN,
-// 64-bit carry, write precedence, mtimecmp compare (mtip level) including the
-// glitch-free LO/HI update sequence, msip, PSLVERR, byte writes.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

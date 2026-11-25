@@ -1,15 +1,3 @@
-// ============================================================================
-// btb.sv - Direct-mapped Branch Target Buffer.
-//   Entry = {valid, tag, target[31:1], type}; index = pc[log2(ENTRIES):1],
-//   tag = remaining bits of pc[31:1].
-//
-// Ports:
-//   rd_pc, rd_hit, rd_target, rd_type : combinational lookup
-//   wr_en, wr_pc, wr_target, wr_type  : allocate/update an entry
-//   inv_en, inv_pc                    : invalidate entry of inv_pc (alias)
-// Parameters:
-//   ENTRIES : power of two, >= 4
-// ============================================================================
 module btb #(
   parameter int ENTRIES = 32
 ) (

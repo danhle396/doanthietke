@@ -1,6 +1,3 @@
-// tb_gpio.sv - GPIO: register reset/RW, OUT/DIR to pins, 2-FF synchronized
-// IN, rising/falling edge flags per pin, IRQ_EN masking, W1C, no spurious
-// edge for pins already high at reset, random pin activity vs. a model.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

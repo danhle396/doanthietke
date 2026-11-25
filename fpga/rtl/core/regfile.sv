@@ -1,15 +1,3 @@
-// ============================================================================
-// regfile.sv - 32 x 32-bit register file, 2 read / 1 write ports.
-//   x0 is hard-wired to 0. Write-through: a write in the same cycle is
-//   visible on the read ports (WB -> ID bypass).
-//
-// Ports:
-//   we, waddr, wdata : write port (synchronous)
-//   raddr1/2, rdata1/2 : combinational read ports
-// Parameters:
-//   WRITE_THROUGH : 1 = same-cycle write visible on reads (pipeline);
-//                   0 = plain read (single-cycle core, avoids a comb. loop)
-// ============================================================================
 module regfile #(
   parameter bit WRITE_THROUGH = 1'b1
 ) (

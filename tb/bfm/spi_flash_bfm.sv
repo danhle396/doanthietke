@@ -1,12 +1,3 @@
-// spi_flash_bfm.sv - reduced W25Q-style SPI NOR flash (modes 0 and 3:
-//   MOSI sampled on the rising edge, MISO driven on the falling edge).
-//   Commands: 0x9F JEDEC ID (EF 40 16), 0x03 READ, 0x06 WREN, 0x04 WRDI,
-//   0x02 PAGE PROGRAM (256 B page wrap, needs WEL), 0x05 RDSR (bit0 WIP,
-//   bit1 WEL), 0x20 SECTOR ERASE (4 KB, needs WEL). Program/erase start when
-//   CS rises and keep WIP = 1 for T_PP_NS / T_SE_NS; only RDSR is accepted
-//   while busy. Programming can only clear bits (data AND old).
-//   Initial content: sector 0 holds init_byte(a) = (a * 7 + 3) & 0xFF, the
-//   rest is erased (0xFF).
 `timescale 1ns/1ps
 
 module spi_flash_bfm #(

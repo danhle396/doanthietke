@@ -1,7 +1,3 @@
-// tb_muldiv.sv - RV32M unit: all 8 operations vs. a 64-bit reference model,
-// boundary values (0, 1, -1, INT_MIN, INT_MAX, divide by zero, overflow),
-// seeded random operands, result hold while EX is stalled (advance = 0),
-// and abort (kill) in the middle of a division and while DONE.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

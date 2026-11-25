@@ -1,27 +1,3 @@
-// ============================================================================
-// hazard_unit.sv - Pipeline stall / flush / redirect arbitration.
-//
-// Conventions:
-//   "flush X" : pipeline register X receives a bubble at the next edge.
-//   "stall S" : the input register of stage S holds its value.
-//   Older-stage events always win; flush overrides stall.
-//   A redirect from ID/EX fires only in the cycle its instruction leaves the
-//   stage (stage not stalled) and no older stage redirects.
-//
-// Inputs:
-//   id_*            : instruction in ID (validity, sources, redirect request)
-//   ex_*            : instruction in EX (load/CSR producer, mispredict)
-//   md_stall        : MulDiv result not ready
-//   bus_wait        : MEM data-bus request not yet acknowledged
-//   mem_redirect    : trap / MRET / FENCE.I at MEM
-//   mem_trap        : trap at MEM (instruction does not reach WB)
-// Outputs:
-//   stall_*         : hold stage input register
-//   flush_*         : bubble into pipeline register
-//   ex_redirect     : EX misprediction redirect fires this cycle
-//   id_redirect     : ID redirect fires this cycle
-//   ev_*            : per-cycle stall events for performance counters
-// ============================================================================
 module hazard_unit (
   input  logic       id_valid,
   input  logic       id_use_rs1,

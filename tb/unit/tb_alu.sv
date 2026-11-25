@@ -1,5 +1,3 @@
-// tb_alu.sv - ALU vs. reference model: boundary values x all ops, then
-// >= 10,000 random vectors (seed from +seed=).
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

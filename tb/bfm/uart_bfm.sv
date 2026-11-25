@@ -1,11 +1,3 @@
-// uart_bfm.sv - UART bus functional model.
-//   Receiver: decodes the DUT's TX line (8N1/8E1/8O1, 1-2 stop bits), stores
-//   bytes in rx_q, counts frame/parity errors, optionally logs them to a file
-//   and echoes complete lines to stdout ("[uart] ...").
-//   Sender: send_byte() drives the DUT's RX line, with optional parity or
-//   stop-bit errors; send_file() sends the bytes of a file.
-//   check_expected(file) compares everything received with a text file.
-//   Configure bit_cycles (= 16 x (BAUD_DIV + 1)), parity_en, parity_odd, stop2.
 `timescale 1ns/1ps
 
 module uart_bfm (

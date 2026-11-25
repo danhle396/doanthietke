@@ -1,13 +1,3 @@
-// ============================================================================
-// key_cmd.sv - Push buttons as console commands, so the demo needs no PC:
-//   pressing KEY1 / KEY2 / KEY3 sends "b\n" / "t\n" / "f\n" (board_demo:
-//   benchmark, self-test, SPI flash ID) into the SoC's UART receive line as
-//   8N1 frames at the console baud rate. Board-only logic: its output is
-//   AND-ed with the other receive sources in de2_top (all idle high).
-//   The DE2 keys are debounced by Schmitt triggers; they are synchronized here
-//   and a press is taken on the falling edge. A press while a command is
-//   still being sent is ignored.
-// ============================================================================
 module key_cmd #(
   parameter int BIT_CYCLES = 208       // 16 x (BAUD_DIV + 1), BAUD_DIV = 12
 ) (

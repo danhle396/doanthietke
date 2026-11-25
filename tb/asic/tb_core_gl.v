@@ -1,24 +1,3 @@
-// ============================================================================
-// tb_core_gl.v - Core-only testbench for the OpenLane gate-level check.
-//   The same file runs the RTL (Verilator) and the post-route sky130 netlist
-//   (Icarus Verilog + sky130_fd_sc_hd functional models), so the two runs
-//   can be compared cycle for cycle (scripts/run_asic.py --gl).
-//   Plain Verilog-2005: Icarus does not take the SoC testbench.
-//
-//   DUT       : `DUT (rv_core or rv_core_sc, default parameters)
-//   Memory    : 128 KB at 0x8000_0000, combinational read, ACK in the same
-//               cycle (like ram_dp with RAM_SYNC = 0); other addresses ERR.
-//   mtime     : free-running counter; interrupt lines tied low.
-//
-// Plusargs:
-//   +hex=<file>        program image (32-bit words from 0x8000_0000)
-//   +tohost=<hex addr> stop when the core stores an odd value there
-//   +max_cycles=<n>    timeout (default 200,000)
-// Prints one line:
-//   RESULT <PASS|FAIL> code=<n> cycles=<n> writes=<n> wsig=<hex>
-//   cycles = clock edges from reset release to the tohost store,
-//   wsig   = rolling hash of every acknowledged store (address, data, SEL).
-// ============================================================================
 `timescale 1ns/1ps
 `ifndef DUT
 `define DUT rv_core

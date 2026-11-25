@@ -1,15 +1,3 @@
-// ============================================================================
-// gpio_apb.sv - 16-pin GPIO with edge interrupts (APB slave, 0x1000_3000).
-//   0x00 OUT (RW), 0x04 IN (RO, 2-FF synchronized), 0x08 DIR (RW, 1 = output),
-//   0x0C IRQ_EN (RW), 0x10 IRQ_STATUS (R/W1C, sticky edge flags),
-//   0x14 IRQ_TYPE (RW, 0 = rising, 1 = falling)
-//   Edge detection starts two clocks after reset (synchronizer filled), so a
-//   pin that is already high at reset does not produce a rising edge.
-//   irq = |(IRQ_STATUS & IRQ_EN). A new edge wins over W1C in the same cycle.
-//
-// Ports: APB4 slave (paddr[11:0]), gpio_i/gpio_o/gpio_oe, irq.
-// Parameters: N (number of pins, <= 16)
-// ============================================================================
 module gpio_apb #(
   parameter int N = 16
 ) (

@@ -1,6 +1,3 @@
-// tb_intc.sv - INTC: register reset values, ENABLE read/write (with PSTRB),
-// PENDING/ACTIVE follow the source levels, irq = |(PENDING & ENABLE) for every
-// source/enable combination, PSLVERR on undefined offsets, random sequence.
 `timescale 1ns/1ps
 `include "tb_common.svh"
 

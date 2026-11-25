@@ -1,4 +1,3 @@
-// btb_cov.sv - functional coverage (bind), coverage builds only.
 `timescale 1ns/1ps
 
 module btb_cov #(parameter int ENTRIES = 32) (
